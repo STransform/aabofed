@@ -15,7 +15,6 @@ public class Document {
 
     @Id
     private String id;
-
     private String reportype;
 
     @ManyToOne(fetch = FetchType.LAZY)

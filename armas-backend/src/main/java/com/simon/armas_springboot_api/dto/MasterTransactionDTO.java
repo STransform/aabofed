@@ -9,7 +9,7 @@ public class MasterTransactionDTO {
     private Date createdDate;
     private Date lastModifiedDate; // Optional, if you want to include last modified date
     private String orgname;
-    @JsonProperty("fiscal_year") // Serialize as fiscal_year in JSON
+//     @JsonProperty("fiscal_year") // Serialize as fiscal_year in JSON
     private String fiscalYear;
     private String reportype;
     private String reportstatus;

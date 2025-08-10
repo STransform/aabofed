@@ -37,7 +37,7 @@ public interface MasterTransactionRepository extends JpaRepository<MasterTransac
     @Query("FROM MasterTransaction m WHERE m.reportcategory = :reportcategory AND m.transactiondocument.id = :docid AND m.organization.id = :theoid AND m.budgetYear.fiscalYear = :fiscalYear ORDER BY m.createdDate DESC")
     List<MasterTransaction> findTransactionByDocumentId(
             @Param("reportcategory") String reportcategory,
-            @Param("docid") String id,
+            @Param("docid") String docid,
             @Param("theoid") String oid,
             @Param("fiscalYear") String fiscalYear);
 
@@ -247,4 +247,6 @@ public interface MasterTransactionRepository extends JpaRepository<MasterTransac
            "LEFT JOIN FETCH m.organization " +
            "WHERE m.organization.id = :orgId AND m.letterPath IS NOT NULL ORDER BY m.createdDate DESC")
     List<MasterTransaction> findTransactionsWithLettersByOrganization(@Param("orgId") String orgId);
+    boolean existsByDocnameAndUserAndBudgetYearIdAndTransactiondocumentId(
+            String docname, User user, Long budgetYearId, String transactiondocumentId); 
 }

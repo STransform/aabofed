@@ -30,6 +30,8 @@ import {
   InputAdornment,
   Typography,
   Paper,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -51,12 +53,17 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
 const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: '6px',
   textTransform: 'none',
-  padding: '8px 16px',
+  padding: '6px',
+  minWidth: '36px',
   fontWeight: 500,
   transition: 'all 0.3s ease',
   '&:hover': {
     transform: 'translateY(-2px)',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+    backgroundColor: 'transparent',
+    color: '#FF0000',
+  },
+  '& .MuiButton-startIcon': {
+    margin: 0,
   },
 }));
 
@@ -109,6 +116,7 @@ export default function RejectedReports() {
     setLoading(true);
     try {
       const data = await getRejectedReports();
+      console.log('Fetched rejected reports:', data);
       setReports(Array.isArray(data) ? data : []);
       setLoading(false);
       if (data.length === 0) {
@@ -202,6 +210,7 @@ export default function RejectedReports() {
   };
 
   const handleOpenDetails = (report) => {
+    console.log('Selected Report for Details Modal:', report);
     setSelectedReport(report);
     setShowDetailsModal(true);
   };
@@ -240,8 +249,8 @@ export default function RejectedReports() {
     (report) =>
       (report.organization?.orgname || '').toLowerCase().includes(filterText.toLowerCase()) ||
       (report.transactiondocument?.reportype || '').toLowerCase().includes(filterText.toLowerCase()) ||
-      (report.fiscal_year || report.fiscalYear || '').toString().toLowerCase().includes(filterText.toLowerCase()) ||
-      (report.submittedByAuditorUsername || '').toLowerCase().includes(filterText.toLowerCase()) ||
+      (report.fiscalYear || '').toString().toLowerCase().includes(filterText.toLowerCase()) ||
+      (report.submittedByAuditorUsername || report.assignedAuditorUsername || '').toLowerCase().includes(filterText.toLowerCase()) || // Added fallback
       (report.responseNeeded || '').toLowerCase().includes(filterText.toLowerCase()) ||
       (report.reportstatus || '').toLowerCase().includes(filterText.toLowerCase()) ||
       (report.remarks || '').toLowerCase().includes(filterText.toLowerCase())
@@ -305,7 +314,7 @@ export default function RejectedReports() {
                                   : 'N/A'}
                               </StyledTableCell>
                               <StyledTableCell>{report.organization?.orgname || 'N/A'}</StyledTableCell>
-                              <StyledTableCell>{report.fiscal_year || report.fiscalYear || 'N/A'}</StyledTableCell>
+                              <StyledTableCell>{report.fiscalYear || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.transactiondocument?.reportype || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.responseNeeded || 'N/A'}</StyledTableCell>
                               <StyledTableCell>
@@ -325,27 +334,68 @@ export default function RejectedReports() {
                                 </Box>
                               </StyledTableCell>
                               <StyledTableCell align="right">
-                                <StyledButton
-                                  variant="contained"
-                                  color="success"
-                                  size="small"
-                                  startIcon={<VisibilityIcon />}
-                                  onClick={() => handleOpenDetails(report)}
-                                  sx={{ mr: 1 }}
-                                >
-                                  Details
-                                </StyledButton>
-                                {isSeniorAuditor && (
-                                  <StyledButton
-                                    variant="contained"
-                                    color="primary"
-                                    size="small"
-                                    startIcon={<AssignmentIcon />}
-                                    onClick={() => handleResubmit(report)}
-                                  >
-                                    Submit
-                                  </StyledButton>
-                                )}
+                                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
+                                  <Tooltip title="View Details">
+                                    <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                                      <StyledButton
+                                        variant="text"
+                                        color="inherit"
+                                        size="small"
+                                        onClick={() => handleOpenDetails(report)}
+                                        sx={{ mr: 1 }}
+                                      >
+                                        <VisibilityIcon />
+                                      </StyledButton>
+                                      <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                        Details
+                                      </Typography>
+                                    </Box>
+                                  </Tooltip>
+                                  {(report.supportingDocumentPath || report.docname) ? (
+                                    <Tooltip title="Download Documents">
+                                      <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                                        <IconButton
+                                          color="primary"
+                                          onClick={() => {
+                                            if (report.supportingDocumentPath && report.supportingDocname) {
+                                              handleDownload(report.id, report.docname, report.supportingDocname, 'supporting');
+                                            } else if (report.docname) {
+                                              handleDownload(report.id, report.docname, report.supportingDocname, 'original');
+                                            }
+                                          }}
+                                          aria-label="Download document"
+                                          size="small"
+                                        >
+                                          <DownloadIcon />
+                                        </IconButton>
+                                        <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                          Download
+                                        </Typography>
+                                      </Box>
+                                    </Tooltip>
+                                  ) : (
+                                    <Typography variant="body2" color="text.secondary">
+                                      Document unavailable
+                                    </Typography>
+                                  )}
+                                  {isSeniorAuditor && (
+                                    <Tooltip title="Submit" placement="top">
+                                      <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                                        <StyledButton
+                                          variant="text"
+                                          color="inherit"
+                                          size="small"
+                                          onClick={() => handleResubmit(report)}
+                                        >
+                                          <AssignmentIcon />
+                                        </StyledButton>
+                                        <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                          Submit
+                                        </Typography>
+                                      </Box>
+                                    </Tooltip>
+                                  )}
+                                </Box>
                               </StyledTableCell>
                             </StyledTableRow>
                           ))}
@@ -483,7 +533,7 @@ export default function RejectedReports() {
             <CCol md={6}>
               <CFormLabel>Budget Year</CFormLabel>
               <CFormInput
-                value={selectedReport?.fiscal_year || selectedReport?.fiscalYear || 'N/A'}
+                value={selectedReport?.fiscalYear || 'N/A'}
                 readOnly
               />
             </CCol>
@@ -497,7 +547,7 @@ export default function RejectedReports() {
             <CCol md={6}>
               <CFormLabel>Auditor</CFormLabel>
               <CFormInput
-                value={selectedReport?.assignedAuditorUsername || 'N/A'}
+                value={selectedReport?.submittedByAuditorUsername || selectedReport?.assignedAuditorUsername || 'N/A'} // Added fallback
                 readOnly
               />
             </CCol>
@@ -532,25 +582,27 @@ export default function RejectedReports() {
             <CCol xs={12}>
               <CFormLabel>Documents</CFormLabel>
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <StyledButton
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  startIcon={<DownloadIcon />}
-                  onClick={() => handleDownload(selectedReport.id, selectedReport.docname, selectedReport.supportingDocname, 'original')}
-                >
-                  Report
-                </StyledButton>
-                {selectedReport?.supportingDocumentPath && (
+                <Tooltip title="Download Report" placement="top">
                   <StyledButton
-                    variant="contained"
-                    color="secondary"
+                    variant="text"
+                    color="inherit"
                     size="small"
-                    startIcon={<DownloadIcon />}
-                    onClick={() => handleDownload(selectedReport.id, selectedReport.supportingDocname, selectedReport.supportingDocname, 'supporting')}
+                    onClick={() => handleDownload(selectedReport.id, selectedReport.docname, selectedReport.supportingDocname, 'original')}
                   >
-                    Findings
+                    <DownloadIcon />
                   </StyledButton>
+                </Tooltip>
+                {selectedReport?.supportingDocname && (
+                  <Tooltip title="Download Findings" placement="top">
+                    <StyledButton
+                      variant="text"
+                      color="inherit"
+                      size="small"
+                      onClick={() => handleDownload(selectedReport.id, selectedReport.supportingDocname, selectedReport.supportingDocname, 'supporting')}
+                    >
+                      <DownloadIcon />
+                    </StyledButton>
+                  </Tooltip>
                 )}
               </Box>
             </CCol>

@@ -31,6 +31,7 @@ import {
   InputAdornment,
   Typography,
   Paper,
+  Tooltip,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -42,7 +43,7 @@ import { styled } from '@mui/material/styles';
 import { getUnderReviewReports, downloadFile, approveReport, rejectReport } from '../file/upload_download';
 import { useAuth } from '../views/pages/AuthProvider';
 
-// Styled components for enhanced UI
+// Styled components (unchanged)
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: '8px',
   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
@@ -98,9 +99,11 @@ export default function UnderReviewReports() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectionDocument, setRejectionDocument] = useState(null);
+  const [approvalDocument, setApprovalDocument] = useState(null);
 
   const fetchReports = async () => {
     setLoading(true);
@@ -142,7 +145,7 @@ export default function UnderReviewReports() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      setSnackbarMessage(`Successfully downloaded ${type} document`);
+      setSnackbarMessage(`Successfully downloaded ${type === 'original' ? 'report' : 'findings'}`);
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
@@ -153,12 +156,21 @@ export default function UnderReviewReports() {
     }
   };
 
-  const handleApprove = async (id) => {
+  const handleApprove = (report) => {
+    setSelectedReport(report);
+    setApprovalDocument(null);
+    setShowApprovalModal(true);
+  };
+
+  const handleApproveSubmit = async () => {
     try {
-      await approveReport(id);
+      const file = document.getElementById('approvalDocument')?.files[0];
+      await approveReport(selectedReport.id, file);
       setSnackbarMessage('Report approved successfully');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
+      setShowApprovalModal(false);
+      setApprovalDocument(null);
       await fetchReports();
     } catch (error) {
       const msg = error.response?.data || 'Error approving report';
@@ -224,12 +236,17 @@ export default function UnderReviewReports() {
     setRejectionDocument(null);
   };
 
+  const handleCloseApprovalModal = () => {
+    setShowApprovalModal(false);
+    setApprovalDocument(null);
+  };
+
   const filteredReports = reports.filter(
     (report) =>
       (report.id || '').toString().toLowerCase().includes(filterText.toLowerCase()) ||
       (report.organization?.orgname || '').toLowerCase().includes(filterText.toLowerCase()) ||
       (report.transactiondocument?.reportype || '').toLowerCase().includes(filterText.toLowerCase()) ||
-      (report.fiscal_year || report.fiscalYear || '').toString().toLowerCase().includes(filterText.toLowerCase()) ||
+      (report.fiscalYear || '').toString().toLowerCase().includes(filterText.toLowerCase()) ||
       (report.remarks || '').toLowerCase().includes(filterText.toLowerCase())
   );
 
@@ -273,7 +290,7 @@ export default function UnderReviewReports() {
                         <StyledTableRow>
                           <StyledTableCell>Date</StyledTableCell>
                           <StyledTableCell>Organization</StyledTableCell>
-                          <StyledTableCell>Budget Year</StyledTableCell>
+                          {/* <StyledTableCell>Budget Year</StyledTableCell> */}
                           <StyledTableCell>Report Type</StyledTableCell>
                           <StyledTableCell>Audit Findings</StyledTableCell>
                           <StyledTableCell align="right">Actions</StyledTableCell>
@@ -290,51 +307,66 @@ export default function UnderReviewReports() {
                                   : 'N/A'}
                               </StyledTableCell>
                               <StyledTableCell>{report.organization?.orgname || 'N/A'}</StyledTableCell>
-                              <StyledTableCell>{report.fiscal_year || report.fiscalYear || 'N/A'}</StyledTableCell>
+                              {/* <StyledTableCell>{report.fiscalYear || 'N/A'}</StyledTableCell> */}
                               <StyledTableCell>{report.transactiondocument?.reportype || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.remarks || 'N/A'}</StyledTableCell>
                               <StyledTableCell align="right">
-                                <StyledButton
-                                  variant="contained"
-                                  color="primary"
-                                  size="small"
-                                  startIcon={<DownloadIcon />}
-                                  onClick={() => handleDownload(report.id, report.docname, 'original')}
-                                  sx={{ mr: 1 }}
-                                >
-                                  Report
-                                </StyledButton>
-                                {report.supportingDocumentPath && (
-                                  <StyledButton
-                                    variant="contained"
-                                    color="secondary"
-                                    size="small"
-                                    startIcon={<DownloadIcon />}
-                                    onClick={() => handleDownload(report.id, report.supportingDocname, 'supporting')}
-                                    sx={{ mr: 1 }}
-                                  >
-                                    Findings
-                                  </StyledButton>
-                                )}
-                                {isApprover && (
-                                  <>
+                                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                  <Tooltip title="Download Report">
                                     <IconButton
-                                      color="success"
-                                      onClick={() => handleApprove(report.id)}
-                                      size="small"
-                                      sx={{ mr: 1 }}
+                                      sx={{ color: '#000000' }}
+                                      onClick={() => handleDownload(report.id, report.docname, 'original')}
+                                      aria-label="Download report"
                                     >
-                                      <CheckCircleIcon />
+                                      <DownloadIcon />
                                     </IconButton>
-                                    <IconButton
-                                      color="error"
-                                      onClick={() => handleReject(report)}
-                                      size="small"
-                                    >
-                                      <CancelIcon />
-                                    </IconButton>
-                                  </>
-                                )}
+                                  </Tooltip>
+                                  {report.supportingDocumentPath && (
+                                    <Tooltip title="Download Findings">
+                                      <IconButton
+                                        sx={{ color: '#0000FF' }}
+                                        onClick={() => handleDownload(report.id, report.supportingDocname, 'supporting')}
+                                        aria-label="Download findings"
+                                      >
+                                        <DownloadIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
+                                  {isApprover && (
+                                    <>
+                                      <Tooltip title="Approve report">
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'center', mr: 1 }}>
+                                          <IconButton
+                                            color="success"
+                                            onClick={() => handleApprove(report)}
+                                            size="small"
+                                            aria-label="Approve report"
+                                          >
+                                            <CheckCircleIcon />
+                                          </IconButton>
+                                          <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                            Approve
+                                          </Typography>
+                                        </Box>
+                                      </Tooltip>
+                                      <Tooltip title="Reject report">
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                                          <IconButton
+                                            color="error"
+                                            onClick={() => handleReject(report)}
+                                            size="small"
+                                            aria-label="Reject report"
+                                          >
+                                            <CancelIcon />
+                                          </IconButton>
+                                          <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                            Reject
+                                          </Typography>
+                                        </Box>
+                                      </Tooltip>
+                                    </>
+                                  )}
+                                </Box>
                               </StyledTableCell>
                             </StyledTableRow>
                           ))}
@@ -358,6 +390,40 @@ export default function UnderReviewReports() {
           </CCard>
         </CCol>
       </CRow>
+
+      {/* Approval Modal */}
+      <StyledDialog
+        maxWidth="md"
+        fullWidth
+        open={showApprovalModal}
+        onClose={handleCloseApprovalModal}
+        TransitionComponent={Fade}
+        TransitionProps={{ timeout: 800 }}
+      >
+        <DialogTitle>Approve Report</DialogTitle>
+        <DialogContent>
+          <CForm className="row g-3">
+            <CCol xs={12}>
+              <CFormLabel htmlFor="approvalDocument">Attach Document (Optional)</CFormLabel>
+              <input
+                type="file"
+                className="form-control"
+                id="approvalDocument"
+                onChange={(e) => setApprovalDocument(e.target.files[0])}
+                style={{ borderRadius: '8px' }}
+              />
+            </CCol>
+          </CForm>
+        </DialogContent>
+        <DialogActions>
+          <StyledButton onClick={handleCloseApprovalModal} color="primary">
+            Cancel
+          </StyledButton>
+          <StyledButton onClick={handleApproveSubmit} color="primary" variant="contained">
+            Submit
+          </StyledButton>
+        </DialogActions>
+      </StyledDialog>
 
       {/* Reject Modal */}
       <StyledDialog

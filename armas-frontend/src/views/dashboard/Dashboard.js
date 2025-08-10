@@ -1,387 +1,515 @@
-import React from 'react'
-import classNames from 'classnames'
-
+import React, { useState, useEffect } from 'react';
 import {
-  CAvatar,
-  CButton,
-  CButtonGroup,
-  CCard,
-  CCardBody,
-  CCardFooter,
-  CCardHeader,
-  CCol,
-  CProgress,
-  CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  FormControl,
+  Select,
+  MenuItem,
+  CircularProgress,
+  Alert,
+  Typography,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  Button,
+} from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Bar, Pie } from 'react-chartjs-2';
 import {
-  cibCcAmex,
-  cibCcApplePay,
-  cibCcMastercard,
-  cibCcPaypal,
-  cibCcStripe,
-  cibCcVisa,
-  cibGoogle,
-  cibFacebook,
-  cibLinkedin,
-  cifBr,
-  cifEs,
-  cifFr,
-  cifIn,
-  cifPl,
-  cifUs,
-  cibTwitter,
-  cilCloudDownload,
-  cilPeople,
-  cilUser,
-  cilUserFemale,
-} from '@coreui/icons'
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+} from 'chart.js';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import {
+  Business,
+  Description,
+  CheckCircle,
+  Cancel,
+  PieChart,
+  Group,
+  Timeline,
+  Menu as MenuIcon,
+  Dashboard as DashboardIcon,
+} from '@mui/icons-material';
+import './dashboard.css';
+import 'animate.css';
 
-import avatar1 from 'src/assets/images/avatars/1.jpg'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
-import avatar3 from 'src/assets/images/avatars/3.jpg'
-import avatar4 from 'src/assets/images/avatars/4.jpg'
-import avatar5 from 'src/assets/images/avatars/5.jpg'
-import avatar6 from 'src/assets/images/avatars/6.jpg'
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip);
 
-import WidgetsBrand from '../widgets/WidgetsBrand'
-import WidgetsDropdown from '../widgets/WidgetsDropdown'
-import MainChart from './MainChart'
-
-const Dashboard = () => {
-  const progressExample = [
-    { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
-    { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
-    { title: 'Pageviews', value: '78.706 Views', percent: 60, color: 'warning' },
-    { title: 'New Users', value: '22.123 Users', percent: 80, color: 'danger' },
-    { title: 'Bounce Rate', value: 'Average Rate', percent: 40.15, color: 'primary' },
-  ]
-
-  const progressGroupExample1 = [
-    { title: 'Monday', value1: 34, value2: 78 },
-    { title: 'Tuesday', value1: 56, value2: 94 },
-    { title: 'Wednesday', value1: 12, value2: 67 },
-    { title: 'Thursday', value1: 43, value2: 91 },
-    { title: 'Friday', value1: 22, value2: 73 },
-    { title: 'Saturday', value1: 53, value2: 82 },
-    { title: 'Sunday', value1: 9, value2: 69 },
-  ]
-
-  const progressGroupExample2 = [
-    { title: 'Male', icon: cilUser, value: 53 },
-    { title: 'Female', icon: cilUserFemale, value: 43 },
-  ]
-
-  const progressGroupExample3 = [
-    { title: 'Organic Search', icon: cibGoogle, percent: 56, value: '191,235' },
-    { title: 'Facebook', icon: cibFacebook, percent: 15, value: '51,223' },
-    { title: 'Twitter', icon: cibTwitter, percent: 11, value: '37,564' },
-    { title: 'LinkedIn', icon: cibLinkedin, percent: 8, value: '27,319' },
-  ]
-
-  const tableExample = [
-    {
-      avatar: { src: avatar1, status: 'success' },
-      user: {
-        name: 'Yiorgos Avraamu',
-        new: true,
-        registered: 'Jan 1, 2023',
+// Custom theme to match JSP aesthetic
+const theme = createTheme({
+  palette: {
+    primary: { main: '#013A6B' }, // JSP navbar gradient start
+    secondary: { main: '#00C4B4' }, // Teal for gradient end
+    warning: { main: '#ff9800' },
+    danger: { main: '#dc3545' },
+    success: { main: '#28a745' },
+    background: { default: '#fff', paper: '#fff' },
+    text: { primary: '#1a2035', secondary: '#6c757d' },
+  },
+  typography: {
+    fontFamily: '"Poppins", "Roboto", sans-serif',
+    h4: { fontWeight: 600 },
+    h5: { fontWeight: 600 },
+    subtitle1: { fontWeight: 500, fontSize: '0.875rem' },
+    subtitle2: { fontWeight: 400, fontSize: '0.6875rem' },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.15)',
+          },
+        },
       },
-      country: { name: 'USA', flag: cifUs },
-      usage: {
-        value: 50,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'success',
-      },
-      payment: { name: 'Mastercard', icon: cibCcMastercard },
-      activity: '10 sec ago',
     },
-    {
-      avatar: { src: avatar2, status: 'danger' },
-      user: {
-        name: 'Avram Tarasios',
-        new: false,
-        registered: 'Jan 1, 2023',
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: 6,
+          '&:hover': { backgroundColor: '#FF0000', color: '#fff' }, // JSP red hover
+        },
       },
-      country: { name: 'Brazil', flag: cifBr },
-      usage: {
-        value: 22,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'info',
-      },
-      payment: { name: 'Visa', icon: cibCcVisa },
-      activity: '5 minutes ago',
     },
-    {
-      avatar: { src: avatar3, status: 'warning' },
-      user: { name: 'Quintin Ed', new: true, registered: 'Jan 1, 2023' },
-      country: { name: 'India', flag: cifIn },
-      usage: {
-        value: 74,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'warning',
-      },
-      payment: { name: 'Stripe', icon: cibCcStripe },
-      activity: '1 hour ago',
-    },
-    {
-      avatar: { src: avatar4, status: 'secondary' },
-      user: { name: 'Enéas Kwadwo', new: true, registered: 'Jan 1, 2023' },
-      country: { name: 'France', flag: cifFr },
-      usage: {
-        value: 98,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'danger',
-      },
-      payment: { name: 'PayPal', icon: cibCcPaypal },
-      activity: 'Last month',
-    },
-    {
-      avatar: { src: avatar5, status: 'success' },
-      user: {
-        name: 'Agapetus Tadeáš',
-        new: true,
-        registered: 'Jan 1, 2023',
-      },
-      country: { name: 'Spain', flag: cifEs },
-      usage: {
-        value: 22,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'primary',
-      },
-      payment: { name: 'Google Wallet', icon: cibCcApplePay },
-      activity: 'Last week',
-    },
-    {
-      avatar: { src: avatar6, status: 'danger' },
-      user: {
-        name: 'Friderik Dávid',
-        new: true,
-        registered: 'Jan 1, 2023',
-      },
-      country: { name: 'Poland', flag: cifPl },
-      usage: {
-        value: 43,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'success',
-      },
-      payment: { name: 'Amex', icon: cibCcAmex },
-      activity: 'Last week',
-    },
-  ]
+  },
+});
+
+// Configure Axios
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Gradient for charts
+const getGradient = (ctx, chartArea, colorStart, colorEnd) => {
+  if (!chartArea || !ctx) return colorStart; // Fallback to solid color
+  const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+  gradient.addColorStop(0, colorStart);
+  gradient.addColorStop(1, colorEnd);
+  return gradient;
+};
+
+const Charts = () => {
+  const [budgetYears, setBudgetYears] = useState([]);
+  const [selectedFiscalYear, setSelectedFiscalYear] = useState('');
+  const [stats, setStats] = useState({
+    totalOrganizations: 0,
+    totalReportTypes: 0,
+    totalDirectorates: 0,
+    totalDocuments: 0,
+    totalUsers: 0,
+    reportTypeStats: {},
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Fetch budget years
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get('/transactions/budget-years')
+      .then((response) => {
+        const data = Array.isArray(response.data) ? response.data : [];
+        setBudgetYears(data);
+        if (data.length > 0) setSelectedFiscalYear(data[0].fiscalYear);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(`Failed to load budget years: ${error.response?.data?.message || error.message}`);
+        setBudgetYears([]);
+        setLoading(false);
+      });
+  }, []);
+
+  // Fetch dashboard stats
+  useEffect(() => {
+    if (selectedFiscalYear) {
+      setLoading(true);
+      axios
+        .get(`/transactions/dashboard-stats?fiscalYear=${selectedFiscalYear}`)
+        .then((response) => {
+          setStats(response.data || stats);
+          setLoading(false);
+        })
+        .catch((error) => {
+          let errorMessage = 'Failed to load dashboard statistics.';
+          if (error.response?.status === 404) {
+            errorMessage = `No statistics available for fiscal year ${selectedFiscalYear}.`;
+          } else if (error.response?.status === 403) {
+            errorMessage = 'You do not have permission to view dashboard statistics.';
+          } else {
+            errorMessage = error.response?.data?.message || error.message;
+          }
+          setError(errorMessage);
+          setLoading(false);
+        });
+    }
+  }, [selectedFiscalYear]);
+
+  const handleFiscalYearChange = (e) => {
+    setSelectedFiscalYear(e.target.value);
+    setError(null);
+    setStats({
+      totalOrganizations: 0,
+      totalReportTypes: 0,
+      totalDirectorates: 0,
+      totalDocuments: 0,
+      totalUsers: 0,
+      reportTypeStats: {},
+    });
+  };
+
+  const toggleDrawer = () => setDrawerOpen(!drawerOpen);
+
+  if (error && budgetYears.length === 0) {
+    return (
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Alert severity="error" icon={<Cancel />}>
+            {error}
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Card sx={{ mb: 3 }}>
+        <CardContent sx={{ textAlign: 'center' }}>
+          <CircularProgress color="primary" />
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            Loading dashboard...
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <>
-      <WidgetsDropdown className="mb-4" />
-      <CCard className="mb-4">
-        <CCardBody>
-          <CRow>
-            <CCol sm={5}>
-              <h4 id="traffic" className="card-title mb-0">
-                Traffic
-              </h4>
-              <div className="small text-body-secondary">January - July 2023</div>
-            </CCol>
-            <CCol sm={7} className="d-none d-md-block">
-              <CButton color="primary" className="float-end">
-                <CIcon icon={cilCloudDownload} />
-              </CButton>
-              <CButtonGroup className="float-end me-3">
-                {['Day', 'Month', 'Year'].map((value) => (
-                  <CButton
-                    color="outline-secondary"
-                    key={value}
-                    className="mx-0"
-                    active={value === 'Month'}
-                  >
-                    {value}
-                  </CButton>
-                ))}
-              </CButtonGroup>
-            </CCol>
-          </CRow>
-          <MainChart />
-        </CCardBody>
-        <CCardFooter>
-          <CRow
-            xs={{ cols: 1, gutter: 4 }}
-            sm={{ cols: 2 }}
-            lg={{ cols: 4 }}
-            xl={{ cols: 5 }}
-            className="mb-2 text-center"
-          >
-            {progressExample.map((item, index, items) => (
-              <CCol
-                className={classNames({
-                  'd-none d-xl-block': index + 1 === items.length,
-                })}
-                key={index}
-              >
-                <div className="text-body-secondary">{item.title}</div>
-                <div className="fw-semibold text-truncate">
-                  {item.value} ({item.percent}%)
-                </div>
-                <CProgress thin className="mt-2" color={item.color} value={item.percent} />
-              </CCol>
-            ))}
-          </CRow>
-        </CCardFooter>
-      </CCard>
-      <WidgetsBrand className="mb-4" withCharts />
-      <CRow>
-        <CCol xs>
-          <CCard className="mb-4">
-            <CCardHeader>Traffic {' & '} Sales</CCardHeader>
-            <CCardBody>
-              <CRow>
-                <CCol xs={12} md={6} xl={6}>
-                  <CRow>
-                    <CCol xs={6}>
-                      <div className="border-start border-start-4 border-start-info py-1 px-3">
-                        <div className="text-body-secondary text-truncate small">New Clients</div>
-                        <div className="fs-5 fw-semibold">9,123</div>
-                      </div>
-                    </CCol>
-                    <CCol xs={6}>
-                      <div className="border-start border-start-4 border-start-danger py-1 px-3 mb-3">
-                        <div className="text-body-secondary text-truncate small">
-                          Recurring Clients
-                        </div>
-                        <div className="fs-5 fw-semibold">22,643</div>
-                      </div>
-                    </CCol>
-                  </CRow>
-                  <hr className="mt-0" />
-                  {progressGroupExample1.map((item, index) => (
-                    <div className="progress-group mb-4" key={index}>
-                      <div className="progress-group-prepend">
-                        <span className="text-body-secondary small">{item.title}</span>
-                      </div>
-                      <div className="progress-group-bars">
-                        <CProgress thin color="info" value={item.value1} />
-                        <CProgress thin color="danger" value={item.value2} />
-                      </div>
-                    </div>
-                  ))}
-                </CCol>
-                <CCol xs={12} md={6} xl={6}>
-                  <CRow>
-                    <CCol xs={6}>
-                      <div className="border-start border-start-4 border-start-warning py-1 px-3 mb-3">
-                        <div className="text-body-secondary text-truncate small">Pageviews</div>
-                        <div className="fs-5 fw-semibold">78,623</div>
-                      </div>
-                    </CCol>
-                    <CCol xs={6}>
-                      <div className="border-start border-start-4 border-start-success py-1 px-3 mb-3">
-                        <div className="text-body-secondary text-truncate small">Organic</div>
-                        <div className="fs-5 fw-semibold">49,123</div>
-                      </div>
-                    </CCol>
-                  </CRow>
+    <ThemeProvider theme={theme}>
+      <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
+        {/* Sidebar */}
+        <Drawer
+          variant="temporary"
+          open={drawerOpen}
+          onClose={toggleDrawer}
+          sx={{ '& .MuiDrawer-paper': { width: 250, bgcolor: 'primary.main', color: 'white' } }}
+        >
+          <List>
+            <ListItem button onClick={() => navigate('/')}>
+              <ListItemIcon sx={{ color: 'white' }}><DashboardIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+            <ListItem button onClick={() => navigate('/organizations')}>
+              <ListItemIcon sx={{ color: 'white' }}><Business /></ListItemIcon>
+              <ListItemText primary="Organization" />
+            </ListItem>
+            <ListItem button onClick={() => navigate('/directorates')}>
+              <ListItemIcon sx={{ color: 'white' }}><Group /></ListItemIcon>
+              <ListItemText primary="Directorate" />
+            </ListItem>
+            <ListItem button onClick={() => navigate('/documents')}>
+              <ListItemIcon sx={{ color: 'white' }}><Description /></ListItemIcon>
+              <ListItemText primary="Document" />
+            </ListItem>
+            <ListItem button onClick={() => navigate('/mastertransactionlists')}>
+              <ListItemIcon sx={{ color: 'white' }}><PieChart /></ListItemIcon>
+              <ListItemText primary="Reports" />
+            </ListItem>
+          </List>
+        </Drawer>
 
-                  <hr className="mt-0" />
+        {/* Main Content */}
+        <Box sx={{ flexGrow: 1, p: 3 }}>
+          <AppBar position="static" sx={{ bgcolor: 'primary.main', mb: 3 }}>
+            <Toolbar>
+              <IconButton edge="start" color="inherit" onClick={toggleDrawer}>
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                Dashboard
+              </Typography>
+            </Toolbar>
+          </AppBar>
 
-                  {progressGroupExample2.map((item, index) => (
-                    <div className="progress-group mb-4" key={index}>
-                      <div className="progress-group-header">
-                        <CIcon className="me-2" icon={item.icon} size="lg" />
-                        <span>{item.title}</span>
-                        <span className="ms-auto fw-semibold">{item.value}%</span>
-                      </div>
-                      <div className="progress-group-bars">
-                        <CProgress thin color="warning" value={item.value} />
-                      </div>
-                    </div>
-                  ))}
+          <Box className="dashboard-container">
+            <Grid container spacing={3}>
+              {/* Fiscal Year Selection */}
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Card className="stat-card hrm-main-card primary">
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}><Timeline sx={{ fontSize: 18 }} /></Avatar>
+                      <Typography variant="h6" color="primary">Fiscal Year</Typography>
+                    </Box>
+                    <FormControl fullWidth variant="outlined">
+                      <Select
+                        value={selectedFiscalYear}
+                        onChange={handleFiscalYearChange}
+                        sx={{ borderRadius: 2, mt: 2 }}
+                      >
+                        <MenuItem value="">Choose a fiscal year</MenuItem>
+                        {budgetYears.map((year) => (
+                          <MenuItem key={year.id} value={year.fiscalYear}>
+                            {year.fiscalYear}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-                  <div className="mb-5"></div>
+              {/* Count Cards */}
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Card className="stat-card hrm-main-card primary">
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}><Business sx={{ fontSize: 18 }} /></Avatar>
+                      <Box>
+                        <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>
+                          Organizations
+                        </Typography>
+                        <Typography variant="h5" color="primary">{stats.totalOrganizations}</Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Card className="stat-card hrm-main-card success">
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar sx={{ bgcolor: 'success.main', mr: 2 }}><Description sx={{ fontSize: 18 }} /></Avatar>
+                      <Box>
+                        <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>
+                          Report types
+                        </Typography>
+                        <Typography variant="h5" sx={{ color: 'success.main' }}>{stats.totalDocuments}</Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Card className="stat-card hrm-main-card warning">
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar sx={{ bgcolor: 'warning.main', mr: 2 }}><Group sx={{ fontSize: 18 }} /></Avatar>
+                      <Box>
+                        <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>
+                          Users
+                        </Typography>
+                        <Typography variant="h5" sx={{ color: 'warning.main' }}>{stats.totalUsers}</Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-                  {progressGroupExample3.map((item, index) => (
-                    <div className="progress-group" key={index}>
-                      <div className="progress-group-header">
-                        <CIcon className="me-2" icon={item.icon} size="lg" />
-                        <span>{item.title}</span>
-                        <span className="ms-auto fw-semibold">
-                          {item.value}{' '}
-                          <span className="text-body-secondary small">({item.percent}%)</span>
-                        </span>
-                      </div>
-                      <div className="progress-group-bars">
-                        <CProgress thin color="success" value={item.percent} />
-                      </div>
-                    </div>
-                  ))}
-                </CCol>
-              </CRow>
+              {/* Report Type Senders/Non-Senders Cards */}
+              {Object.entries(stats.reportTypeStats).map(([reportType, counts]) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={reportType}>
+                  <Card className="stat-card hrm-main-card primary">
+                    <CardContent sx={{ p: 2 }}>
+                      <Typography variant="h6" color="primary">{reportType}</Typography>
+                      <Box sx={{ mt: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <CheckCircle sx={{ fontSize: 18, color: 'success.main', mr: 1 }} />
+                          <Typography variant="subtitle1">
+                            Senders: {counts.senders}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Cancel sx={{ fontSize: 18, color: 'danger.main', mr: 1 }} />
+                          <Typography variant="subtitle1">
+                            Non-Senders: {counts.nonSenders}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
 
-              <br />
+              {/* Charts for Each Report Type */}
+              {Object.entries(stats.reportTypeStats).map(([reportType, counts]) => (
+                <Grid item xs={12} md={12} key={`${reportType}-chart`}>
+                  <Card className="animate__animated animate__fadeInUp">
+                    <CardContent sx={{ bgcolor: 'white', color: 'black', p: 2, borderRadius: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <PieChart sx={{ mr: 1 }} />
+                        <Typography variant="h6">{reportType} Senders vs Non-Senders</Typography>
+                      </Box>
+                    </CardContent>
+                    <CardContent sx={{ p: 2 }}>
+                      <Grid container spacing={2}>
+                        {/* Bar Chart */}
+                        <Grid item xs={12} md={6}>
+                          <Box className="chart-container">
+                            <Bar
+                              data={{
+                                labels: ['Senders', 'Non-Senders'],
+                                datasets: [
+                                  {
+                                    label: 'Number of Organizations',
+                                    backgroundColor: (context) => {
+                                      const chart = context.chart;
+                                      const { ctx, chartArea } = chart;
+                                      if (!chartArea) return ['#013A6B', '#dc3545'];
+                                      return [
+                                        getGradient(ctx, chartArea, '#013A6B', '#00C4B4'),
+                                        getGradient(ctx, chartArea, '#dc3545', '#ff8a65'),
+                                      ];
+                                    },
+                                    data: [counts.senders, counts.nonSenders],
+                                    borderRadius: 8,
+                                  },
+                                ],
+                              }}
+                              options={{
+                                maintainAspectRatio: false,
+                                plugins: {
+                                  tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleFont: { size: 14 },
+                                    bodyFont: { size: 12 },
+                                  },
+                                },
+                                scales: {
+                                  y: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: 'Number of Organizations', font: { size: 14 } },
+                                    grid: { color: '#e0e0e0' },
+                                  },
+                                  x: { grid: { display: false } },
+                                },
+                                animation: {
+                                  duration: 1000,
+                                  easing: 'easeOutQuart',
+                                },
+                              }}
+                              height={300}
+                            />
+                          </Box>
+                        </Grid>
+                        {/* Pie Chart */}
+                        <Grid item xs={12} md={6}>
+                          <Box className="chart-container">
+                            <Pie
+                              data={{
+                                labels: ['Senders', 'Non-Senders'],
+                                datasets: [
+                                  {
+                                    label: 'Number of Organizations',
+                                    backgroundColor: (context) => {
+                                      const chart = context.chart;
+                                      const { ctx, chartArea } = chart;
+                                      if (!chartArea) return ['#013A6B', '#dc3545'];
+                                      return [
+                                        getGradient(ctx, chartArea, '#013A6B', '#00C4B4'),
+                                        getGradient(ctx, chartArea, '#dc3545', '#ff8a65'),
+                                      ];
+                                    },
+                                    data: [counts.senders, counts.nonSenders],
+                                    borderWidth: 1,
+                                    borderColor: '#fff',
+                                  },
+                                ],
+                              }}
+                              options={{
+                                maintainAspectRatio: false,
+                                plugins: {
+                                  tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleFont: { size: 14 },
+                                    bodyFont: { size: 12 },
+                                  },
+                                  legend: {
+                                    display: true,
+                                    position: 'top',
+                                    labels: {
+                                      font: { size: 12 },
+                                    },
+                                  },
+                                },
+                                animation: {
+                                  duration: 1000,
+                                  easing: 'easeOutQuart',
+                                },
+                              }}
+                              height={300}
+                            />
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
+};
 
-              <CTable align="middle" className="mb-0 border" hover responsive>
-                <CTableHead className="text-nowrap">
-                  <CTableRow>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      <CIcon icon={cilPeople} />
-                    </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">User</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Country
-                    </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Usage</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Payment Method
-                    </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Activity</CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {tableExample.map((item, index) => (
-                    <CTableRow v-for="item in tableItems" key={index}>
-                      <CTableDataCell className="text-center">
-                        <CAvatar size="md" src={item.avatar.src} status={item.avatar.status} />
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.user.name}</div>
-                        <div className="small text-body-secondary text-nowrap">
-                          <span>{item.user.new ? 'New' : 'Recurring'}</span> | Registered:{' '}
-                          {item.user.registered}
-                        </div>
-                      </CTableDataCell>
-                      <CTableDataCell className="text-center">
-                        <CIcon size="xl" icon={item.country.flag} title={item.country.name} />
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div className="d-flex justify-content-between text-nowrap">
-                          <div className="fw-semibold">{item.usage.value}%</div>
-                          <div className="ms-3">
-                            <small className="text-body-secondary">{item.usage.period}</small>
-                          </div>
-                        </div>
-                        <CProgress thin color={item.usage.color} value={item.usage.value} />
-                      </CTableDataCell>
-                      <CTableDataCell className="text-center">
-                        <CIcon size="xl" icon={item.payment.icon} />
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div className="small text-body-secondary text-nowrap">Last login</div>
-                        <div className="fw-semibold text-nowrap">{item.activity}</div>
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-    </>
-  )
+// Error Boundary
+class ChartsErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Alert severity="error" icon={<Cancel />}>
+              An error occurred while rendering the dashboard. Please try again later.
+            </Alert>
+          </CardContent>
+        </Card>
+      );
+    }
+    return this.props.children;
+  }
 }
 
-export default Dashboard
+export default () => (
+  <ChartsErrorBoundary>
+    <Charts />
+  </ChartsErrorBoundary>
+);

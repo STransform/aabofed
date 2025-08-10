@@ -12,7 +12,7 @@ import com.simon.armas_springboot_api.security.models.Auditable;
 
 @Entity
 @Data
-@ToString(exclude = {"role", "users"}) // Exclude role and users to prevent recursion
+@ToString(exclude = {"role", "users"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Privilege extends Auditable<String> {
 
@@ -22,12 +22,12 @@ public class Privilege extends Auditable<String> {
 
     private String description;
 
-    @ManyToOne(cascade = CascadeType.ALL) 
-    @JoinColumn(name = "roleid") // Maps to roleid column in the database
+    @ManyToOne
+    @JoinColumn(name = "roleid")
     @JsonBackReference
     private Role role;
 
-    @OneToMany(mappedBy = "privilege")
+    @OneToMany(mappedBy = "privilege", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<UserPrivilegeAssignment> users;
 

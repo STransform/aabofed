@@ -303,7 +303,6 @@ export default function CorrectedReports() {
                         <StyledTableRow>
                           <StyledTableCell>Date</StyledTableCell>
                           <StyledTableCell>Organization</StyledTableCell>
-                          <StyledTableCell>Budget Year</StyledTableCell>
                           <StyledTableCell>Report Type</StyledTableCell>
                           <StyledTableCell>Created By</StyledTableCell>
                           <StyledTableCell>Response</StyledTableCell>
@@ -321,55 +320,75 @@ export default function CorrectedReports() {
                                   : 'N/A'}
                               </StyledTableCell>
                               <StyledTableCell>{report.organization?.orgname || 'N/A'}</StyledTableCell>
-                              <StyledTableCell>{report.fiscal_year || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.transactiondocument?.reportype || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.createdBy || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.responseNeeded || 'N/A'}</StyledTableCell>
                               <StyledTableCell align="right">
-  <Tooltip title="View Details" arrow>
-    <IconButton
-      color="success"
-      onClick={() => handleOpenDetails(report)}
-      size="small"
-      sx={{ mr: 1 }}
-    >
-      <VisibilityIcon />
-    </IconButton>
-  </Tooltip>
+                                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
+                                  {/* View Details Button with Label */}
+                                  <Tooltip title="View Details" arrow>
+                                    <Box sx={{ display: 'inline-flex', alignItems: 'center', mr: 1 }}>
+                                      <IconButton
+                                        color="success"
+                                        onClick={() => handleOpenDetails(report)}
+                                        size="small"
+                                        aria-label="View Details"
+                                      >
+                                        <VisibilityIcon />
+                                      </IconButton>
+                                      <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                        View Details
+                                      </Typography>
+                                    </Box>
+                                  </Tooltip>
 
-  {isApprover && (
-    <>
-      <Tooltip title="Approve Report" arrow>
-        <IconButton
-          color="success"
-          onClick={() => handleApprove(report)}
-          size="small"
-          sx={{ mr: 1 }}
-        >
-          <CheckCircleIcon />
-        </IconButton>
-      </Tooltip>
+                                  {isApprover && (
+                                    <>
+                                      {/* Approve Button with Label */}
+                                      <Tooltip title="Approve Report" arrow>
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'center', mr: 1 }}>
+                                          <IconButton
+                                            color="success"
+                                            onClick={() => handleApprove(report)}
+                                            size="small"
+                                            aria-label="Approve Report"
+                                          >
+                                            <CheckCircleIcon />
+                                          </IconButton>
+                                          <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                            Approve
+                                          </Typography>
+                                        </Box>
+                                      </Tooltip>
 
-      <Tooltip title="Reject Report" arrow>
-        <IconButton
-          color="error"
-          onClick={() => handleReject(report)}
-          size="small"
-        >
-          <CancelIcon />
-        </IconButton>
-      </Tooltip>
-    </>
-  )}
+                                      {/* Reject Button with Label */}
+                                      <Tooltip title="Reject Report" arrow>
+                                        <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                                          <IconButton
+                                            color="error"
+                                            onClick={() => handleReject(report)}
+                                            size="small"
+                                            aria-label="Reject Report"
+                                          >
+                                            <CancelIcon />
+                                          </IconButton>
+                                          <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                            Reject
+                                          </Typography>
+                                        </Box>
+                                      </Tooltip>
+                                    </>
+                                  )}
 
-  {isSeniorAuditor && !isApprover && (
-    <Tooltip title="Pending Approval" arrow>
-      <Typography variant="body2" color="textSecondary">
-        Awaiting Approval
-      </Typography>
-    </Tooltip>
-  )}
-</StyledTableCell>
+                                  {isSeniorAuditor && !isApprover && (
+                                    <Tooltip title="Pending Approval" arrow>
+                                      <Typography variant="body2" color="textSecondary">
+                                        Awaiting Approval
+                                      </Typography>
+                                    </Tooltip>
+                                  )}
+                                </Box>
+                              </StyledTableCell>
                             </StyledTableRow>
                           ))}
                       </TableBody>

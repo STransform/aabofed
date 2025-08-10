@@ -9,6 +9,10 @@ import com.simon.armas_springboot_api.security.repositories.RoleRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+
 
 
 import java.util.Arrays;
@@ -28,6 +32,9 @@ public class RoleService {
     private final UserRepository userRepository;
     private final PrivilegeRepository privilegeRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Autowired
     public RoleService(RoleRepository roleRepository, UserRepository userRepository,
                        PrivilegeRepository privilegeRepository) {
@@ -37,40 +44,11 @@ public class RoleService {
     }
 
     @Transactional
-    public void assignPrivilegesToRole(Long roleId, List<Long> privilegeIds) {
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleId));
-        logger.info("Assigning privileges {} to role {}", privilegeIds, role.getDescription());
-
-        // Clear existing privileges
-        List<Privilege> currentPrivileges = role.getPrivileges();
-        if (currentPrivileges != null && !currentPrivileges.isEmpty()) {
-            currentPrivileges.forEach(privilege -> privilege.setRole(null));
-            privilegeRepository.saveAll(currentPrivileges);
-            role.setPrivileges(new ArrayList<>());
-            roleRepository.save(role); // Save role to update cleared privileges
-        }
-
-        // Assign new privileges
-        if (privilegeIds != null && !privilegeIds.isEmpty()) {
-            List<Privilege> newPrivileges = privilegeIds.stream()
-                    .map(privilegeId -> privilegeRepository.findById(privilegeId)
-                            .orElseThrow(() -> new IllegalArgumentException("Privilege not found: " + privilegeId)))
-                    .collect(Collectors.toList());
-            newPrivileges.forEach(privilege -> privilege.setRole(role));
-            role.setPrivileges(newPrivileges);
-            privilegeRepository.saveAll(newPrivileges); // Save privileges to update roleid
-            roleRepository.save(role); // Save role to update its privileges
-        }
-
-        logger.info("Successfully assigned privileges {} to role {}", privilegeIds, role.getDescription());
-    }
-
-    @Transactional
     public void initializeRolesAndPrivileges() {
+        // Initialize privileges
         List<String> privilegeNames = Arrays.asList(
-                "CREATE_PRODUCT", "VIEW_LETTERS",
-                "READ", "WRITE", "CREATE", "DELETE"
+                "CREATE_PRODUCT", "VIEW_LETTERS", "READ", "WRITE", "CREATE", "DELETE",
+                "REVIEW_REPORTS", "ASSIGN_REPORTS", "APPROVE_REPORTS"
         );
         for (String name : privilegeNames) {
             if (privilegeRepository.findByDescription(name) == null) {
@@ -83,112 +61,83 @@ public class RoleService {
             }
         }
 
-        Role adminRole = roleRepository.findByDescription("ADMIN");
-        if (adminRole == null) {
-            Role newAdminRole = new Role();
-            newAdminRole.setDescription("ADMIN");
-            newAdminRole.setDetails("Administrator with full access");
-            List<Privilege> adminPrivileges = privilegeRepository.findAll();
-            newAdminRole.setPrivileges(adminPrivileges);
-            adminPrivileges.forEach(p -> p.setRole(newAdminRole));
-            privilegeRepository.saveAll(adminPrivileges); // Save privileges
-            roleRepository.save(newAdminRole);
-        }
+        // Define roles and their privileges
+        List<RoleConfig> roleConfigs = Arrays.asList(
+                new RoleConfig("ADMIN", "Administrator with full access", privilegeRepository.findAll()),
+                new RoleConfig("USER", "Standard user with view access",
+                        privilegeRepository.findAll().stream()
+                                .filter(p -> p.getDescription().startsWith("VIEW_") || p.getDescription().equals("READ"))
+                                .collect(Collectors.toList())),
+                new RoleConfig("SENIOR_AUDITOR", "Senior auditor with review privileges",
+                        privilegeRepository.findAll().stream()
+                                .filter(p -> p.getDescription().equals("REVIEW_REPORTS"))
+                                .collect(Collectors.toList())),
+                new RoleConfig("ARCHIVER", "Archiver with assignment privileges",
+                        privilegeRepository.findAll().stream()
+                                .filter(p -> p.getDescription().equals("ASSIGN_REPORTS"))
+                                .collect(Collectors.toList())),
+                new RoleConfig("APPROVER", "Approver with approval/rejection privileges",
+                        privilegeRepository.findAll().stream()
+                                .filter(p -> p.getDescription().equals("APPROVE_REPORTS"))
+                                .collect(Collectors.toList())),
+                new RoleConfig("MANAGER", "Manager with letter viewing privileges",
+                        privilegeRepository.findAll().stream()
+                                .filter(p -> p.getDescription().equals("VIEW_LETTERS"))
+                                .collect(Collectors.toList()))
+        );
 
-        Role userRole = roleRepository.findByDescription("USER");
-        if (userRole == null) {
-            Role newUserRole = new Role();
-            newUserRole.setDescription("USER");
-            newUserRole.setDetails("Standard user with view access");
-            List<Privilege> userPrivileges = privilegeRepository.findAll().stream()
-                    .filter(p -> p.getDescription().startsWith("VIEW_") || p.getDescription().equals("READ"))
-                    .collect(Collectors.toList());
-            newUserRole.setPrivileges(userPrivileges);
-            userPrivileges.forEach(p -> p.setRole(newUserRole));
-            privilegeRepository.saveAll(userPrivileges); // Save privileges
-            roleRepository.save(newUserRole);
-        }
+        for (RoleConfig config : roleConfigs) {
+            List<Role> existingRoles = roleRepository.findByDescription(config.description);
+            Role role;
 
-        Role seniorAuditorRole = roleRepository.findByDescription("SENIOR_AUDITOR");
-        if (seniorAuditorRole == null) {
-            Role newSeniorAuditorRole = new Role();
-            newSeniorAuditorRole.setDescription("SENIOR_AUDITOR");
-            newSeniorAuditorRole.setDetails("Senior auditor with review privileges");
-            List<Privilege> seniorAuditorPrivileges = privilegeRepository.findAll().stream()
-                    .filter(p -> p.getDescription().equals("REVIEW_REPORTS"))
-                    .collect(Collectors.toList());
-            newSeniorAuditorRole.setPrivileges(seniorAuditorPrivileges);
-            seniorAuditorPrivileges.forEach(p -> p.setRole(newSeniorAuditorRole));
-            privilegeRepository.saveAll(seniorAuditorPrivileges); // Save privileges
-            roleRepository.save(newSeniorAuditorRole);
-        }
-
-        Role archiverRole = roleRepository.findByDescription("ARCHIVER");
-        if (archiverRole == null) {
-            Role newArchiverRole = new Role();
-            newArchiverRole.setDescription("ARCHIVER");
-            newArchiverRole.setDetails("Archiver with assignment privileges");
-            List<Privilege> archiverPrivileges = privilegeRepository.findAll().stream()
-                    .filter(p -> p.getDescription().equals("ASSIGN_REPORTS"))
-                    .collect(Collectors.toList());
-            newArchiverRole.setPrivileges(archiverPrivileges);
-            archiverPrivileges.forEach(p -> p.setRole(newArchiverRole));
-            privilegeRepository.saveAll(archiverPrivileges); // Save privileges
-            roleRepository.save(newArchiverRole);
-        }
-
-        Role approverRole = roleRepository.findByDescription("APPROVER");
-        if (approverRole == null) {
-            Role newApproverRole = new Role();
-            newApproverRole.setDescription("APPROVER");
-            newApproverRole.setDetails("Approver with approval/rejection privileges");
-            List<Privilege> approverPrivileges = privilegeRepository.findAll().stream()
-                    .filter(p -> p.getDescription().equals("APPROVE_REPORTS"))
-                    .collect(Collectors.toList());
-            newApproverRole.setPrivileges(approverPrivileges);
-            approverPrivileges.forEach(p -> p.setRole(newApproverRole));
-            privilegeRepository.saveAll(approverPrivileges); // Save privileges
-            roleRepository.save(newApproverRole);
-        }
-
-        Role managerRole = roleRepository.findByDescription("MANAGER");
-        if (managerRole == null) {
-            logger.info("Creating new MANAGER role...");
-            Role newManagerRole = new Role();
-            newManagerRole.setDescription("MANAGER");
-            newManagerRole.setDetails("Manager with letter viewing privileges");
-            List<Privilege> managerPrivileges = privilegeRepository.findAll().stream()
-                    .filter(p -> "VIEW_LETTERS".equals(p.getDescription()))
-                    .collect(Collectors.toList());
-            newManagerRole.setPrivileges(managerPrivileges);
-            managerPrivileges.forEach(p -> p.setRole(newManagerRole));
-            privilegeRepository.saveAll(managerPrivileges); // Save privileges
-            roleRepository.saveAndFlush(newManagerRole);
-            logger.info("Created MANAGER role with VIEW_LETTERS privilege");
-        } else {
-            logger.info("Updating existing MANAGER role...");
-            List<Privilege> privileges = managerRole.getPrivileges() != null ? new ArrayList<>(managerRole.getPrivileges()) : new ArrayList<>();
-            boolean hasViewLetters = privileges.stream().anyMatch(p -> "VIEW_LETTERS".equals(p.getDescription()));
-            if (!hasViewLetters) {
-                Privilege viewLetters = privilegeRepository.findByDescription("VIEW_LETTERS");
-                if (viewLetters != null) {
-                    privileges.add(viewLetters);
-                    viewLetters.setRole(managerRole);
-                    privileges.forEach(p -> p.setRole(managerRole)); // Ensure role is set
-                    privilegeRepository.saveAll(privileges); // Save privileges
-                    managerRole.setPrivileges(privileges);
-                    roleRepository.saveAndFlush(managerRole);
-                    logger.info("Added VIEW_LETTERS privilege to existing MANAGER role");
-                } else {
-                    logger.error("VIEW_LETTERS privilege not found in database");
-                }
+            if (existingRoles.isEmpty()) {
+                // Create new role
+                logger.info("Creating new role: {}", config.description);
+                role = new Role();
+                role.setDescription(config.description);
+                role.setDetails(config.details);
+                role.setPrivileges(new ArrayList<>());
+                roleRepository.saveAndFlush(role);
             } else {
-                logger.debug("MANAGER role already has VIEW_LETTERS privilege");
+                // Use the first role and delete duplicates
+                role = existingRoles.get(0);
+                logger.info("Role {} already exists, using ID: {}", config.description, role.getId());
+                if (existingRoles.size() > 1) {
+                    logger.warn("Found {} duplicate roles for description: {}", existingRoles.size() - 1, config.description);
+                    for (int i = 1; i < existingRoles.size(); i++) {
+                        roleRepository.delete(existingRoles.get(i));
+                        logger.info("Deleted duplicate role: {} with ID: {}", config.description, existingRoles.get(i).getId());
+                    }
+                }
+            }
+
+            // Clear existing privileges
+            List<Privilege> currentPrivileges = role.getPrivileges() != null ? new ArrayList<>(role.getPrivileges()) : new ArrayList<>();
+            if (!currentPrivileges.isEmpty()) {
+                // Update role_id to null in the database
+                Query query = entityManager.createQuery("UPDATE Privilege p SET p.role = null WHERE p.role = :role");
+                query.setParameter("role", role);
+                query.executeUpdate();
+                // Clear the role's privileges
+                role.setPrivileges(new ArrayList<>());
+                roleRepository.saveAndFlush(role);
+                entityManager.flush();
+            }
+
+            // Assign new privileges
+            List<Privilege> newPrivileges = config.privileges;
+            if (!newPrivileges.isEmpty()) {
+                newPrivileges.forEach(p -> p.setRole(role));
+                role.setPrivileges(newPrivileges);
+                privilegeRepository.saveAll(newPrivileges);
+                roleRepository.saveAndFlush(role);
+                logger.info("Assigned {} privileges to role: {}", newPrivileges.size(), config.description);
+            } else {
+                logger.warn("No privileges assigned to role: {}", config.description);
             }
         }
     }
 
-    // Other methods unchanged
     public List<Role> findAll() {
         return roleRepository.findAll();
     }
@@ -202,7 +151,8 @@ public class RoleService {
     }
 
     public Role save(Role role) {
-        if (roleRepository.findByDescription(role.getDescription()) != null) {
+        List<Role> existingRoles = roleRepository.findByDescription(role.getDescription());
+        if (!existingRoles.isEmpty()) {
             throw new IllegalArgumentException("Role already exists: " + role.getDescription());
         }
         return roleRepository.save(role);
@@ -235,6 +185,57 @@ public class RoleService {
     }
 
     public Role findByDescription(String roleDescription) {
-        return roleRepository.findByDescription(roleDescription);
+        List<Role> roles = roleRepository.findByDescription(roleDescription);
+        if (roles.isEmpty()) {
+            return null;
+        }
+        if (roles.size() > 1) {
+            logger.warn("Multiple roles found for description: {}. Returning the first one.", roleDescription);
+        }
+        return roles.get(0);
+    }
+
+    @Transactional
+    public void assignPrivilegesToRole(Long roleId, List<Long> privilegeIds) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleId));
+        logger.info("Assigning privileges {} to role {}", privilegeIds, role.getDescription());
+
+        // Clear existing privileges
+        List<Privilege> currentPrivileges = role.getPrivileges() != null ? new ArrayList<>(role.getPrivileges()) : new ArrayList<>();
+        if (!currentPrivileges.isEmpty()) {
+            role.setPrivileges(new ArrayList<>());
+            roleRepository.saveAndFlush(role);
+            currentPrivileges.forEach(entityManager::detach);
+            currentPrivileges.forEach(p -> p.setRole(null));
+            privilegeRepository.saveAll(currentPrivileges);
+            entityManager.flush();
+        }
+
+        // Assign new privileges
+        if (privilegeIds != null && !privilegeIds.isEmpty()) {
+            List<Privilege> newPrivileges = privilegeIds.stream()
+                    .map(privilegeId -> privilegeRepository.findById(privilegeId)
+                            .orElseThrow(() -> new IllegalArgumentException("Privilege not found: " + privilegeId)))
+                    .collect(Collectors.toList());
+            newPrivileges.forEach(p -> p.setRole(role));
+            role.setPrivileges(newPrivileges);
+            privilegeRepository.saveAll(newPrivileges);
+            roleRepository.saveAndFlush(role);
+            logger.info("Successfully assigned privileges {} to role {}", privilegeIds, role.getDescription());
+        }
+    }
+
+    // Helper class for role configuration
+    private static class RoleConfig {
+        String description;
+        String details;
+        List<Privilege> privileges;
+
+        RoleConfig(String description, String details, List<Privilege> privileges) {
+            this.description = description;
+            this.details = details;
+            this.privileges = privileges;
+        }
     }
 }

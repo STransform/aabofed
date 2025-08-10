@@ -1,4 +1,3 @@
-// src/components/NotificationDropdown.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { CIcon } from '@coreui/icons-react';
 import { cilBell } from '@coreui/icons';
@@ -16,21 +15,8 @@ import {
   Divider,
   styled,
 } from '@mui/material';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 
-// Styled components for a modern, attractive look
-const NotificationBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    backgroundColor: theme.palette.error.main,
-    color: theme.palette.common.white,
-    fontSize: '0.75rem',
-    minWidth: '20px',
-    height: '20px',
-    borderRadius: '10px',
-    padding: '0 6px',
-  },
-}));
-
+// Styled components for notification menu (unchanged)
 const NotificationMenu = styled(Menu)(({ theme }) => ({
   '& .MuiPaper-root': {
     width: '100%',
@@ -39,7 +25,8 @@ const NotificationMenu = styled(Menu)(({ theme }) => ({
     overflowY: 'auto',
     borderRadius: '12px',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-    backgroundColor: theme.palette.background.paper,
+    background: '#008080', // Match JSP navbar
+    color: '#ffffff', // White text
     [theme.breakpoints.down('sm')]: {
       width: '90vw',
       maxWidth: 'none',
@@ -54,8 +41,10 @@ const NotificationItem = styled(MenuItem)(({ theme }) => ({
   alignItems: 'flex-start',
   borderBottom: `1px solid ${theme.palette.divider}`,
   transition: 'background-color 0.2s ease',
+  backgroundColor: 'transparent', // Match JSP dropdown
+  color: '#ffffff', // White text
   '&:hover': {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: '#2f5264ff', // Red hover to match JSP
   },
   '&:last-child': {
     borderBottom: 'none',
@@ -65,19 +54,19 @@ const NotificationItem = styled(MenuItem)(({ theme }) => ({
 const NotificationTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   fontSize: '0.95rem',
-  color: theme.palette.text.primary,
+  color: '#ffffff', // White text
 }));
 
 const NotificationMessage = styled(Typography)(({ theme }) => ({
   fontSize: '0.85rem',
-  color: theme.palette.text.secondary,
+  color: '#ffffff', // White text
   margin: theme.spacing(0.5, 0),
   wordBreak: 'break-word',
 }));
 
 const NotificationTime = styled(Typography)(({ theme }) => ({
   fontSize: '0.75rem',
-  color: theme.palette.text.disabled,
+  color: '#cccccc', // Lighter gray for time
 }));
 
 const NotificationDropdown = () => {
@@ -101,7 +90,6 @@ const NotificationDropdown = () => {
       const data = await getUnreadNotifications();
       console.log('Raw notifications response:', JSON.stringify(data, null, 2));
       const notificationArray = Array.isArray(data) ? data.filter(n => !n.isRead) : [];
-      // Sort notifications by createdAt in descending order (latest first)
       notificationArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       console.log('Sorted unread notifications:', notificationArray);
       setNotifications(notificationArray);
@@ -192,17 +180,17 @@ const NotificationDropdown = () => {
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <NotificationBadge badgeContent={unreadCount > 99 ? '99+' : unreadCount} overlap="circular">
+      <Badge
+        badgeContent={unreadCount > 99 ? '99+' : unreadCount}
+        classes={{ badge: 'notification-badge' }}
+      >
         <IconButton
           onClick={handleMenuOpen}
-          sx={{
-            padding: '8px',
-            '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
-          }}
+          className="notification-icon-button"
         >
-          <CIcon icon={cilBell} size="lg" />
+          <CIcon icon={cilBell} className="notification-icon" />
         </IconButton>
-      </NotificationBadge>
+      </Badge>
       <NotificationMenu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

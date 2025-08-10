@@ -30,21 +30,25 @@ export const uploadFile = async (file, reportcategory, budgetYearId, transaction
     const formData = new FormData();
     formData.append('file', file);
     formData.append('reportcategory', reportcategory);
-    formData.append('budgetYearId', budgetYearId);
-    formData.append('transactiondocumentid', transactiondocumentid);
-
+    formData.append('budgetYearId', String(budgetYearId)); // Ensure budgetYearId is sent as a string
+    formData.append('transactiondocumentid', String(transactiondocumentid));
+    console.log('Uploading file:', { file: file.name, reportcategory, budgetYearId, transactiondocumentid });
+    for (let [key, value] of formData.entries()) {
+        console.log(`FormData ${key}: ${value}`);
+    }
     try {
         const response = await axiosInstance.post('/transactions/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
+        console.log('Upload response:', response.data);
         return response.data;
     } catch (error) {
-        const errorMessage = error.response?.data || error.message || 'File upload failed';
-        console.error('Error uploading file:', errorMessage);
+        const errorMessage = error.response?.data?.error || error.message || 'File upload failed';
+        console.error('Error uploading file:', errorMessage, error.response?.status, error.response?.data);
         throw new Error(errorMessage);
     }
 };
-// In upload_download.js
+
 export const uploadLetter = async (transactionId, letter) => {
     const formData = new FormData();
     formData.append('letter', letter);
@@ -186,25 +190,25 @@ export const submitFindings = async (transactionId, remarks, approverUsername, r
 };
 
 export const approveReport = async (transactionId, approvalDocument) => {
-    try {
-        console.log('Approving report: transactionId=', transactionId);
-        const formData = new FormData();
-        if (approvalDocument) {
-            formData.append('approvalDocument', approvalDocument);
-        }
-        const response = await axiosInstance.post(`/transactions/approve/${transactionId}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        console.log('Approve report response:', response.data);
-        return response.data;
-    } catch (error) {
-        console.error('Error approving report:', {
-            message: error.message,
-            status: error.response?.status,
-            data: error.response?.data
-        });
-        throw error;
+  try {
+    console.log('Approving report: transactionId=', transactionId);
+    const formData = new FormData();
+    if (approvalDocument) {
+      formData.append('approvalDocument', approvalDocument);
     }
+    const response = await axiosInstance.post(`/transactions/approve/${transactionId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    console.log('Approve report response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error approving report:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    throw error;
+  }
 };
 
 export const getApprovedReports = async () => {
@@ -262,21 +266,22 @@ export const getRejectedReports = async () => {
         const response = await axiosInstance.get('/transactions/rejected-reports');
         console.log('Rejected reports raw response:', JSON.stringify(response.data, null, 2));
         const mappedReports = response.data.map(report => {
-            console.log('Report ID=' + report.id + ' fiscalYear:', report.budgetYear?.fiscalYear || null);
+            console.log('Report ID=' + report.id + ' fiscalYear:', report.budgetYear?.fiscalYear || report.fiscalYear || null);
             const mappedReport = {
                 id: report.id,
                 createdDate: report.createdDate,
                 reportstatus: report.reportstatus,
                 organization: { orgname: report.organization?.orgname || null },
-                fiscalYear: report.budgetYear?.fiscalYear || null, // Use budgetYear.fiscalYear
+                fiscalYear: report.budgetYear?.fiscalYear || report.fiscalYear || null, // Support both nested and direct fiscalYear
                 transactiondocument: { reportype: report.transactiondocument?.reportype || null },
                 docname: report.docname,
                 supportingDocumentPath: report.supportingDocumentPath,
                 supportingDocname: report.supportingDocname,
                 remarks: report.remarks || null,
-                responseNeeded: report.response_needed || null, // Use response_needed (snake_case)
+                responseNeeded: report.response_needed || null,
                 reasonOfRejection: report.reason_of_rejection || null,
-                submittedByAuditorUsername: report.submittedByAuditorUsername || null
+                submittedByAuditorUsername: report.submittedByAuditor?.username || report.submittedByAuditorUsername || null, // Fix mapping
+                createdBy: report.createdBy || null
             };
             console.log('Mapped report ID=' + report.id + ':', mappedReport);
             return mappedReport;
@@ -441,5 +446,26 @@ export const getFileHistory = async () => {
     } catch (error) {
         console.error('Error fetching file history:', error.message, error.response?.status, error.response?.data);
         throw error;
+    }
+};
+
+export const reassignTask = async (transactionId, auditorUsername) => {
+    try {
+        console.log(`Reassigning task: transactionId=${transactionId}, auditorUsername=${auditorUsername}`);
+        const response = await axiosInstance.post(`/transactions/reassign/${transactionId}`, null, {
+            params: { auditorUsername }
+        });
+        console.log('Reassign response:', response.data);
+        return response.data;
+    } catch (error) {
+        const errorMessage = error.response?.data?.error || error.message || 'Failed to reassign task';
+        console.error('Error reassigning task:', {
+            transactionId,
+            auditorUsername,
+            status: error.response?.status,
+            data: error.response?.data,
+            message: errorMessage
+        });
+        throw new Error(errorMessage);
     }
 };

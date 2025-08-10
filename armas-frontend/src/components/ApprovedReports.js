@@ -29,7 +29,7 @@ import {
   Tooltip,
   CircularProgress,
   InputAdornment,
-  Snackbar, // Added missing import
+  Snackbar,
 } from '@mui/material';
 import {
   Download as DownloadIcon,
@@ -141,12 +141,12 @@ const ApprovedReports = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      setSuccess(`Successfully downloaded ${type === 'letter' ? 'letter' : 'approver attachment'}`);
+      setSuccess(`Successfully downloaded ${type === 'letter' ? 'letter' : type === 'original' ? 'report' : 'findings'}`);
       setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       const errorMessage =
         err.response?.status === 404
-          ? `${type === 'letter' ? 'Letter' : 'Approver attachment'} not found`
+          ? `${type === 'letter' ? 'Letter' : type === 'original' ? 'Report' : 'Findings'} not found`
           : `Failed to download: ${err.message || 'Unknown error'}`;
       console.error('ApprovedReports: Download error:', err);
       setError(errorMessage);
@@ -315,16 +315,34 @@ const ApprovedReports = () => {
                                       <VisibilityIcon />
                                     </IconButton>
                                   </Tooltip>
-                                  {(report.supportingDocumentPath || report.letterDocname) && (
-                                    <Tooltip title="Download Documents">
+                                  {report.docname && (
+                                    <Tooltip title="Download Original Report">
                                       <IconButton
-                                        color="primary"
-                                        onClick={() =>
-                                          report.supportingDocumentPath
-                                            ? handleDownload(report.id, report.supportingDocname, 'supporting')
-                                            : handleDownload(report.id, report.letterDocname, 'letter')
-                                        }
-                                        aria-label="Download document"
+                                        sx={{ color: '#000000' }}
+                                        onClick={() => handleDownload(report.id, report.docname, 'original')}
+                                        aria-label="Download original report"
+                                      >
+                                        <DownloadIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
+                                  {report.supportingDocname && (
+                                    <Tooltip title="Download Findings">
+                                      <IconButton
+                                        sx={{ color: '#0000FF' }}
+                                        onClick={() => handleDownload(report.id, report.supportingDocname, 'supporting')}
+                                        aria-label="Download findings"
+                                      >
+                                        <DownloadIcon />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
+                                  {isArchiver && report.letterDocname && (
+                                    <Tooltip title="Download Letter">
+                                      <IconButton
+                                        sx={{ color: '#008000' }}
+                                        onClick={() => handleDownload(report.id, report.letterDocname, 'letter')}
+                                        aria-label="Download letter"
                                       >
                                         <DownloadIcon />
                                       </IconButton>
@@ -482,19 +500,36 @@ const ApprovedReports = () => {
               />
             </Box>
             <Box>
-              <Typography variant="subtitle2">Documents</Typography>
-              {selectedReport?.id && selectedReport?.supportingDocumentPath ? (
+              <Typography variant="subtitle2">Original Report</Typography>
+              {selectedReport?.docname ? (
+                <StyledButton
+                  variant="outlined"
+                  size="small"
+                  startIcon={<DownloadIcon />}
+                  onClick={() => handleDownload(selectedReport.id, selectedReport.docname, 'original')}
+                >
+                  Download Report
+                </StyledButton>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No report available
+                </Typography>
+              )}
+            </Box>
+            <Box>
+              <Typography variant="subtitle2">Findings</Typography>
+              {selectedReport?.supportingDocname ? (
                 <StyledButton
                   variant="outlined"
                   size="small"
                   startIcon={<DownloadIcon />}
                   onClick={() => handleDownload(selectedReport.id, selectedReport.supportingDocname, 'supporting')}
                 >
-                  Download Attachment
+                  Download Findings
                 </StyledButton>
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  No attachment available
+                  No findings available
                 </Typography>
               )}
             </Box>
@@ -509,7 +544,7 @@ const ApprovedReports = () => {
                 >
                   Download Letter
                 </StyledButton>
-              ) : isArchiver && !selectedReport?.letterDocname ? (
+              ) : isArchiver ? (
                 <StyledButton
                   variant="outlined"
                   size="small"

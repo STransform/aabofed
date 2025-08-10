@@ -6,13 +6,14 @@ import Directorate from './components/Directorate';
 import Document from './components/Document';
 import BudgetYear from './components/BudgetYear';
 import MasterTransaction from './components/MasterTransaction';
-const User = React.lazy(() => import('./components/Users'));
+
 import Role from './components/Role';
 import AssignRole from './components/AssignRole';
 import AssignPrivilegeToRole from './components/AssignPrivilegeToRole';
 import RegistrationSuccessful from './views/pages/register/RegistrationSuccessful'
 import VerificationSuccessful from './views/pages/register/VerificationSuccessful'
-
+const PendingReports = React.lazy(() => import('./components/PendingReports'));
+const User = React.lazy(() => import('./components/Users'));
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -68,6 +69,7 @@ const routes = [
   { path: '/transactions/rejected-reports', name: 'Rejected Reports', element: RejectedReports },
   { path: '/transactions/under-review-reports', name: 'Under Review Reports', element: UnderReviewReports },
   { path: '/transactions/corrected-reports', name: 'Corrected Reports', element: CorrectedReports },
+  { path: '/transactions/pending-reports', name: 'Pending Reports', element: PendingReports },
   { path: '/file-history', name: 'File History', element: FileHistory },
   { path: '/buttons/letter-download', name: 'File Download', element: LetterDownload },
   { path: '/transactions/advanced-filters', name: 'Advanced Filters', element: AdvancedFilters },

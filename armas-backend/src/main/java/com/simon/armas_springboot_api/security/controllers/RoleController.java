@@ -13,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/roles")
 @Transactional
@@ -36,28 +35,28 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // Changed from hasAuthority
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
         Role role = roleService.findById(id);
         return role != null ? ResponseEntity.ok(role) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')") // Changed from hasAuthority
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Role> createRole(@RequestBody Role role) {
         Role savedRole = roleService.save(role);
         return ResponseEntity.status(201).body(savedRole);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // Changed from hasAuthority
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         roleService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/assign/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN')") // Changed from hasAuthority
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> assignUserRoles(@PathVariable("userId") Long userId, @RequestBody List<Long> roleIds) {
         roleService.assignUserRoles(userId, roleIds);
         UserDTO updatedUser = userService.getUserById(userId);
@@ -65,7 +64,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{roleId}/unassign/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN')") // Changed from hasAuthority
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> unAssignUserRole(@PathVariable("roleId") Long roleId, @PathVariable("userId") Long userId) {
         roleService.unAssignUserRole(userId, roleId);
         UserDTO updatedUser = userService.getUserById(userId);
@@ -73,12 +72,12 @@ public class RoleController {
     }
 
     @GetMapping("/{roleId}/privileges")
-    @PreAuthorize("hasRole('ADMIN')") // Changed from hasAuthority
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Privilege> getPrivilegesInRole(@PathVariable("roleId") Long roleId) {
         return roleService.getPrivilegesInRole(roleId);
     }
 
- @PostMapping("/{roleId}/assign-privileges")
+    @PostMapping("/{roleId}/assign-privileges")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Role> assignPrivilegesToRole(@PathVariable("roleId") Long roleId, @RequestBody List<Long> privilegeIds) {
         roleService.assignPrivilegesToRole(roleId, privilegeIds);
@@ -86,3 +85,4 @@ public class RoleController {
         return ResponseEntity.ok(updatedRole);
     }
 }
+
