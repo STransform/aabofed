@@ -43,7 +43,14 @@ const AppHeader = () => {
         </CHeaderToggler>
         <CHeaderNav className="d-flex align-items-center">
           <CNavItem className="d-md-flex align-items-center">
-            <img src={logo} alt="IRMS Logo" className="header-logo me-2" />
+            <img src={logo} alt="IRMS Logo"  style={{
+      width: "80px",
+      height: "80px",
+      borderRadius: "50%",
+      objectFit: "cover",
+      backgroundColor: "white",
+      padding: "5px"
+    }} className="header-logo me-2 " />
             <CNavLink to="/" as={NavLink} className="navbar-brand">
               {/* IRMS */}
             </CNavLink>

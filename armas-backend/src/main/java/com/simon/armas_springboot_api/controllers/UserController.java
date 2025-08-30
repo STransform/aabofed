@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.apache.commons.lang3.StringUtils; // Import StringUtils for string validation
+import org.springframework.web.bind.annotation.CrossOrigin;
 //import Map
 import java.util.Map;
 
@@ -75,19 +77,29 @@ public class UserController {
         return userService.convertToDTO(user); // Use userService.convertToDTO
     }
 
-    @PostMapping
+   @PostMapping
 @PreAuthorize("hasRole('ADMIN')")
 public ResponseEntity<?> createUser(@RequestBody UserRequest userRequest) {
     logger.info("Creating user: {}, password: {}", userRequest.getUsername(), userRequest.getPassword());
-    if ("admin".equals(userRequest.getPassword())) {
-        logger.warn("Attempt to use restricted password for user: {}", userRequest.getUsername());
-        return ResponseEntity.badRequest().body("Invalid password");
-    }
-    if (!userRequest.getPassword().equals(userRequest.getConfirmPassword())) {
-        logger.warn("Password and confirm password do not match for user: {}", userRequest.getUsername());
-        return ResponseEntity.badRequest().body("Password and confirm password do not match");
-    }
     try {
+        // Validate password
+        if (StringUtils.isBlank(userRequest.getPassword()) || StringUtils.isBlank(userRequest.getConfirmPassword())) {
+            logger.warn("Password or confirm password is empty for user: {}", userRequest.getUsername());
+            return ResponseEntity.badRequest().body(Map.of("error", "Password and confirm password are required"));
+        }
+        if ("admin".equals(userRequest.getPassword())) {
+            logger.warn("Attempt to use restricted password for user: {}", userRequest.getUsername());
+            return ResponseEntity.badRequest().body(Map.of("error", "Password cannot be 'admin'"));
+        }
+        if (!userRequest.getPassword().equals(userRequest.getConfirmPassword())) {
+            logger.warn("Password and confirm password do not match for user: {}", userRequest.getUsername());
+            return ResponseEntity.badRequest().body(Map.of("error", "Password and confirm password do not match"));
+        }
+        if (StringUtils.isBlank(userRequest.getUsername())) {
+            logger.warn("Username is empty");
+            return ResponseEntity.badRequest().body(Map.of("error", "Username is required"));
+        }
+
         User user = new User();
         user.setFirstName(userRequest.getFirstName());
         user.setLastName(userRequest.getLastName());
@@ -96,14 +108,14 @@ public ResponseEntity<?> createUser(@RequestBody UserRequest userRequest) {
         user.setConfirmPassword(userRequest.getConfirmPassword());
 
         // Handle organization
-        if (userRequest.getOrganizationId() != null && !userRequest.getOrganizationId().isBlank()) {
+        if (StringUtils.isNotBlank(userRequest.getOrganizationId())) {
             Organization org = organizationRepository.findById(userRequest.getOrganizationId())
                 .orElseThrow(() -> new IllegalArgumentException("Organization not found: " + userRequest.getOrganizationId()));
             user.setOrganization(org);
         }
 
         // Handle directorate
-        if (userRequest.getDirectorateId() != null && !userRequest.getDirectorateId().isBlank()) {
+        if (StringUtils.isNotBlank(userRequest.getDirectorateId())) {
             Directorate dir = directorateRepository.findById(userRequest.getDirectorateId())
                 .orElseThrow(() -> new IllegalArgumentException("Directorate not found: " + userRequest.getDirectorateId()));
             user.setDirectorate(dir);
@@ -118,13 +130,13 @@ public ResponseEntity<?> createUser(@RequestBody UserRequest userRequest) {
         return ResponseEntity.status(201).body(userService.convertToDTO(registeredUser));
     } catch (UserAlreadyExistException e) {
         logger.warn("User registration failed: {}", e.getMessage());
-        return ResponseEntity.status(409).body("User already exists: " + e.getMessage());
+        return ResponseEntity.status(409).body(Map.of("error", "User already exists: " + e.getMessage()));
     } catch (IllegalArgumentException e) {
         logger.warn("Invalid request: {}", e.getMessage());
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
         logger.error("Unexpected error during user registration", e);
-        return ResponseEntity.status(500).body("Failed to register user: " + e.getMessage());
+        return ResponseEntity.status(500).body(Map.of("error", "Failed to register user: " + e.getMessage()));
     }
 }
 

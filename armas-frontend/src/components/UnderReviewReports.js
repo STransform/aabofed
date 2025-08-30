@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   CCard,
   CCardBody,
@@ -32,6 +33,7 @@ import {
   Typography,
   Paper,
   Tooltip,
+  CircularProgress,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -43,7 +45,7 @@ import { styled } from '@mui/material/styles';
 import { getUnderReviewReports, downloadFile, approveReport, rejectReport } from '../file/upload_download';
 import { useAuth } from '../views/pages/AuthProvider';
 
-// Styled components (unchanged)
+// Styled components
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: '8px',
   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
@@ -109,9 +111,10 @@ export default function UnderReviewReports() {
     setLoading(true);
     try {
       const data = await getUnderReviewReports();
-      setReports(Array.isArray(data) ? data : []);
+      const validReports = Array.isArray(data) ? data.filter(report => report && report.id) : [];
+      setReports(validReports);
       setLoading(false);
-      if (data.length === 0) {
+      if (validReports.length === 0) {
         setError('No reports under review.');
       }
     } catch (error) {
@@ -120,17 +123,22 @@ export default function UnderReviewReports() {
             error.response.data?.message || error.response.data || error.response.statusText
           }`
         : error.message;
+      console.error('UnderReviewReports: Fetch error:', errorMessage);
       setError(errorMessage);
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log('UnderReviewReports: Component mounted');
     fetchReports();
   }, []);
 
-  const handleDownload = async (id, docname, type) => {
+
+
+  const handleDownload = useCallback(async (id, filename, type) => {
     try {
+      console.log(`UnderReviewReports: Downloading file: id=${id}, type=${type}, filename=${filename}`);
       const response = await downloadFile(id, type);
       const blob = new Blob([response.data]);
       if (blob.size === 0) {
@@ -139,8 +147,7 @@ export default function UnderReviewReports() {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const filename = type === 'original' ? (docname || 'file') : (docname || 'file');
-      link.setAttribute('download', filename);
+      link.setAttribute('download', filename || 'file');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -149,14 +156,19 @@ export default function UnderReviewReports() {
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
-      const msg = error.response?.data || `Error downloading ${type} file`;
-      setSnackbarMessage(msg);
+      const errorMessage =
+        error.response?.status === 404
+          ? `${type === 'original' ? 'Report' : 'Findings'} not found`
+          : `Failed to download: ${error.message || 'Unknown error'}`;
+      console.error('UnderReviewReports: Download error:', error);
+      setSnackbarMessage(errorMessage);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
-  };
+  }, []);
 
   const handleApprove = (report) => {
+    console.log('UnderReviewReports: handleApprove called with report:', report);
     setSelectedReport(report);
     setApprovalDocument(null);
     setShowApprovalModal(true);
@@ -174,6 +186,7 @@ export default function UnderReviewReports() {
       await fetchReports();
     } catch (error) {
       const msg = error.response?.data || 'Error approving report';
+      console.error('UnderReviewReports: Approve error:', error);
       setSnackbarMessage(msg);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -181,6 +194,7 @@ export default function UnderReviewReports() {
   };
 
   const handleReject = (report) => {
+    console.log('UnderReviewReports: handleReject called with report:', report);
     setSelectedReport(report);
     setRejectionReason('');
     setRejectionDocument(null);
@@ -206,6 +220,7 @@ export default function UnderReviewReports() {
       await fetchReports();
     } catch (error) {
       const msg = error.response?.data || 'Error rejecting report';
+      console.error('UnderReviewReports: Reject error:', error);
       setSnackbarMessage(msg);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -241,13 +256,15 @@ export default function UnderReviewReports() {
     setApprovalDocument(null);
   };
 
+
   const filteredReports = reports.filter(
     (report) =>
-      (report.id || '').toString().toLowerCase().includes(filterText.toLowerCase()) ||
+      report &&
+      ((report.id || '').toString().toLowerCase().includes(filterText.toLowerCase()) ||
       (report.organization?.orgname || '').toLowerCase().includes(filterText.toLowerCase()) ||
       (report.transactiondocument?.reportype || '').toLowerCase().includes(filterText.toLowerCase()) ||
       (report.fiscalYear || '').toString().toLowerCase().includes(filterText.toLowerCase()) ||
-      (report.remarks || '').toLowerCase().includes(filterText.toLowerCase())
+      (report.remarks || '').toLowerCase().includes(filterText.toLowerCase()))
   );
 
   return (
@@ -262,7 +279,9 @@ export default function UnderReviewReports() {
             </CCardHeader>
             <CCardBody>
               {loading ? (
-                <Typography>Loading...</Typography>
+                <Box display="flex" justifyContent="center" my={2}>
+                  <CircularProgress />
+                </Box>
               ) : error ? (
                 <Typography color="error">{error}</Typography>
               ) : (
@@ -290,7 +309,6 @@ export default function UnderReviewReports() {
                         <StyledTableRow>
                           <StyledTableCell>Date</StyledTableCell>
                           <StyledTableCell>Organization</StyledTableCell>
-                          {/* <StyledTableCell>Budget Year</StyledTableCell> */}
                           <StyledTableCell>Report Type</StyledTableCell>
                           <StyledTableCell>Audit Findings</StyledTableCell>
                           <StyledTableCell align="right">Actions</StyledTableCell>
@@ -307,29 +325,37 @@ export default function UnderReviewReports() {
                                   : 'N/A'}
                               </StyledTableCell>
                               <StyledTableCell>{report.organization?.orgname || 'N/A'}</StyledTableCell>
-                              {/* <StyledTableCell>{report.fiscalYear || 'N/A'}</StyledTableCell> */}
                               <StyledTableCell>{report.transactiondocument?.reportype || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.remarks || 'N/A'}</StyledTableCell>
                               <StyledTableCell align="right">
                                 <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                                  <Tooltip title="Download Report">
-                                    <IconButton
-                                      sx={{ color: '#000000' }}
-                                      onClick={() => handleDownload(report.id, report.docname, 'original')}
-                                      aria-label="Download report"
-                                    >
-                                      <DownloadIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                  {report.supportingDocumentPath && (
+                                  {report.docname && (
+                                    <Tooltip title="Download Original Report">
+                                      <StyledButton
+                                        variant="outlined"
+                                        size="small"
+                                        startIcon={<DownloadIcon />}
+
+
+                                        onClick={() => handleDownload(report.id, report.docname, 'original')}
+                                        aria-label="Download original report"
+                                      >
+                                        Report
+                                      </StyledButton>
+                                    </Tooltip>
+                                  )}
+                                  {report.supportingDocname && (
                                     <Tooltip title="Download Findings">
-                                      <IconButton
-                                        sx={{ color: '#0000FF' }}
+                                      <StyledButton
+                                        variant="outlined"
+                                        size="small"
+                                        startIcon={<DownloadIcon />}
                                         onClick={() => handleDownload(report.id, report.supportingDocname, 'supporting')}
                                         aria-label="Download findings"
+                                        sx={{ color: '#0000FF', borderColor: '#0000FF' }}
                                       >
-                                        <DownloadIcon />
-                                      </IconButton>
+                                        Findings
+                                      </StyledButton>
                                     </Tooltip>
                                   )}
                                   {isApprover && (
@@ -373,7 +399,9 @@ export default function UnderReviewReports() {
                       </TableBody>
                     </Table>
                   ) : (
-                    <Typography sx={{ p: 2 }}>No reports found.</Typography>
+                    <Typography sx={{ p: 2, textAlign: 'center' }}>
+                      No reports found.
+                    </Typography>
                   )}
                   <TablePagination
                     component="div"
@@ -381,6 +409,7 @@ export default function UnderReviewReports() {
                     page={page}
                     onPageChange={handleChangePage}
                     rowsPerPage={rowsPerPage}
+
                     onRowsPerPageChange={handleChangeRowsPerPage}
                     rowsPerPageOptions={[5, 10, 25]}
                   />

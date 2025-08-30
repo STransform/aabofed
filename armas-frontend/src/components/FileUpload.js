@@ -41,14 +41,30 @@ const FileUpload = ({ onUploadSuccess }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
-    };
+   const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    const maxSizeInBytes = 500 * 1024 * 1024; // 500MB
+    if (selectedFile && selectedFile.size > maxSizeInBytes) {
+        setError('File size exceeds the maximum limit of 500MB');
+        setFile(null);
+        e.target.value = null; // Clear the file input
+    } else {
+        setFile(selectedFile);
+        setError('');
+        console.log('Selected file:', selectedFile?.name, 'Size:', selectedFile?.size / (1024 * 1024), 'MB');
+    }
+};
 
    const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
         setError('Please select a file');
+        return;
+    }
+    // Check file size (500MB = 500 * 1024 * 1024 bytes)
+    const maxFileSize = 500 * 1024 * 1024; // 500MB in bytes
+    if (file.size > maxFileSize) {
+        setError('Your file exceeds maximum size of 500MB.');
         return;
     }
     if (!formData.budgetYearId) {

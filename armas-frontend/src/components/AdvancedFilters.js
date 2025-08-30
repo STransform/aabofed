@@ -33,10 +33,14 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  Tooltip,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import {
   Search as SearchIcon,
   Visibility as VisibilityIcon,
+  FileDownload as FileDownloadIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import {
@@ -49,6 +53,10 @@ import {
   getFeedbackSenders,
 } from '../file/upload_download';
 import axiosInstance from '../axiosConfig';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { Document, Packer, Paragraph, Table as DocxTable, TableRow as DocxTableRow, TableCell as DocxTableCell, WidthType } from 'docx';
+import * as XLSX from 'xlsx';
 
 // Styled components for enhanced UI
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
@@ -125,6 +133,7 @@ export default function AdvancedFilters() {
   const [filterText, setFilterText] = useState('');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null); // State for export menu
 
   useEffect(() => {
     const fetchData = async () => {
@@ -171,54 +180,32 @@ export default function AdvancedFilters() {
     setError(null);
     setSnackbarOpen(false);
     try {
-      let data = [];
-      switch (filterType) {
-        case 'report-non-senders':
-          if (!reportype || !fiscalYear) {
-            throw new Error('Please select report type and budget year');
-          }
-          data = await getReportNonSenders(reportype, fiscalYear);
-          setSnackbarMessage(data.length > 0 ? 'Report non-senders fetched successfully' : 'No organizations found that have not sent reports');
-          setSnackbarSeverity('success');
-          break;
-        case 'reports-by-org':
-          if (!orgId || !reportype || !fiscalYear) {
-            throw new Error('Please select organization, report type, and budget year');
-          }
-          data = await getReportsByOrgAndFilters(reportype, fiscalYear, orgId);
-          setSnackbarMessage(data.length > 0 ? 'Reports found' : 'No reports found for this organization');
-          setSnackbarSeverity('success');
-          break;
-        case 'orgs-with-reports':
-          data = await getAllOrganizationsWithReports();
-          setSnackbarMessage(data.length > 0 ? 'Organizations with reports fetched successfully' : 'No organizations found with reports');
-          setSnackbarSeverity('success');
-          break;
-        case 'feedback-non-senders':
-          if (!reportype || !fiscalYear) {
-            throw new Error('Please select report type and budget year');
-          }
-          data = await getFeedbackNonSenders(reportype, fiscalYear);
-          setSnackbarMessage(data.length > 0 ? 'Feedback non-senders fetched successfully' : 'No organizations found that have not sent feedback');
-          setSnackbarSeverity('success');
-          break;
-        case 'feedback-senders':
-          if (!reportype || !fiscalYear) {
-            throw new Error('Please select report type and budget year');
-          }
-          data = await getFeedbackSenders(reportype, fiscalYear);
-          setSnackbarMessage(data.length > 0 ? 'Feedback senders fetched successfully' : 'No feedback senders found');
-          setSnackbarSeverity('success');
-          break;
-        default:
-          throw new Error('Invalid filter type');
+      const params = { filterType };
+      if (filterType !== 'orgs-with-reports') {
+        if (!reportype || !fiscalYear) {
+          throw new Error('Please select report type and budget year');
+        }
+        params.reportype = reportype;
+        params.fiscalYear = fiscalYear;
       }
+      if (filterType === 'reports-by-org') {
+        if (!orgId) {
+          throw new Error('Please select organization');
+        }
+        params.orgId = orgId;
+      }
+
+      const response = await axiosInstance.get('/transactions/advanced-filters', { params });
+      const data = response.data;
+
       setResults(Array.isArray(data) ? data : []);
       setPage(0);
+      setSnackbarMessage(data.length > 0 ? `${filterType} fetched successfully` : `No data found for ${filterType}`);
+      setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
       const errorMessage = error.response
-        ? `Error ${error.response.status}: ${error.response.data?.message || error.response.data || error.response.statusText}`
+        ? `Error ${error.response.status}: ${error.response.data?.error || error.response.data || error.response.statusText}`
         : error.message;
       setSnackbarMessage(errorMessage);
       setSnackbarSeverity('error');
@@ -252,6 +239,145 @@ export default function AdvancedFilters() {
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
+  };
+
+  const handleExportMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleExportMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Results', 14, 20);
+    doc.autoTable({
+      head: [['Organization Name', ...(filterType === 'reports-by-org' || filterType === 'feedback-senders' ? ['ID', 'Budget Year', 'Report Type', 'Status', 'Created Date', 'Document Name', 'Created By'] : ['Organization ID', 'Organization Type'])]],
+      body: filteredResults.map(item => 
+        filterType === 'reports-by-org' || filterType === 'feedback-senders' ? [
+          item.orgname || 'N/A',
+          item.id || 'N/A',
+          item.fiscalYear || item.fiscal_year || 'N/A',
+          item.reportype || 'N/A',
+          item.reportstatus || 'N/A',
+          item.createdDate ? new Date(item.createdDate).toLocaleDateString() : 'N/A',
+          item.docname || 'N/A',
+          item.createdBy || 'N/A',
+        ] : [
+          item.orgname || 'N/A',
+          item.id || 'N/A',
+          item.orgtype || 'N/A',
+        ]),
+      startY: 30,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [63, 81, 181] },
+    });
+    doc.save('advanced_filters_results.pdf');
+    setSnackbarMessage('Exported to PDF successfully');
+    setSnackbarSeverity('success');
+    setSnackbarOpen(true);
+    handleExportMenuClose();
+  };
+
+  const exportToWord = () => {
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({
+            text: 'Results',
+            heading: 'Heading1',
+          }),
+          new DocxTable({
+            rows: [
+              new DocxTableRow({
+                children: [
+                  new DocxTableCell({ children: [new Paragraph('Organization Name')] }),
+                  ...(filterType === 'reports-by-org' || filterType === 'feedback-senders' ? [
+                    new DocxTableCell({ children: [new Paragraph('ID')] }),
+                    new DocxTableCell({ children: [new Paragraph('Budget Year')] }),
+                    new DocxTableCell({ children: [new Paragraph('Report Type')] }),
+                    new DocxTableCell({ children: [new Paragraph('Status')] }),
+                    new DocxTableCell({ children: [new Paragraph('Created Date')] }),
+                    new DocxTableCell({ children: [new Paragraph('Document Name')] }),
+                    new DocxTableCell({ children: [new Paragraph('Created By')] }),
+                  ] : [
+                    new DocxTableCell({ children: [new Paragraph('Organization ID')] }),
+                    new DocxTableCell({ children: [new Paragraph('Organization Type')] }),
+                  ]),
+                ],
+              }),
+              ...filteredResults.map(item => new DocxTableRow({
+                children: [
+                  new DocxTableCell({ children: [new Paragraph(item.orgname || 'N/A')] }),
+                  ...(filterType === 'reports-by-org' || filterType === 'feedback-senders' ? [
+                    new DocxTableCell({ children: [new Paragraph(item.id || 'N/A')] }),
+                    new DocxTableCell({ children: [new Paragraph(item.fiscalYear || item.fiscal_year || 'N/A')] }),
+                    new DocxTableCell({ children: [new Paragraph(item.reportype || 'N/A')] }),
+                    new DocxTableCell({ children: [new Paragraph(item.reportstatus || 'N/A')] }),
+                    new DocxTableCell({ children: [new Paragraph(item.createdDate ? new Date(item.createdDate).toLocaleDateString() : 'N/A')] }),
+                    new DocxTableCell({ children: [new Paragraph(item.docname || 'N/A')] }),
+                    new DocxTableCell({ children: [new Paragraph(item.createdBy || 'N/A')] }),
+                  ] : [
+                    new DocxTableCell({ children: [new Paragraph(item.id || 'N/A')] }),
+                    new DocxTableCell({ children: [new Paragraph(item.orgtype || 'N/A')] }),
+                  ]),
+                ],
+              })),
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+          }),
+        ],
+      }],
+    });
+    Packer.toBlob(doc).then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'advanced_filters_results.docx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      setSnackbarMessage('Exported to Word successfully');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    });
+    handleExportMenuClose();
+  };
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredResults.map(item => 
+      filterType === 'reports-by-org' || filterType === 'feedback-senders' ? ({
+        'Organization Name': item.orgname || 'N/A',
+        'ID': item.id || 'N/A',
+        'Budget Year': item.fiscalYear || item.fiscal_year || 'N/A',
+        'Report Type': item.reportype || 'N/A',
+        'Status': item.reportstatus || 'N/A',
+        'Created Date': item.createdDate ? new Date(item.createdDate).toLocaleDateString() : 'N/A',
+        'Document Name': item.docname || 'N/A',
+        'Created By': item.createdBy || 'N/A',
+      }) : ({
+        'Organization Name': item.orgname || 'N/A',
+        'Organization ID': item.id || 'N/A',
+        'Organization Type': item.orgtype || 'N/A',
+      })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Results');
+    XLSX.writeFile(workbook, 'advanced_filters_results.xlsx');
+    setSnackbarMessage('Exported to Excel successfully');
+    setSnackbarSeverity('success');
+    setSnackbarOpen(true);
+    handleExportMenuClose();
+  };
+
+  const handlePrint = () => {
+    window.print();
+    setSnackbarMessage('Print dialog opened');
+    setSnackbarSeverity('success');
+    setSnackbarOpen(true);
+    handleExportMenuClose();
   };
 
   const filteredResults = results.filter((item) =>
@@ -366,12 +492,51 @@ export default function AdvancedFilters() {
                           }}
                           sx={{ width: { xs: '100%', sm: '40%' } }}
                         />
+                        <Box>
+                          <Tooltip title="Export or print results" placement="top">
+                            <StyledButton
+                              variant="contained"
+                              color="primary"
+                              startIcon={<FileDownloadIcon />}
+                              onClick={handleExportMenuOpen}
+                            >
+                              Export
+                            </StyledButton>
+                          </Tooltip>
+                          <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={handleExportMenuClose}
+                            PaperProps={{
+                              style: {
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                borderRadius: '8px',
+                              },
+                            }}
+                          >
+                            <MenuItem onClick={exportToPDF}>Export to PDF</MenuItem>
+                            <MenuItem onClick={exportToWord}>Export to Word</MenuItem>
+                            <MenuItem onClick={exportToExcel}>Export to Excel</MenuItem>
+                            <MenuItem onClick={handlePrint}>Print</MenuItem>
+                          </Menu>
+                        </Box>
                       </Box>
                       {filteredResults.length > 0 ? (
                         <Table stickyHeader>
                           <TableHead>
                             <StyledTableRow>
                               <StyledTableCell>Organization Name</StyledTableCell>
+                              {(filterType === 'reports-by-org' || filterType === 'feedback-senders') && (
+                                <>
+                                  <StyledTableCell>ID</StyledTableCell>
+                                  <StyledTableCell>Budget Year</StyledTableCell>
+                                  <StyledTableCell>Report Type</StyledTableCell>
+                                  <StyledTableCell>Status</StyledTableCell>
+                                  <StyledTableCell>Created Date</StyledTableCell>
+                                  <StyledTableCell>Document Name</StyledTableCell>
+                                  <StyledTableCell>Created By</StyledTableCell>
+                                </>
+                              )}
                               <StyledTableCell align="right">Actions</StyledTableCell>
                             </StyledTableRow>
                           </TableHead>
@@ -381,6 +546,17 @@ export default function AdvancedFilters() {
                               .map((item) => (
                                 <StyledTableRow key={item.id || Math.random()}>
                                   <StyledTableCell>{item.orgname || 'N/A'}</StyledTableCell>
+                                  {(filterType === 'reports-by-org' || filterType === 'feedback-senders') && (
+                                    <>
+                                      <StyledTableCell>{item.id || 'N/A'}</StyledTableCell>
+                                      <StyledTableCell>{item.fiscalYear || item.fiscal_year || 'N/A'}</StyledTableCell>
+                                      <StyledTableCell>{item.reportype || 'N/A'}</StyledTableCell>
+                                      <StyledTableCell>{item.reportstatus || 'N/A'}</StyledTableCell>
+                                      <StyledTableCell>{item.createdDate ? new Date(item.createdDate).toLocaleDateString() : 'N/A'}</StyledTableCell>
+                                      <StyledTableCell>{item.docname || 'N/A'}</StyledTableCell>
+                                      <StyledTableCell>{item.createdBy || 'N/A'}</StyledTableCell>
+                                    </>
+                                  )}
                                   <StyledTableCell align="right">
                                     <IconButton
                                       color="success"

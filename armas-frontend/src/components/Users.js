@@ -323,7 +323,45 @@ export default function User() {
     }
   };
 
-  const handleAddUser = async () => {
+ const handleAddUser = async () => {
+    // Validate inputs before sending
+    if (!currentUser.firstName.trim()) {
+        setSnackbarMessage('First name is required');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return;
+    }
+    if (!currentUser.lastName.trim()) {
+        setSnackbarMessage('Last name is required');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return;
+    }
+    if (!currentUser.username.trim()) {
+        setSnackbarMessage('Username is required');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return;
+    }
+    if (!currentUser.password.trim() || !currentUser.confirmPassword.trim()) {
+        setSnackbarMessage('Password and confirm password are required');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return;
+    }
+    if (currentUser.password.trim() !== currentUser.confirmPassword.trim()) {
+        setSnackbarMessage('Password and confirm password do not match');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return;
+    }
+    if (currentUser.password.trim() === 'admin') {
+        setSnackbarMessage('Password cannot be "admin"');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return;
+    }
+
     try {
         const payload = {
             firstName: currentUser.firstName.trim(),
@@ -350,12 +388,12 @@ export default function User() {
             error.response?.status === 409
                 ? 'Username already exists'
                 : error.response?.status === 400
-                ? error.response?.data?.message || 'Validation error: Please check your inputs'
+                ? error.response?.data?.error || 'Validation error: Please check your inputs'
                 : error.response?.status === 401
                 ? 'Unauthorized: Please log in as an admin'
                 : error.response?.status === 403
                 ? 'Forbidden: Admin access required'
-                : error.response?.data?.message || 'Error adding user';
+                : error.response?.data?.error || 'Error adding user';
         console.error('Error adding user:', error.response || error);
         setSnackbarMessage(msg);
         setSnackbarSeverity('error');

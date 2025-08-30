@@ -160,51 +160,49 @@ public class MasterTransactionService {
     }
 
 @Transactional
-public MasterTransaction uploadLetter(Integer transactionId, MultipartFile letter, String currentUsername) throws IOException {
-    User archiver = userRepository.findByUsername(currentUsername);
-    if (archiver == null || !archiver.getRoles().stream().anyMatch(r -> "ARCHIVER".equals(r.getDescription()))) {
-        throw new IllegalArgumentException("Unauthorized: Must be an ARCHIVER");
-    }
-
-    MasterTransaction transaction = masterTransactionRepository.findById(transactionId)
-            .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
-
-    if (letter == null || letter.isEmpty()) {
-        throw new IllegalArgumentException("Letter file is required");
-    }
-
-    String letterPath = fileStorageService.storeFile(letter, transaction, new Principal() {
-        @Override
-        public String getName() {
-            return currentUsername;
+    public MasterTransaction uploadLetter(Integer transactionId, MultipartFile letter, String currentUsername) throws IOException {
+        User archiver = userRepository.findByUsername(currentUsername);
+        if (archiver == null || !archiver.getRoles().stream().anyMatch(r -> "ARCHIVER".equals(r.getDescription()))) {
+            throw new IllegalArgumentException("Unauthorized: Must be an ARCHIVER");
         }
-    }, true);
 
-    transaction.setLetterPath(letterPath);
-    transaction.setLetterDocname(letter.getOriginalFilename());
-    transaction.setLastModifiedBy(currentUsername);
+        MasterTransaction transaction = masterTransactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
 
-    MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
+        if (letter == null || letter.isEmpty()) {
+            throw new IllegalArgumentException("Letter file is required");
+        }
 
-    User uploader = transaction.getUser();
-    if (uploader != null) {
-        createNotification(
-                uploader,
-                "Letter Uploaded",
-                "A letter '" + savedTransaction.getLetterDocname() + "' has been uploaded for your report '" + savedTransaction.getDocname() + "' by " + currentUsername,
-                "MasterTransaction",
-                savedTransaction.getId().longValue(),
-                "letter_uploaded"
-        );
-    } else {
-        System.err.println("No uploader found for transaction ID: " + transactionId);
-    }
+        String letterPath = fileStorageService.storeFile(letter, transaction, new Principal() {
+            @Override
+            public String getName() {
+                return currentUsername;
+            }
+        }, true);
+        transaction.setLetterPath(letterPath);
+        transaction.setLetterDocname(letter.getOriginalFilename());
+        transaction.setLastModifiedBy(currentUsername);
 
-    if (transaction.getOrganization() != null && transaction.getOrganization().getId() != null) {
-        List<User> managers = userRepository.findByRoleNameAndOrganizationId("MANAGER", transaction.getOrganization().getId());
-        if (managers.isEmpty()) {
-            System.err.println("No MANAGER users found for organization ID: " + transaction.getOrganization().getId());
+        MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
+
+        fileStorageService.validateAndCopyMigratedFiles(savedTransaction);
+
+        User uploader = transaction.getUser();
+        if (uploader != null) {
+            createNotification(
+                    uploader,
+                    "Letter Uploaded",
+                    "A letter '" + savedTransaction.getLetterDocname() + "' has been uploaded for your report '" + savedTransaction.getDocname() + "' by " + currentUsername,
+                    "MasterTransaction",
+                    savedTransaction.getId().longValue(),
+                    "letter_uploaded"
+            );
         } else {
+            System.err.println("No uploader found for transaction ID: " + transactionId);
+        }
+
+        if (transaction.getOrganization() != null && transaction.getOrganization().getId() != null) {
+            List<User> managers = userRepository.findByRoleNameAndOrganizationId("MANAGER", transaction.getOrganization().getId());
             for (User manager : managers) {
                 createNotification(
                         manager,
@@ -216,12 +214,10 @@ public MasterTransaction uploadLetter(Integer transactionId, MultipartFile lette
                 );
             }
         }
-    } else {
-        System.err.println("No organization found for transaction ID: " + transactionId);
+
+        return savedTransaction;
     }
 
-    return savedTransaction;
-}
 
       public Map<String, Path> getFilePaths(Integer id) {
         MasterTransaction transaction = masterTransactionRepository.findById(id)
@@ -298,62 +294,51 @@ public MasterTransaction uploadLetter(Integer transactionId, MultipartFile lette
         System.out.println("Assigned task: ID=" + savedTransaction.getId() + ", user2=" + auditor.getUsername());
         return savedTransaction;
     }
-
 @Transactional
-public MasterTransaction submitFindings(Integer transactionId, String findings, String approverUsername,
-        String responseNeeded, String currentUsername, MultipartFile supportingDocument) throws IOException {
-    System.out.println("Starting submitFindings: transactionId=" + transactionId + ", currentUsername=" + currentUsername);
-    
-    MasterTransaction transaction = masterTransactionRepository.findById(transactionId)
-            .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
-    System.out.println("Transaction found: status=" + transaction.getReportstatus());
+    public MasterTransaction submitFindings(Integer transactionId, String findings, String approverUsername,
+            String responseNeeded, String currentUsername, MultipartFile supportingDocument) throws IOException {
+        System.out.println("Starting submitFindings: transactionId=" + transactionId + ", currentUsername=" + currentUsername);
+        
+        MasterTransaction transaction = masterTransactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+        System.out.println("Transaction found: status=" + transaction.getReportstatus());
 
-    if (!Arrays.asList("Assigned", "Rejected").contains(transaction.getReportstatus())) {
-        System.out.println("Invalid status: " + transaction.getReportstatus());
-        throw new IllegalStateException("Can only submit findings for Assigned or Rejected reports");
-    }
+        if (!Arrays.asList("Assigned", "Rejected").contains(transaction.getReportstatus())) {
+            throw new IllegalStateException("Can only submit findings for Assigned or Rejected reports");
+        }
 
-    User approver = userRepository.findByUsername(approverUsername);
-    System.out.println("Approver fetched: " + (approver != null ? approver.getUsername() : "null"));
-    if (approver == null || !approver.getRoles().stream().anyMatch(r -> "APPROVER".equals(r.getDescription()))) {
-        throw new IllegalArgumentException("Invalid Approver: " + approverUsername);
-    }
+        User approver = userRepository.findByUsername(approverUsername);
+        if (approver == null || !approver.getRoles().stream().anyMatch(r -> "APPROVER".equals(r.getDescription()))) {
+            throw new IllegalArgumentException("Invalid Approver: " + approverUsername);
+        }
 
-    if (!Arrays.asList("Pending", "Yes", "No").contains(responseNeeded)) {
-        throw new IllegalArgumentException("Invalid response_needed value: " + responseNeeded);
-    }
+        if (!Arrays.asList("Pending", "Yes", "No").contains(responseNeeded)) {
+            throw new IllegalArgumentException("Invalid response_needed value: " + responseNeeded);
+        }
 
-    User currentUser = userRepository.findByUsername(currentUsername);
-    System.out.println("Current user: " + (currentUser != null ? currentUser.getUsername() : "null"));
-    if (currentUser == null) {
-        throw new IllegalArgumentException("Current user not found: " + currentUsername);
-    }
+        User currentUser = userRepository.findByUsername(currentUsername);
+        if (currentUser == null) {
+            throw new IllegalArgumentException("Current user not found: " + currentUsername);
+        }
 
-    transaction.setRemarks(findings);
-    transaction.setUser2(approver);
-    transaction.setReportstatus(transaction.getReportstatus().equals("Rejected") ? "Corrected" : "Under Review");
-    transaction.setSubmittedByAuditor(currentUser);
-    transaction.setResponse_needed(responseNeeded);
+        transaction.setRemarks(findings);
+        transaction.setUser2(approver);
+        transaction.setReportstatus(transaction.getReportstatus().equals("Rejected") ? "Corrected" : "Under Review");
+        transaction.setSubmittedByAuditor(currentUser);
+        transaction.setResponse_needed(responseNeeded);
 
-    if (supportingDocument != null && !supportingDocument.isEmpty()) {
-        try {
+        if (supportingDocument != null && !supportingDocument.isEmpty()) {
             String supportingPath = fileStorageService.storeFile(supportingDocument, transaction, new Principal() {
                 @Override
                 public String getName() {
                     return currentUsername;
                 }
             }, true);
-            transaction.setSupportingDocumentPath(supportingPath);
-            transaction.setSupportingDocname(supportingDocument.getOriginalFilename());
             System.out.println("Supporting document stored: " + supportingPath);
-        } catch (IOException e) {
-            System.err.println("File storage failed: " + e.getMessage());
-            throw e;
         }
-    }
 
-    transaction.setLastModifiedBy(currentUsername);
-   MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
+        transaction.setLastModifiedBy(currentUsername);
+        MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
 
         createNotification(
                 approver,
@@ -362,13 +347,14 @@ public MasterTransaction submitFindings(Integer transactionId, String findings, 
                 "MasterTransaction",
                 savedTransaction.getId().longValue(),
                 "task_evaluated"
-            );
+        );
 
-        System.out.println("Transaction saved: ID=" + savedTransaction.getId());
+        fileStorageService.validateAndCopyMigratedFiles(savedTransaction);
+
         return savedTransaction;
-}
+    }
 
-    @Transactional
+   @Transactional
     public MasterTransaction approveReport(Integer transactionId, String currentUsername,
             MultipartFile approvalDocument) throws IOException {
         MasterTransaction transaction = masterTransactionRepository.findById(transactionId)
@@ -384,28 +370,25 @@ public MasterTransaction submitFindings(Integer transactionId, String findings, 
                 }
             }, true);
             transaction.setSupportingDocumentPath(approvalPath);
-            System.out.println(
-                    "Approver attachment: Path=" + approvalPath + ", Name=" + transaction.getSupportingDocname());
-        } else {
-            System.out.println("No Approver attachment provided for transaction ID=" + transactionId);
+            transaction.setSupportingDocname(approvalDocument.getOriginalFilename());
+            System.out.println("Approval document stored: " + approvalPath);
         }
 
         MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
 
+        fileStorageService.validateAndCopyMigratedFiles(savedTransaction);
+
         if (savedTransaction.getAssignedBy() != null) {
-           createNotification(
+            createNotification(
                     savedTransaction.getAssignedBy(),
                     "Task Approved",
                     "The task '" + savedTransaction.getDocname() + "' you assigned has been approved",
                     "MasterTransaction",
                     savedTransaction.getId().longValue(),
                     "task_approved"
-                );
+            );
         }
 
-        System.out.println("Saved transaction: ID=" + savedTransaction.getId() +
-                ", SupportingDocumentPath=" + savedTransaction.getSupportingDocumentPath() +
-                ", SupportingDocname=" + savedTransaction.getSupportingDocname());
         return savedTransaction;
     }
 

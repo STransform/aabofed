@@ -184,7 +184,7 @@ const Login = () => {
             <CCard className="login-card">
               <CCardBody>
                 <CForm onSubmit={handleLogin}>
-                  <h4 className="text-center">ARMAS</h4>
+                  <h4 className="text-center">IRMS</h4>
                   {error && (
                     <p className="text-danger text-center" style={{ marginLeft: '40px' }}>
                       {error}

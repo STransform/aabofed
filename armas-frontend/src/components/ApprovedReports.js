@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   CCard,
@@ -30,16 +31,23 @@ import {
   CircularProgress,
   InputAdornment,
   Snackbar,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import {
   Download as DownloadIcon,
   Visibility as VisibilityIcon,
   Upload as UploadIcon,
   Search as SearchIcon,
+  FileDownload as FileDownloadIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { getApprovedReports, downloadFile, uploadLetter } from '../file/upload_download';
 import { useAuth } from '../views/pages/AuthProvider';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { Document, Packer, Paragraph, Table as DocxTable, TableRow as DocxTableRow, TableCell as DocxTableCell, WidthType } from 'docx';
+import * as XLSX from 'xlsx';
 
 // Styled components for enhanced UI
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
@@ -99,6 +107,7 @@ const ApprovedReports = () => {
   const [filterText, setFilterText] = useState('');
   const [loading, setLoading] = useState(true);
   const [modalError, setModalError] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     console.log('ApprovedReports: Component mounted');
@@ -124,6 +133,8 @@ const ApprovedReports = () => {
     };
     fetchReports();
   }, []);
+
+
 
   const handleDownload = useCallback(async (id, filename, type = 'supporting') => {
     try {
@@ -210,6 +221,122 @@ const ApprovedReports = () => {
     setPage(0);
   };
 
+  const handleExportMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleExportMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+
+
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Approved Reports', 14, 20);
+    doc.autoTable({
+      head: [['Date', 'Organization', 'Budget Year', 'Report Type', 'Auditor', 'Response', 'Status']],
+      body: filteredReports.map(report => [
+        report.createdDate ? new Date(report.createdDate).toLocaleDateString() : 'N/A',
+        report.orgname || 'N/A',
+        report.fiscalYear || 'N/A',
+        report.reportype || 'N/A',
+        report.submittedByAuditorUsername || 'N/A',
+        report.responseNeeded || 'N/A',
+        report.reportstatus || 'N/A',
+      ]),
+      startY: 30,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [63, 81, 181] },
+    });
+    doc.save('approved_reports.pdf');
+    setSuccess('Exported to PDF successfully');
+    setTimeout(() => setSuccess(''), 4000);
+    handleExportMenuClose();
+  };
+
+  const exportToWord = () => {
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({
+            text: 'Approved Reports',
+            heading: 'Heading1',
+          }),
+          new DocxTable({
+            rows: [
+              new DocxTableRow({
+                children: [
+                  new DocxTableCell({ children: [new Paragraph('Date')] }),
+                  new DocxTableCell({ children: [new Paragraph('Organization')] }),
+                  new DocxTableCell({ children: [new Paragraph('Budget Year')] }),
+                  new DocxTableCell({ children: [new Paragraph('Report Type')] }),
+                  new DocxTableCell({ children: [new Paragraph('Auditor')] }),
+                  new DocxTableCell({ children: [new Paragraph('Response')] }),
+                  new DocxTableCell({ children: [new Paragraph('Status')] }),
+                ],
+              }),
+              ...filteredReports.map(report => new DocxTableRow({
+                children: [
+                  new DocxTableCell({ children: [new Paragraph(report.createdDate ? new Date(report.createdDate).toLocaleDateString() : 'N/A')] }),
+                  new DocxTableCell({ children: [new Paragraph(report.orgname || 'N/A')] }),
+                  new DocxTableCell({ children: [new Paragraph(report.fiscalYear || 'N/A')] }),
+                  new DocxTableCell({ children: [new Paragraph(report.reportype || 'N/A')] }),
+                  new DocxTableCell({ children: [new Paragraph(report.submittedByAuditorUsername || 'N/A')] }),
+                  new DocxTableCell({ children: [new Paragraph(report.responseNeeded || 'N/A')] }),
+                  new DocxTableCell({ children: [new Paragraph(report.reportstatus || 'N/A')] }),
+                ],
+              })),
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+          }),
+        ],
+      }],
+    });
+    Packer.toBlob(doc).then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'approved_reports.docx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      setSuccess('Exported to Word successfully');
+      setTimeout(() => setSuccess(''), 4000);
+    });
+    handleExportMenuClose();
+  };
+
+
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredReports.map(report => ({
+      Date: report.createdDate ? new Date(report.createdDate).toLocaleDateString() : 'N/A',
+      Organization: report.orgname || 'N/A',
+      'Budget Year': report.fiscalYear || 'N/A',
+      'Report Type': report.reportype || 'N/A',
+      Auditor: report.submittedByAuditorUsername || 'N/A',
+      Response: report.responseNeeded || 'N/A',
+      Status: report.reportstatus || 'N/A',
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Approved Reports');
+    XLSX.writeFile(workbook, 'approved_reports.xlsx');
+    setSuccess('Exported to Excel successfully');
+    setTimeout(() => setSuccess(''), 4000);
+    handleExportMenuClose();
+  };
+
+  const handlePrint = () => {
+    window.print();
+    setSuccess('Print dialog opened');
+    setTimeout(() => setSuccess(''), 4000);
+    handleExportMenuClose();
+  };
+
   const filteredReports = reports.filter((report) =>
     report
       ? (report.orgname || '').toLowerCase().includes(filterText.toLowerCase()) ||
@@ -242,7 +369,7 @@ const ApprovedReports = () => {
                 <Typography color="error">{error}</Typography>
               ) : (
                 <StyledTableContainer component={Paper}>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', p: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}>
                     <TextField
                       label="Search Reports"
                       variant="outlined"
@@ -258,6 +385,36 @@ const ApprovedReports = () => {
                       }}
                       sx={{ width: { xs: '100%', sm: '40%' } }}
                     />
+                    <Box>
+                      <Tooltip title="Export or print reports" placement="top">
+                        <StyledButton
+                          variant="contained"
+                          color="primary"
+                          startIcon={<FileDownloadIcon />}
+                          onClick={handleExportMenuOpen}
+                        >
+                          Export
+                        </StyledButton>
+                      </Tooltip>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleExportMenuClose}
+                        PaperProps={{
+                          style: {
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                            borderRadius: '8px',
+                          },
+                        }}
+
+
+                      >
+                        <MenuItem onClick={exportToPDF}>Export to PDF</MenuItem>
+                        <MenuItem onClick={exportToWord}>Export to Word</MenuItem>
+                        <MenuItem onClick={exportToExcel}>Export to Excel</MenuItem>
+                        <MenuItem onClick={handlePrint}>Print</MenuItem>
+                      </Menu>
+                    </Box>
                   </Box>
                   {filteredReports.length > 0 ? (
                     <Table stickyHeader>
@@ -267,8 +424,8 @@ const ApprovedReports = () => {
                           <StyledTableCell>Organization</StyledTableCell>
                           <StyledTableCell>Budget Year</StyledTableCell>
                           <StyledTableCell>Report Type</StyledTableCell>
-                          <StyledTableCell>Auditor</StyledTableCell>
-                          <StyledTableCell>Response</StyledTableCell>
+                          {/* <StyledTableCell>Auditor</StyledTableCell>
+                          <StyledTableCell>Response</StyledTableCell> */}
                           <StyledTableCell>Status</StyledTableCell>
                           <StyledTableCell align="right">Action</StyledTableCell>
                         </StyledTableRow>
@@ -286,8 +443,8 @@ const ApprovedReports = () => {
                               <StyledTableCell>{report.orgname || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.fiscalYear || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.reportype || 'N/A'}</StyledTableCell>
-                              <StyledTableCell>{report.submittedByAuditorUsername || 'N/A'}</StyledTableCell>
-                              <StyledTableCell>{report.responseNeeded || 'N/A'}</StyledTableCell>
+                              {/* <StyledTableCell>{report.submittedByAuditorUsername || 'N/A'}</StyledTableCell>
+                              <StyledTableCell>{report.responseNeeded || 'N/A'}</StyledTableCell> */}
                               <StyledTableCell>
                                 <Box
                                   sx={{
@@ -305,58 +462,80 @@ const ApprovedReports = () => {
                                 </Box>
                               </StyledTableCell>
                               <StyledTableCell align="right">
-                                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
                                   <Tooltip title="View Details">
-                                    <IconButton
-                                      color="success"
-                                      onClick={() => handleDetails(report)}
-                                      aria-label="View report details"
-                                    >
-                                      <VisibilityIcon />
-                                    </IconButton>
+                                    <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                                      <IconButton
+                                        color="success"
+                                        onClick={() => handleDetails(report)}
+                                        aria-label="View report details"
+                                        size="small"
+                                      >
+                                        <VisibilityIcon />
+                                      </IconButton>
+                                      <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+
+
+                                        Details
+                                      </Typography>
+                                    </Box>
                                   </Tooltip>
                                   {report.docname && (
                                     <Tooltip title="Download Original Report">
-                                      <IconButton
-                                        sx={{ color: '#000000' }}
+                                      <StyledButton
+                                        variant="outlined"
+                                        size="small"
+                                        startIcon={<DownloadIcon />}
                                         onClick={() => handleDownload(report.id, report.docname, 'original')}
                                         aria-label="Download original report"
                                       >
-                                        <DownloadIcon />
-                                      </IconButton>
+                                        Report
+                                      </StyledButton>
                                     </Tooltip>
                                   )}
                                   {report.supportingDocname && (
                                     <Tooltip title="Download Findings">
-                                      <IconButton
-                                        sx={{ color: '#0000FF' }}
+                                      <StyledButton
+                                        variant="outlined"
+                                        size="small"
+                                        startIcon={<DownloadIcon />}
                                         onClick={() => handleDownload(report.id, report.supportingDocname, 'supporting')}
                                         aria-label="Download findings"
+                                        sx={{ color: '#0000FF', borderColor: '#0000FF' }}
                                       >
-                                        <DownloadIcon />
-                                      </IconButton>
+                                        Findings
+                                      </StyledButton>
                                     </Tooltip>
                                   )}
                                   {isArchiver && report.letterDocname && (
                                     <Tooltip title="Download Letter">
-                                      <IconButton
-                                        sx={{ color: '#008000' }}
+                                      <StyledButton
+                                        variant="outlined"
+                                        size="small"
+                                        startIcon={<DownloadIcon />}
                                         onClick={() => handleDownload(report.id, report.letterDocname, 'letter')}
                                         aria-label="Download letter"
+                                        sx={{ color: '#008000', borderColor: '#008000' }}
                                       >
-                                        <DownloadIcon />
-                                      </IconButton>
+                                        Letter
+                                      </StyledButton>
                                     </Tooltip>
                                   )}
                                   {isArchiver && !report.letterDocname && (
                                     <Tooltip title="Send Letter">
-                                      <IconButton
-                                        color="secondary"
-                                        onClick={() => handleLetterUpload(report)}
-                                        aria-label="Send letter"
-                                      >
-                                        <UploadIcon />
-                                      </IconButton>
+                                      <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                                        <IconButton
+                                          color="secondary"
+                                          onClick={() => handleLetterUpload(report)}
+                                          aria-label="Send letter"
+                                          size="small"
+                                        >
+                                          <UploadIcon />
+                                        </IconButton>
+                                        <Typography variant="caption" sx={{ ml: 0.5, fontSize: '0.8rem' }}>
+                                          Send
+                                        </Typography>
+                                      </Box>
                                     </Tooltip>
                                   )}
                                 </Box>
@@ -367,6 +546,8 @@ const ApprovedReports = () => {
                     </Table>
                   ) : (
                     <Typography sx={{ p: 2, textAlign: 'center' }}>
+
+
                       No reports found.
                     </Typography>
                   )}
@@ -481,6 +662,8 @@ const ApprovedReports = () => {
             </Box>
             <Box>
               <Typography variant="subtitle2">Created By</Typography>
+
+
               <TextField
                 fullWidth
                 value={selectedReport?.createdBy || 'N/A'}
@@ -524,6 +707,7 @@ const ApprovedReports = () => {
                   size="small"
                   startIcon={<DownloadIcon />}
                   onClick={() => handleDownload(selectedReport.id, selectedReport.supportingDocname, 'supporting')}
+                  sx={{ color: '#0000FF', borderColor: '#0000FF' }}
                 >
                   Download Findings
                 </StyledButton>
@@ -541,6 +725,7 @@ const ApprovedReports = () => {
                   size="small"
                   startIcon={<DownloadIcon />}
                   onClick={() => handleDownload(selectedReport.id, selectedReport.letterDocname, 'letter')}
+                  sx={{ color: '#008000', borderColor: '#008000' }}
                 >
                   Download Letter
                 </StyledButton>
@@ -567,6 +752,8 @@ const ApprovedReports = () => {
           </StyledButton>
         </DialogActions>
       </StyledDialog>
+
+
 
       {/* Letter Upload Dialog */}
       <StyledDialog

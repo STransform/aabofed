@@ -97,7 +97,7 @@ const theme = createTheme({
 });
 
 // Configure Axios (unchanged)
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = 'http://irms.mofed.gov.et/api';
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');

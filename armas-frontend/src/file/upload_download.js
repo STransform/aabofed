@@ -27,12 +27,12 @@ export const markNotificationAsRead = async (id) => {
     }
 };
 export const uploadFile = async (file, reportcategory, budgetYearId, transactiondocumentid) => {
+    console.log('Uploading file:', file.name, 'Size:', file.size / (1024 * 1024), 'MB');
     const formData = new FormData();
     formData.append('file', file);
     formData.append('reportcategory', reportcategory);
-    formData.append('budgetYearId', String(budgetYearId)); // Ensure budgetYearId is sent as a string
+    formData.append('budgetYearId', String(budgetYearId));
     formData.append('transactiondocumentid', String(transactiondocumentid));
-    console.log('Uploading file:', { file: file.name, reportcategory, budgetYearId, transactiondocumentid });
     for (let [key, value] of formData.entries()) {
         console.log(`FormData ${key}: ${value}`);
     }
@@ -44,7 +44,7 @@ export const uploadFile = async (file, reportcategory, budgetYearId, transaction
         return response.data;
     } catch (error) {
         const errorMessage = error.response?.data?.error || error.message || 'File upload failed';
-        console.error('Error uploading file:', errorMessage, error.response?.status, error.response?.data);
+        console.error('Error uploading file:', errorMessage, 'Status:', error.response?.status, 'Data:', error.response?.data);
         throw new Error(errorMessage);
     }
 };
