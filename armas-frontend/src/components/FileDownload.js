@@ -31,7 +31,7 @@ import {
   InputAdornment,
   Typography,
   Paper,
-  Tooltip, // Ensure Tooltip is imported
+  Tooltip,
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -42,7 +42,21 @@ import {
 import { styled } from '@mui/material/styles';
 import { getSentReports, downloadFile, getUsersByRole, assignAuditor } from '../file/upload_download';
 
-// Styled components for enhanced UI
+// New API function to assign Approver
+export const assignApprover = async (transactionId, approverUsername) => {
+    try {
+        console.log('Calling assignApprover API: transactionId=', transactionId, ', approverUsername=', approverUsername);
+        const response = await axiosInstance.post(`/transactions/assign-approver/${transactionId}`, null, {
+            params: { approverUsername }
+        });
+        console.log('AssignApprover response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error assigning approver:', error.message, error.response?.status, error.response?.data);
+        throw error;
+    }
+};
+
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: '8px',
   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
@@ -98,14 +112,15 @@ export default function FileDownload() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [auditors, setAuditors] = useState([]);
-  const [selectedAuditor, setSelectedAuditor] = useState('');
+  const [assignees, setAssignees] = useState([]);
+  const [selectedAssignee, setSelectedAssignee] = useState('');
+  const [assignType, setAssignType] = useState(''); // 'auditor' or 'approver'
 
   const fetchReports = async () => {
     setLoading(true);
     try {
       const data = await getSentReports();
-      const submitted = data.filter((report) => report.reportstatus === 'Submitted');
+      const submitted = data.filter((report) => report.reportstatus === 'Submitted' || report.reportstatus === 'Under Review');
       setSubmittedReports(Array.isArray(submitted) ? submitted : []);
       setLoading(false);
       if (submitted.length === 0) {
@@ -154,14 +169,16 @@ export default function FileDownload() {
     }
   };
 
-  const handleAssignAuditor = async (report) => {
+  const handleAssign = async (report, type) => {
     setSelectedReport(report);
+    setAssignType(type);
     try {
-      const auditorsData = await getUsersByRole('SENIOR_AUDITOR');
-      setAuditors(Array.isArray(auditorsData) ? auditorsData : []);
+      const role = type === 'auditor' ? 'SENIOR_AUDITOR' : 'APPROVER';
+      const assigneesData = await getUsersByRole(role);
+      setAssignees(Array.isArray(assigneesData) ? assigneesData : []);
       setShowAssignModal(true);
     } catch (error) {
-      const msg = error.response?.data || 'Error loading auditors';
+      const msg = error.response?.data || `Error loading ${type}s`;
       setSnackbarMessage(msg);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -169,22 +186,27 @@ export default function FileDownload() {
   };
 
   const handleAssignSubmit = async () => {
-    if (!selectedAuditor) {
-      setSnackbarMessage('Please select an auditor');
+    if (!selectedAssignee) {
+      setSnackbarMessage(`Please select an ${assignType}`);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
     try {
-      await assignAuditor(selectedReport.id, selectedAuditor);
-      setSnackbarMessage('Auditor assigned successfully');
+      if (assignType === 'auditor') {
+        await assignAuditor(selectedReport.id, selectedAssignee);
+        setSnackbarMessage('Auditor assigned successfully');
+      } else {
+        await assignApprover(selectedReport.id, selectedAssignee);
+        setSnackbarMessage('Approver assigned successfully');
+      }
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       setShowAssignModal(false);
-      setSelectedAuditor('');
+      setSelectedAssignee('');
       fetchReports();
     } catch (error) {
-      const msg = error.response?.data || 'Error assigning auditor';
+      const msg = error.response?.data || `Error assigning ${assignType}`;
       setSnackbarMessage(msg);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -202,7 +224,8 @@ export default function FileDownload() {
 
   const handleCloseAssignModal = () => {
     setShowAssignModal(false);
-    setSelectedAuditor('');
+    setSelectedAssignee('');
+    setAssignType('');
   };
 
   const handleChangePage = (event, newPage) => {
@@ -276,6 +299,7 @@ export default function FileDownload() {
                           <StyledTableCell>Organization Name</StyledTableCell>
                           <StyledTableCell>Budget Year</StyledTableCell>
                           <StyledTableCell>Report Type</StyledTableCell>
+                          {/* <StyledTableCell>Category</StyledTableCell> */}
                           <StyledTableCell>Submitted By</StyledTableCell>
                           <StyledTableCell>Status</StyledTableCell>
                           <StyledTableCell align="right">Actions</StyledTableCell>
@@ -294,6 +318,7 @@ export default function FileDownload() {
                               <StyledTableCell>{report.orgname || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.fiscal_year || 'N/A'}</StyledTableCell>
                               <StyledTableCell>{report.reportype || 'N/A'}</StyledTableCell>
+                              {/* <StyledTableCell>{report.reportcategory || 'N/A'}</StyledTableCell> */}
                               <StyledTableCell>{report.user || 'N/A'}</StyledTableCell>
                               <StyledTableCell>
                                 <Box
@@ -305,10 +330,14 @@ export default function FileDownload() {
                                     bgcolor:
                                       report.reportstatus === 'Submitted'
                                         ? '#e8f5e9'
+                                        : report.reportstatus === 'Under Review'
+                                        ? '#fff3e0'
                                         : '#fff3e0',
                                     color:
                                       report.reportstatus === 'Submitted'
                                         ? '#2e7d32'
+                                        : report.reportstatus === 'Under Review'
+                                        ? '#f57c00'
                                         : '#f57c00',
                                     fontSize: '0.85rem',
                                     fontWeight: 'medium',
@@ -328,16 +357,29 @@ export default function FileDownload() {
                                     <VisibilityIcon />
                                   </IconButton>
                                 </Tooltip>
-                                <Tooltip title="Assign auditor" placement="top">
-                                  <IconButton
-                                    color="primary"
-                                    onClick={() => handleAssignAuditor(report)}
-                                    size="small"
-                                    sx={{ mr: 1 }}
-                                  >
-                                    <PersonAddIcon />
-                                  </IconButton>
-                                </Tooltip>
+                                {report.reportcategory === 'Others' ? (
+                                  <Tooltip title="Assign approver" placement="top">
+                                    <IconButton
+                                      color="primary"
+                                      onClick={() => handleAssign(report, 'approver')}
+                                      size="small"
+                                      sx={{ mr: 1 }}
+                                    >
+                                      <PersonAddIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                ) : (
+                                  <Tooltip title="Assign auditor" placement="top">
+                                    <IconButton
+                                      color="primary"
+                                      onClick={() => handleAssign(report, 'auditor')}
+                                      size="small"
+                                      sx={{ mr: 1 }}
+                                    >
+                                      <PersonAddIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
                                 <Tooltip title="Download report" placement="top">
                                   <IconButton
                                     color="primary"
@@ -371,7 +413,7 @@ export default function FileDownload() {
         </CCol>
       </CRow>
 
-      {/* Assign Auditor Modal */}
+      {/* Assign Modal */}
       <StyledDialog
         maxWidth="sm"
         fullWidth
@@ -380,26 +422,26 @@ export default function FileDownload() {
         TransitionComponent={Fade}
         TransitionProps={{ timeout: 800 }}
       >
-        <DialogTitle>Assign Auditor</DialogTitle>
+        <DialogTitle>Assign {assignType === 'auditor' ? 'Auditor' : 'Approver'}</DialogTitle>
         <DialogContent>
           <CForm className="row g-3">
             <CCol xs={12}>
-              <CFormLabel htmlFor="auditor">Select Auditor</CFormLabel>
+              <CFormLabel htmlFor="assignee">Select {assignType === 'auditor' ? 'Auditor' : 'Approver'}</CFormLabel>
               <select
                 className="form-control"
-                id="auditor"
-                value={selectedAuditor}
-                onChange={(e) => setSelectedAuditor(e.target.value)}
+                id="assignee"
+                value={selectedAssignee}
+                onChange={(e) => setSelectedAssignee(e.target.value)}
                 style={{
                   padding: '8px',
                   borderRadius: '8px',
                   border: '1px solid #ccc',
                 }}
               >
-                <option value="">Select Auditor</option>
-                {auditors.map((auditor) => (
-                  <option key={auditor.id} value={auditor.username}>
-                    {auditor.username} ({auditor.firstName} {auditor.lastName})
+                <option value="">Select {assignType === 'auditor' ? 'Auditor' : 'Approver'}</option>
+                {assignees.map((assignee) => (
+                  <option key={assignee.id} value={assignee.username}>
+                    {assignee.username} ({assignee.firstName} {assignee.lastName})
                   </option>
                 ))}
               </select>
@@ -450,6 +492,10 @@ export default function FileDownload() {
             <CCol md={6}>
               <CFormLabel>Report Type</CFormLabel>
               <CFormInput value={selectedReport?.reportype || 'N/A'} readOnly />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel>Category</CFormLabel>
+              <CFormInput value={selectedReport?.reportcategory || 'N/A'} readOnly />
             </CCol>
             <CCol md={6}>
               <CFormLabel>Submitted By</CFormLabel>

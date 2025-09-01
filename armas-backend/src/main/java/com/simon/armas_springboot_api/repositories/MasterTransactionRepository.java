@@ -249,4 +249,7 @@ public interface MasterTransactionRepository extends JpaRepository<MasterTransac
     List<MasterTransaction> findTransactionsWithLettersByOrganization(@Param("orgId") String orgId);
     boolean existsByDocnameAndUserAndBudgetYearIdAndTransactiondocumentId(
             String docname, User user, Long budgetYearId, String transactiondocumentId); 
+@Query("SELECT m FROM MasterTransaction m JOIN m.dispatchedOrganizations o WHERE o.id = :orgId AND m.reportcategory = 'Letter' AND m.reportstatus = 'Dispatched' ORDER BY m.createdDate DESC")
+List<MasterTransaction> findDispatchedLettersByOrganization(@Param("orgId") String orgId);
+
 }

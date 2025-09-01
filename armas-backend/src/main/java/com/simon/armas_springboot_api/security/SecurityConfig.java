@@ -89,7 +89,8 @@ public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws
             .requestMatchers("/transactions/file-history/**").hasRole("USER")
             .requestMatchers("/transactions/auditor-tasks/**").hasAnyRole("SENIOR_AUDITOR", "APPROVER", "ADMIN", "ARCHIVER", "USER")
             .requestMatchers("/transactions/tasks").permitAll()
-            .requestMatchers("/transactions/letters").hasAuthority("VIEW_LETTERS")
+            // .requestMatchers("/transactions/letters").hasAuthority("VIEW_LETTERS")
+             .requestMatchers("/transactions/letters").hasAnyRole("USER", "MANAGER", "ARCHIVER")
             .requestMatchers("/transactions/approved-reports").hasAnyRole("APPROVER", "ARCHIVER", "SENIOR_AUDITOR")
             .requestMatchers("/transactions/download/**").hasAnyRole("ARCHIVER", "SENIOR_AUDITOR", "APPROVER", "USER", "MANAGER")
             .requestMatchers("/transactions/dashboard-stats").hasAnyRole("USER", "ADMIN", "SENIOR_AUDITOR", "APPROVER", "ARCHIVER","MANAGER") 
@@ -111,21 +112,16 @@ public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws
         )
         .build();
 }
-  @Bean
+   @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://irms.mofed.gov.et:80",
-            "http://localhost:3000",
-            "http://localhost:9090",
-            "http://localhost"
-        ));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration); // Apply to all paths
         return source;
     }
 

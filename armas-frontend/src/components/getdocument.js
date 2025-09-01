@@ -31,7 +31,7 @@ import {
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import axiosInstance from '../../axiosConfig';
-import { useLocation } from 'react-router-dom';
+import { useAuth } from '../views/pages/AuthProvider'; // Import useAuth to get user roles
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: '8px',
@@ -65,8 +65,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const ViewLetters = () => {
-  const [letters, setLetters] = useState([]);
+const GetDocument = () => {
+  const { roles = [], user } = useAuth(); // Get roles and user from AuthProvider
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -75,39 +76,39 @@ const ViewLetters = () => {
   const [filterText, setFilterText] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const location = useLocation();
+
+  // Check if user has required role
+  const hasAccess = roles.includes('USER') || roles.includes('MANAGER');
 
   useEffect(() => {
-    const fetchLetters = async () => {
-      try {
-        const queryParams = new URLSearchParams(location.search);
-        const type = queryParams.get('type');
-        const url = type ? `/transactions/letters?type=${type}` : '/transactions/letters';
+    if (!hasAccess) {
+      setError('Access denied: You must have USER or MANAGER role to view this page.');
+      setLoading(false);
+      return;
+    }
 
-        const response = await axiosInstance.get(url);
-        const validLetters = Array.isArray(response.data)
+    const fetchDocuments = async () => {
+      try {
+        const response = await axiosInstance.get('/transactions/letters?type=dispatched');
+        const validDocuments = Array.isArray(response.data)
           ? response.data.filter(
-              (letter) =>
-                letter &&
-                letter.id &&
-                letter.lastModifiedBy &&
-                (letter.letterDocname || letter.docname) &&
-                (type === 'dispatched' ? letter.reportcategory === 'Letter' : true)
+              (doc) =>
+                doc &&
+                doc.id &&
+                doc.lastModifiedBy &&
+                (doc.letterDocname || doc.docname) &&
+                doc.reportcategory === 'Letter'
             )
           : [];
-        setLetters(validLetters);
-        if (validLetters.length === 0) {
-          setError(
-            type === 'dispatched'
-              ? 'No dispatched letters found for your organization.'
-              : 'No letters found for your organization.'
-          );
+        setDocuments(validDocuments);
+        if (validDocuments.length === 0) {
+          setError('No dispatched documents found for your organization.');
         }
       } catch (err) {
         const errorMessage =
           err.response?.status === 403
-            ? 'Access denied: Ensure you have the appropriate role and your account is assigned to an organization.'
-            : `Failed to load letters: ${err.message}`;
+            ? err.response?.data?.error || 'Access denied: Ensure your account is assigned to an organization.'
+            : `Failed to load documents: ${err.message}`;
         setError(errorMessage);
         setSnackbarMessage(errorMessage);
         setSnackbarSeverity('error');
@@ -117,8 +118,9 @@ const ViewLetters = () => {
         setLoading(false);
       }
     };
-    fetchLetters();
-  }, [location.search]);
+
+    fetchDocuments();
+  }, [hasAccess]);
 
   const handleDownload = useCallback(async (id, fileName) => {
     try {
@@ -132,19 +134,19 @@ const ViewLetters = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', fileName || `letter-${id}.pdf`);
+      link.setAttribute('download', fileName || `document-${id}.pdf`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      setSnackbarMessage(`Successfully downloaded ${fileName || `letter-${id}.pdf`}`);
+      setSnackbarMessage(`Successfully downloaded ${fileName || `document-${id}.pdf`}`);
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (err) {
       const errorMessage =
         err.response?.status === 404
-          ? 'Letter not found'
-          : `Failed to download letter: ${err.response?.data?.message || err.message}`;
+          ? 'Document not found'
+          : `Failed to download document: ${err.response?.data?.message || err.message}`;
       setSnackbarMessage(errorMessage);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -170,11 +172,11 @@ const ViewLetters = () => {
     setPage(0);
   };
 
-  const filteredLetters = letters.filter(
-    (letter) =>
-      (letter.lastModifiedBy || '').toLowerCase().includes(filterText.toLowerCase()) ||
-      (letter.letterDocname || letter.docname || '').toLowerCase().includes(filterText.toLowerCase()) ||
-      (letter.lastModifiedDate ? new Date(letter.lastModifiedDate).toLocaleString() : '').toLowerCase().includes(filterText.toLowerCase())
+  const filteredDocuments = documents.filter(
+    (doc) =>
+      (doc.lastModifiedBy || '').toLowerCase().includes(filterText.toLowerCase()) ||
+      (doc.letterDocname || doc.docname || '').toLowerCase().includes(filterText.toLowerCase()) ||
+      (doc.lastModifiedDate ? new Date(doc.lastModifiedDate).toLocaleString() : '').toLowerCase().includes(filterText.toLowerCase())
   );
 
   return (
@@ -184,7 +186,7 @@ const ViewLetters = () => {
           <CCard className="mb-4" style={{ borderRadius: '12px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}>
             <CCardHeader>
               <Typography variant="h6" fontWeight="bold">
-                {location.search.includes('type=dispatched') ? 'Dispatched Letters' : 'Letters Sent to Organization'}
+                Dispatched Documents
               </Typography>
             </CCardHeader>
             <CCardBody>
@@ -192,13 +194,13 @@ const ViewLetters = () => {
                 <Box display="flex" justifyContent="center" my={2}>
                   <CircularProgress />
                 </Box>
-              ) : error && !filteredLetters.length ? (
+              ) : error && !filteredDocuments.length ? (
                 <Typography color="error">{error}</Typography>
               ) : (
                 <StyledTableContainer component={Paper}>
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', p: 2 }}>
                     <TextField
-                      label="Search Letters"
+                      label="Search Documents"
                       variant="outlined"
                       value={filterText}
                       onChange={handleFilterChange}
@@ -213,32 +215,32 @@ const ViewLetters = () => {
                       sx={{ width: { xs: '100%', sm: '40%' } }}
                     />
                   </Box>
-                  {filteredLetters.length > 0 ? (
+                  {filteredDocuments.length > 0 ? (
                     <Table stickyHeader>
                       <TableHead>
                         <StyledTableRow>
                           <StyledTableCell>Date</StyledTableCell>
                           <StyledTableCell>Sender</StyledTableCell>
-                          <StyledTableCell>Letter Name</StyledTableCell>
+                          <StyledTableCell>Document Name</StyledTableCell>
                           <StyledTableCell align="right">Action</StyledTableCell>
                         </StyledTableRow>
                       </TableHead>
                       <TableBody>
-                        {filteredLetters
+                        {filteredDocuments
                           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                          .map((letter) => (
-                            <StyledTableRow key={letter.id}>
+                          .map((doc) => (
+                            <StyledTableRow key={doc.id}>
                               <StyledTableCell>
-                                {letter.lastModifiedDate ? new Date(letter.lastModifiedDate).toLocaleString() : 'N/A'}
+                                {doc.lastModifiedDate ? new Date(doc.lastModifiedDate).toLocaleString() : 'N/A'}
                               </StyledTableCell>
-                              <StyledTableCell>{letter.lastModifiedBy || 'N/A'}</StyledTableCell>
-                              <StyledTableCell>{letter.letterDocname || letter.docname || 'N/A'}</StyledTableCell>
+                              <StyledTableCell>{doc.lastModifiedBy || 'N/A'}</StyledTableCell>
+                              <StyledTableCell>{doc.letterDocname || doc.docname || 'N/A'}</StyledTableCell>
                               <StyledTableCell align="right">
-                                <Tooltip title="Download Letter">
+                                <Tooltip title="Download Document">
                                   <StyledButton
                                     color="primary"
-                                    onClick={() => handleDownload(letter.id, letter.letterDocname || letter.docname)}
-                                    aria-label="Download letter"
+                                    onClick={() => handleDownload(doc.id, doc.letterDocname || doc.docname)}
+                                    aria-label="Download document"
                                   >
                                     <DownloadIcon />
                                   </StyledButton>
@@ -250,12 +252,12 @@ const ViewLetters = () => {
                     </Table>
                   ) : (
                     <Typography sx={{ p: 2, textAlign: 'center' }}>
-                      No letters found.
+                      No documents found.
                     </Typography>
                   )}
                   <TablePagination
                     component="div"
-                    count={filteredLetters.length}
+                    count={filteredDocuments.length}
                     page={page}
                     onPageChange={handleChangePage}
                     rowsPerPage={rowsPerPage}
@@ -287,4 +289,4 @@ const ViewLetters = () => {
   );
 };
 
-export default ViewLetters;
+export default GetDocument;

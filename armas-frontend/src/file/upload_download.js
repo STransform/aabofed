@@ -168,6 +168,19 @@ export const assignAuditor = async (transactionId, auditorUsername) => {
         throw error;
     }
 };
+export const assignApprover = async (transactionId, approverUsername) => {
+    try {
+        console.log('Calling assignApprover API: transactionId=', transactionId, ', approverUsername=', approverUsername);
+        const response = await axiosInstance.post(`/transactions/assign-approver/${transactionId}`, null, {
+            params: { approverUsername }
+        });
+        console.log('AssignApprover response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error assigning approver:', error.message, error.response?.status, error.response?.data);
+        throw error;
+    }
+};
 
 export const submitFindings = async (transactionId, remarks, approverUsername, responseNeeded, supportingDocument) => {
     const formData = new FormData();

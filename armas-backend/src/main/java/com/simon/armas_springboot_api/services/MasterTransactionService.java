@@ -15,7 +15,7 @@ import com.simon.armas_springboot_api.repositories.OrganizationRepository;
 import com.simon.armas_springboot_api.repositories.UserRepository;
 import com.simon.armas_springboot_api.repositories.NotificationRepository;
 import com.simon.armas_springboot_api.dto.UserDTO;
-
+import java.util.Set;
 import com.simon.armas_springboot_api.security.models.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Collections;
@@ -78,87 +78,97 @@ public class MasterTransactionService {
 
     // Upload file by Uploader
 @Transactional
-    public MasterTransaction uploadFile(MultipartFile file, Long budgetYearId, String reportcategory,
-            String transactionDocumentId, Principal principal) throws IOException {
-        User user = userRepository.findByUsername(principal.getName());
-        if (user == null) {
-            throw new IllegalArgumentException("User not found: " + principal.getName());
-        }
-        if (user.getOrganization() == null) {
-            throw new IllegalArgumentException("User has no associated organization");
-        }
+public MasterTransaction uploadFile(MultipartFile file, Long budgetYearId, String reportcategory,
+        String transactionDocumentId, Principal principal) throws IOException {
+    User user = userRepository.findByUsername(principal.getName());
+    if (user == null) {
+        throw new IllegalArgumentException("User not found: " + principal.getName());
+    }
+    if (user.getOrganization() == null) {
+        throw new IllegalArgumentException("User has no associated organization");
+    }
 
-        String docname = StringUtils.cleanPath(file.getOriginalFilename() != null ? file.getOriginalFilename() : "unnamed_file");
-        if (masterTransactionRepository.existsByDocnameAndUserAndBudgetYearIdAndTransactiondocumentId(
-                docname, user, budgetYearId, transactionDocumentId)) {
-            throw new IllegalArgumentException("Document already exists for this user, budget year, and report type");
+    String docname = StringUtils.cleanPath(file.getOriginalFilename() != null ? file.getOriginalFilename() : "unnamed_file");
+    if (masterTransactionRepository.existsByDocnameAndUserAndBudgetYearIdAndTransactiondocumentId(
+            docname, user, budgetYearId, transactionDocumentId)) {
+        throw new IllegalArgumentException("Document already exists for this user, budget year, and report type");
+    }
+
+    Document document = documentRepository.findById(transactionDocumentId)
+            .orElseThrow(() -> new IllegalArgumentException("Document not found: " + transactionDocumentId));
+    BudgetYear budgetYear = budgetYearRepository.findById(budgetYearId)
+            .orElseThrow(() -> new IllegalArgumentException("Budget Year not found: " + budgetYearId));
+
+    if ("Feedback".equalsIgnoreCase(reportcategory.trim())) {
+        System.out.println("Checking Feedback: docid=" + transactionDocumentId +
+                ", orgId=" + user.getOrganization().getId() + ", fiscalYear=" + budgetYear.getFiscalYear());
+        List<MasterTransaction> existingReports = masterTransactionRepository.findTransactionByDocumentId(
+                "Report", transactionDocumentId, user.getOrganization().getId(), budgetYear.getFiscalYear());
+        System.out.println("Found " + existingReports.size() + " existing reports");
+        if (existingReports.isEmpty()) {
+            throw new IllegalArgumentException("Report for this feedback was not uploaded. Upload the report first!");
         }
-
-        Document document = documentRepository.findById(transactionDocumentId)
-                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + transactionDocumentId));
-        BudgetYear budgetYear = budgetYearRepository.findById(budgetYearId)
-                .orElseThrow(() -> new IllegalArgumentException("Budget Year not found: " + budgetYearId));
-
-        if ("Feedback".equalsIgnoreCase(reportcategory.trim())) {
-            System.out.println("Checking Feedback: docid=" + transactionDocumentId +
-                    ", orgId=" + user.getOrganization().getId() + ", fiscalYear=" + budgetYear.getFiscalYear());
-            List<MasterTransaction> existingReports = masterTransactionRepository.findTransactionByDocumentId(
-                    "Report", transactionDocumentId, user.getOrganization().getId(), budgetYear.getFiscalYear());
-            System.out.println("Found " + existingReports.size() + " existing reports");
-            if (existingReports.isEmpty()) {
-                throw new IllegalArgumentException("Report for this feedback was not uploaded. Upload the report first!");
-            }
-            boolean hasResponseNeededYes = existingReports.stream()
-                    .anyMatch(report -> "Yes".equalsIgnoreCase(report.getResponse_needed()));
-            System.out.println("Has response_needed='Yes': " + hasResponseNeededYes);
-            if (!hasResponseNeededYes) {
-                throw new IllegalArgumentException(
-                        "The uploaded report's response_needed is not set to 'Yes'. Wait until the experts respond to your report.");
-            }
+        boolean hasResponseNeededYes = existingReports.stream()
+                .anyMatch(report -> "Yes".equalsIgnoreCase(report.getResponse_needed()));
+        System.out.println("Has response_needed='Yes': " + hasResponseNeededYes);
+        if (!hasResponseNeededYes) {
+            throw new IllegalArgumentException(
+                    "The uploaded report's response_needed is not set to 'Yes'. Wait until the experts respond to your report.");
         }
+    }
 
-        MasterTransaction transaction = new MasterTransaction();
-        transaction.setUser(user);
+    MasterTransaction transaction = new MasterTransaction();
+    transaction.setUser(user);
+    transaction.setOrganization(user.getOrganization());
+    transaction.setDocname(docname);
+    transaction.setReportstatus("Submitted");
+    transaction.setReportcategory(reportcategory);
+    transaction.setBudgetYear(budgetYear);
+    transaction.setTransactiondocument(document);
+    transaction.setFilepath(fileStorageService.storeFile(file, transaction, principal, false));
+    transaction.setCreatedDate(new Date());
+    transaction.setCreatedBy(principal.getName());
+
+    // Assign to APPROVER for "Others", else assign to SENIOR_AUDITOR
+    if ("Others".equalsIgnoreCase(reportcategory.trim())) {
+        List<User> approvers = userRepository.findByRoleName("APPROVER");
+        User defaultApprover = approvers.stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No APPROVER available to assign"));
+        transaction.setUser2(defaultApprover);
+        transaction.setReportstatus("Under Review"); // Set to Under Review for APPROVER
+    } else {
         List<User> experts = userRepository.findByRoleName("SENIOR_AUDITOR");
         User defaultExpert = experts.stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No SENIOR_AUDITOR available to assign"));
         transaction.setUser2(defaultExpert);
-        transaction.setOrganization(user.getOrganization());
-        transaction.setDocname(docname);
-        transaction.setReportstatus("Submitted");
-        transaction.setReportcategory(reportcategory);
-        transaction.setBudgetYear(budgetYear);
-        transaction.setTransactiondocument(document);
-        transaction.setFilepath(fileStorageService.storeFile(file, transaction, principal, false));
-        transaction.setCreatedDate(new Date());
-        transaction.setCreatedBy(principal.getName());
-
-        if ("Report".equalsIgnoreCase(reportcategory.trim())) {
-            transaction.setResponse_needed("Pending");
-        }
-
-        try {
-            MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
-            System.out.println("Transaction saved: ID=" + savedTransaction.getId());
-
-            List<User> archivers = userRepository.findByRoleName("ARCHIVER");
-            for (User archiver : archivers) {
-                createNotification(
-                        archiver,
-                        "New Report Uploaded",
-                        "A new report '" + savedTransaction.getDocname() + "' has been uploaded by " + principal.getName(),
-                        "MasterTransaction",
-                        savedTransaction.getId().longValue(),
-                        "report_uploaded"
-                );
-            }
-            return savedTransaction;
-        } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Database error: Possible duplicate entry or invalid data: " + e.getMessage(), e);
-        }
     }
 
+    if ("Report".equalsIgnoreCase(reportcategory.trim())) {
+        transaction.setResponse_needed("Pending");
+    }
+
+    try {
+        MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
+        System.out.println("Transaction saved: ID=" + savedTransaction.getId());
+
+        List<User> archivers = userRepository.findByRoleName("ARCHIVER");
+        for (User archiver : archivers) {
+            createNotification(
+                    archiver,
+                    "New Report Uploaded",
+                    "A new report '" + savedTransaction.getDocname() + "' has been uploaded by " + principal.getName(),
+                    "MasterTransaction",
+                    savedTransaction.getId().longValue(),
+                    "report_uploaded"
+            );
+        }
+        return savedTransaction;
+    } catch (DataIntegrityViolationException e) {
+        throw new IllegalArgumentException("Database error: Possible duplicate entry or invalid data: " + e.getMessage(), e);
+    }
+}
 @Transactional
     public MasterTransaction uploadLetter(Integer transactionId, MultipartFile letter, String currentUsername) throws IOException {
         User archiver = userRepository.findByUsername(currentUsername);
@@ -706,4 +716,121 @@ public MasterTransaction reassignTask(Integer transactionId, String auditorUsern
         throw new RuntimeException("Unexpected error during reassignment: " + e.getMessage(), e);
     }
 }
+@Transactional
+public MasterTransaction assignApprover(Integer transactionId, String approverUsername, String currentUsername) {
+    User archiver = userRepository.findByUsername(currentUsername);
+    if (archiver == null || !archiver.getRoles().stream().anyMatch(r -> "ARCHIVER".equals(r.getDescription()))) {
+        throw new IllegalArgumentException("Unauthorized: Must be an Archiver");
+    }
+
+    MasterTransaction transaction = masterTransactionRepository.findById(transactionId)
+            .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+    if (!"Submitted".equals(transaction.getReportstatus())) {
+        throw new IllegalStateException("Can only assign Submitted tasks");
+    }
+
+    User approver = userRepository.findByUsername(approverUsername);
+    if (approver == null || !approver.getRoles().stream().anyMatch(r -> "APPROVER".equals(r.getDescription()))) {
+        throw new IllegalArgumentException("Invalid Approver: " + approverUsername);
+    }
+
+    transaction.setUser2(approver);
+    transaction.setAssignedBy(archiver);
+    transaction.setReportstatus("Under Review"); // Directly set to Under Review for APPROVER
+    transaction.setLastModifiedBy(currentUsername);
+    MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
+
+    createNotification(
+            approver,
+            "Task Assigned",
+            "You have been assigned to review report '" + savedTransaction.getDocname() + "'",
+            "MasterTransaction",
+            savedTransaction.getId().longValue(),
+            "task_assigned"
+    );
+
+    System.out.println("Assigned task to Approver: ID=" + savedTransaction.getId() + ", user2=" + approver.getUsername());
+    return savedTransaction;
+}
+@Transactional
+    public MasterTransaction dispatchDocumentToOrganizations(MultipartFile letter, List<String> organizationIds, String currentUsername) throws IOException {
+        // Validate the user is an APPROVER
+        User approver = userRepository.findByUsername(currentUsername);
+        if (approver == null || !approver.getRoles().stream().anyMatch(r -> "APPROVER".equals(r.getDescription()))) {
+            throw new IllegalArgumentException("Unauthorized: Must be an APPROVER");
+        }
+
+        // Validate file
+        if (letter == null || letter.isEmpty()) {
+            throw new IllegalArgumentException("Letter file is required");
+        }
+
+        // Validate organization IDs
+        if (organizationIds == null || organizationIds.isEmpty()) {
+            throw new IllegalArgumentException("At least one organization must be selected");
+        }
+
+        // Create a new MasterTransaction
+        MasterTransaction transaction = new MasterTransaction();
+        transaction.setDocname(StringUtils.cleanPath(letter.getOriginalFilename()));
+        transaction.setReportstatus("Dispatched");
+        transaction.setReportcategory("Letter");
+        transaction.setCreatedBy(currentUsername);
+        transaction.setCreatedDate(new Date());
+        transaction.setLastModifiedBy(currentUsername);
+
+        // Store the file
+        String letterPath = fileStorageService.storeFile(letter, transaction, new Principal() {
+            @Override
+            public String getName() {
+                return currentUsername;
+            }
+        }, true);
+        transaction.setLetterPath(letterPath);
+        transaction.setLetterDocname(letter.getOriginalFilename());
+
+        // Fetch and set dispatched organizations
+        Set<Organization> organizations = new HashSet<>();
+        List<String> invalidIds = new ArrayList<>();
+        for (String id : organizationIds) {
+            Optional<Organization> org = organizationRepository.findById(id);
+            if (org.isPresent()) {
+                organizations.add(org.get());
+            } else {
+                invalidIds.add(id);
+            }
+        }
+        if (!invalidIds.isEmpty()) {
+            throw new IllegalArgumentException("The following organization IDs are invalid: " + invalidIds);
+        }
+        transaction.setDispatchedOrganizations(organizations);
+
+        // Save the transaction
+        MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
+
+        // Notify USERS and MANAGERS in the selected organizations
+        for (Organization org : organizations) {
+            List<User> usersAndManagers = userRepository.findByOrganizationId(org.getId()).stream()
+                .filter(user -> user.getRoles().stream().anyMatch(r -> "USER".equals(r.getDescription()) || "MANAGER".equals(r.getDescription())))
+                .collect(Collectors.toList());
+
+            for (User user : usersAndManagers) {
+                createNotification(
+                    user,
+                    "New Letter Dispatched",
+                    "A new letter '" + savedTransaction.getLetterDocname() + "' has been dispatched to your organization by " + currentUsername,
+                    "MasterTransaction",
+                    savedTransaction.getId().longValue(),
+                    "letter_dispatched"
+                );
+            }
+        }
+
+        fileStorageService.validateAndCopyMigratedFiles(savedTransaction);
+        return savedTransaction;
+    }
+
+    public List<MasterTransaction> getDispatchedLettersForOrganization(String orgId) {
+        return masterTransactionRepository.findDispatchedLettersByOrganization(orgId);
+    }
 }

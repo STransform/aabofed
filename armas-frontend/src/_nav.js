@@ -66,6 +66,12 @@ const Nav = () => {
       to: '/file-history',
       icon: <CIcon icon={cilCloudUpload} customClassName="nav-icon" />,
     },
+    // {
+    //     component: CNavItem,
+    //     name: 'Get Document',
+    //     to: '/transactions/letters?type=dispatched', // Filter for dispatched letters
+    //     icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+    // },
   ];
 
   const managerItems = [
@@ -145,6 +151,16 @@ const Nav = () => {
     },
   ];
 
+ const UploadToOrganizationsItem = (isApprover)
+    ? [
+        {
+          component: CNavItem,
+          name: 'Upload',
+          to: '/transactions/upload-to-organizations',
+          icon: <CIcon icon={cilCloudUpload} customClassName="nav-icon" />,
+        },
+      ]
+    : [];
   const transactionItems = [
     {
       component: CNavGroup,
@@ -231,6 +247,7 @@ const Nav = () => {
     ...(isAdmin ? adminItems : []),
     ...((isArchiver || isSeniorAuditor || isApprover) ? transactionItems : []),
     ...advancedFiltersItem,
+    ...UploadToOrganizationsItem,
   ];
 
   return navItems;

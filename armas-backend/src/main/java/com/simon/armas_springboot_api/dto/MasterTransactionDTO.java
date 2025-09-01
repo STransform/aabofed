@@ -3,13 +3,16 @@ package com.simon.armas_springboot_api.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.simon.armas_springboot_api.models.MasterTransaction;
 import java.util.Date;
-
+import java.util.Set;
+import java.util.stream.Collectors;
+import com.simon.armas_springboot_api.models.Organization;
 public class MasterTransactionDTO {
     private Integer id;
     private Date createdDate;
     private Date lastModifiedDate; // Optional, if you want to include last modified date
     private String orgname;
 //     @JsonProperty("fiscal_year") // Serialize as fiscal_year in JSON
+    private Set<String> dispatchedOrganizationIds;
     private String fiscalYear;
     private String reportype;
     private String reportstatus;
@@ -58,8 +61,18 @@ public class MasterTransactionDTO {
         this.responseNeeded = mt.getResponse_needed();
         this.letterPath = mt.getLetterPath();
         this.letterDocname = mt.getLetterDocname();
+        this.dispatchedOrganizationIds = mt.getDispatchedOrganizations().stream()
+            .map(Organization::getId)
+            .collect(Collectors.toSet());
     }
 
+     public Set<String> getDispatchedOrganizationIds() {
+        return dispatchedOrganizationIds;
+    }
+
+    public void setDispatchedOrganizationIds(Set<String> dispatchedOrganizationIds) {
+        this.dispatchedOrganizationIds = dispatchedOrganizationIds;
+    }
     // Getters and setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }

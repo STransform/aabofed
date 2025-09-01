@@ -28,6 +28,8 @@ const FileHistory = React.lazy(() => import('./components/FileHistory'));
 const LetterDownload = React.lazy(() => import('./components/LetterDownload'));
 const ViewLetters = React.lazy(() => import('./components/ViewLetters'));
 const AdvancedFilters = React.lazy(() => import('./components/AdvancedFilters'));
+const UploadToOrganizations = React.lazy(() => import('./components/UploadToOrganizations'));
+
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
@@ -73,6 +75,7 @@ const routes = [
   { path: '/file-history', name: 'File History', element: FileHistory },
   { path: '/buttons/letter-download', name: 'File Download', element: LetterDownload },
   { path: '/transactions/advanced-filters', name: 'Advanced Filters', element: AdvancedFilters },
+   { path: '/transactions/upload-to-organizations', name: 'Upload to Organizations', element: UploadToOrganizations },
   { path: '/transactions/letters', name: 'View Letters', element: ViewLetters },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/theme', name: 'Theme', element: Colors, exact: true },

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import java.util.HashSet;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -50,7 +51,13 @@ public class MasterTransaction extends Auditable<String> {
     private String current_user_director;
     @Transient
     private String current_user_orgtype;
-
+@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+@JoinTable(
+    name = "transaction_dispatched_organizations",
+    joinColumns = @JoinColumn(name = "transaction_id"),
+    inverseJoinColumns = @JoinColumn(name = "organization_id")
+)
+private Set<Organization> dispatchedOrganizations = new HashSet<>();
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference("user-transactions")
@@ -105,10 +112,18 @@ public class MasterTransaction extends Auditable<String> {
      public String getSupportingDocname() {
         return supportingDocname;
     }
-
+  
     public void setSupportingDocname(String supportingDocname) {
         this.supportingDocname = supportingDocname;
     }
+        public Set<Organization> getDispatchedOrganizations() {
+        return dispatchedOrganizations;
+    }
+
+    public void setDispatchedOrganizations(Set<Organization> dispatchedOrganizations) {
+        this.dispatchedOrganizations = dispatchedOrganizations;
+    }
+
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
     public Organization getOrganization() { return organization; }

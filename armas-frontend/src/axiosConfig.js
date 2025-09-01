@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://irms.mofed.gov.et/api',
+    baseURL: 'http://localhost:8080',
 });
 
 axiosInstance.interceptors.request.use(
