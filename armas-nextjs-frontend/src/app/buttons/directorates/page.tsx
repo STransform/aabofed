@@ -7,9 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function DirectoratesPage() {
     const { isAuthenticated } = useAuth();
+    const { resolve } = useTranslation();
 
     const [directorates, setDirectorates] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -158,7 +160,7 @@ export default function DirectoratesPage() {
                                     ) : (
                                         filtered.map(dir => (
                                             <tr key={dir.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{dir.directoratename || 'N/A'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{resolve(dir.directoratename) || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{dir.telephone || '-'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{dir.email || '-'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -229,7 +231,7 @@ export default function DirectoratesPage() {
                         <Dialog.Title className="text-lg font-semibold mb-4 border-b pb-2">Directorate Details</Dialog.Title>
                         <div className="space-y-4 text-sm mt-4">
                             <div className="flex border-b pb-2"><span className="w-1/3 font-medium text-gray-500">ID:</span> <span className="w-2/3 text-gray-900">{currentDir.id}</span></div>
-                            <div className="flex border-b pb-2"><span className="w-1/3 font-medium text-gray-500">Name:</span> <span className="w-2/3 text-gray-900">{currentDir.directoratename}</span></div>
+                            <div className="flex border-b pb-2"><span className="w-1/3 font-medium text-gray-500">Name:</span> <span className="w-2/3 text-gray-900">{resolve(currentDir.directoratename)}</span></div>
                             <div className="flex border-b pb-2"><span className="w-1/3 font-medium text-gray-500">Telephone:</span> <span className="w-2/3 text-gray-900">{currentDir.telephone || 'N/A'}</span></div>
                             <div className="flex"><span className="w-1/3 font-medium text-gray-500">Email:</span> <span className="w-2/3 text-gray-900">{currentDir.email || 'N/A'}</span></div>
                         </div>

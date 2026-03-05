@@ -7,9 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function ReportTypePage() {
     const { isAuthenticated } = useAuth();
+    const { resolve } = useTranslation();
 
     const [documents, setDocuments] = useState<any[]>([]);
     const [directorates, setDirectorates] = useState<any[]>([]);
@@ -180,8 +182,8 @@ export default function ReportTypePage() {
                                     ) : (
                                         filtered.map(doc => (
                                             <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{doc.reportype || 'N/A'}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{doc.directoratename || doc.directorate?.directoratename || 'N/A'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{resolve(doc.reportype) || 'N/A'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resolve(doc.directoratename || doc.directorate?.directoratename) || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => handleOpenView(doc)} className="text-indigo-600 hover:text-indigo-900 mx-2" title="View Details"><Eye className="w-4 h-4" /></button>
                                                     <button onClick={() => handleOpenEdit(doc)} className="text-amber-600 hover:text-amber-900 mx-2" title="Edit"><Edit className="w-4 h-4" /></button>
@@ -215,7 +217,7 @@ export default function ReportTypePage() {
                                 <select required value={currentDoc.directorateId} onChange={e => setCurrentDoc({ ...currentDoc, directorateId: e.target.value })} className="col-span-3 flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 bg-white">
                                     <option value="" disabled>Select Directorate</option>
                                     {directorates.map(d => (
-                                        <option key={d.id} value={d.id}>{d.directoratename}</option>
+                                        <option key={d.id} value={d.id}>{resolve(d.directoratename)}</option>
                                     ))}
                                 </select>
                             </div>
@@ -251,8 +253,8 @@ export default function ReportTypePage() {
                         <Dialog.Title className="text-lg font-semibold mb-4 border-b pb-2">Report Details</Dialog.Title>
                         <div className="space-y-4 text-sm mt-4">
                             <div className="flex border-b pb-2"><span className="w-1/3 font-medium text-gray-500">ID:</span> <span className="w-2/3 text-gray-900">{currentDoc.id}</span></div>
-                            <div className="flex border-b pb-2"><span className="w-1/3 font-medium text-gray-500">Report Type:</span> <span className="w-2/3 text-gray-900">{currentDoc.reportype}</span></div>
-                            <div className="flex"><span className="w-1/3 font-medium text-gray-500">Directorate:</span> <span className="w-2/3 text-gray-900">{getDirectorateName(currentDoc.directorateId)}</span></div>
+                            <div className="flex border-b pb-2"><span className="w-1/3 font-medium text-gray-500">Report Type:</span> <span className="w-2/3 text-gray-900">{resolve(currentDoc.reportype)}</span></div>
+                            <div className="flex"><span className="w-1/3 font-medium text-gray-500">Directorate:</span> <span className="w-2/3 text-gray-900">{resolve(getDirectorateName(currentDoc.directorateId))}</span></div>
                         </div>
                         <div className="flex justify-end mt-6">
                             <button onClick={() => setIsViewOpen(false)} className="px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800">Close</button>

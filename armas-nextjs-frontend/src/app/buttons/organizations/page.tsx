@@ -7,9 +7,12 @@ import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { useTranslation } from '@/hooks/useTranslation';
+
 
 export default function OrganizationsPage() {
     const { isAuthenticated } = useAuth();
+    const { resolve } = useTranslation();
 
     const [organizations, setOrganizations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -179,11 +182,11 @@ export default function OrganizationsPage() {
                                         filtered.map((org, index) => (
                                             <tr key={org.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{org.orgname || 'N/A'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{resolve(org.orgname) || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{org.email || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{org.telephone || 'N/A'}</td>
-                                                <td className="px-6 py-4 px-2 text-sm text-gray-500 truncate max-w-[200px]">{org.organizationhead || 'N/A'}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{org.orgtype || 'N/A'}</td>
+                                                <td className="px-6 py-4 px-2 text-sm text-gray-500 truncate max-w-[200px]">{resolve(org.organizationhead) || 'N/A'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{resolve(org.orgtype) || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => handleOpenView(org)} className="text-indigo-600 hover:text-indigo-900 mx-2" title="View Details"><Eye className="w-4 h-4" /></button>
                                                     <button onClick={() => handleOpenEdit(org)} className="text-amber-600 hover:text-amber-900 mx-2" title="Edit"><Edit className="w-4 h-4" /></button>
@@ -262,7 +265,7 @@ export default function OrganizationsPage() {
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/40" />
                     <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] border bg-white p-6 shadow-lg rounded-lg">
-                        <Dialog.Title className="text-lg font-semibold mb-4 border-b pb-2">Organization Details: {currentOrg.orgname}</Dialog.Title>
+                        <Dialog.Title className="text-lg font-semibold mb-4 border-b pb-2">Organization Details: {resolve(currentOrg.orgname)}</Dialog.Title>
                         <div className="grid grid-cols-2 gap-6 text-sm mt-4">
                             <div className="border border-gray-100 rounded p-4 bg-gray-50">
                                 <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Org Code</span>

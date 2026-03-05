@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import Link from 'next/link';
+import { getMessages, type Lang } from '@/lib/messages';
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -10,6 +11,20 @@ export default function Login() {
     const { login } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const [lang, setLang] = useState<Lang>('en');
+    useEffect(() => {
+        const s = localStorage.getItem('armas_lang') as Lang | null;
+        if (s && (s === 'en' || s === 'am' || s === 'om')) setLang(s);
+        const handler = () => {
+            const v = localStorage.getItem('armas_lang') as Lang | null;
+            if (v && (v === 'en' || v === 'am' || v === 'om')) setLang(v);
+        };
+        window.addEventListener('storage', handler);
+        return () => window.removeEventListener('storage', handler);
+    }, []);
+
+    const t = getMessages(lang).login;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -392,19 +407,19 @@ export default function Login() {
                         <div className="card-logo-icon">🌐</div>
                         <div className="card-logo-text">
                             <p className="card-logo-name">ARMAS</p>
-                            <p className="card-logo-sub">Portal</p>
+                            <p className="card-logo-sub">{t.portalSub}</p>
                         </div>
                     </div>
 
-                    <p className="card-heading">Welcome back</p>
-                    <p className="card-sub">Sign in to access the institutional portal</p>
+                    <p className="card-heading">{t.heading}</p>
+                    <p className="card-sub">{t.subheading}</p>
 
                     {error && <div className="error-box">{error}</div>}
 
                     <form onSubmit={handleSubmit}>
                         {/* Username */}
                         <div className="field-wrap">
-                            <label className="field-label">Username</label>
+                            <label className="field-label">{t.usernameLabel}</label>
                             <div style={{ position: 'relative' }}>
                                 <span className="field-icon">
                                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -414,7 +429,7 @@ export default function Login() {
                                 <input
                                     className="field-input"
                                     type="text"
-                                    placeholder="Enter your username"
+                                    placeholder={t.usernamePlaceholder}
                                     value={username}
                                     onChange={e => setUsername(e.target.value)}
                                     autoComplete="username"
@@ -425,7 +440,7 @@ export default function Login() {
 
                         {/* Password */}
                         <div className="field-wrap">
-                            <label className="field-label">Password</label>
+                            <label className="field-label">{t.passwordLabel}</label>
                             <div style={{ position: 'relative' }}>
                                 <span className="field-icon">
                                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -435,7 +450,7 @@ export default function Login() {
                                 <input
                                     className="field-input"
                                     type="password"
-                                    placeholder="Enter your password"
+                                    placeholder={t.passwordPlaceholder}
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
                                     autoComplete="current-password"
@@ -447,25 +462,25 @@ export default function Login() {
                         {/* Submit */}
                         <button type="submit" className="submit-btn" disabled={loading}>
                             {loading ? (
-                                <><span className="spinner" /> Signing in…</>
+                                <><span className="spinner" /> {t.signingIn}</>
                             ) : (
                                 <>
                                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M10 17l5-5-5-5v3H3v4h7v3zm8-14H6v2h12v14H6v2h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
                                     </svg>
-                                    Sign in to Portal
+                                    {t.signIn}
                                 </>
                             )}
                         </button>
                     </form>
 
                     <div className="card-footer">
-                        <Link href="/" className="back-lnk">← Back to Home</Link>
+                        <Link href="/" className="back-lnk">{t.backToHome}</Link>
                         <span className="secure-badge">
                             <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
                             </svg>
-                            256-bit Secured
+                            {t.securedBadge}
                         </span>
                     </div>
                 </div>

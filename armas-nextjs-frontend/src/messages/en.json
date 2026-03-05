@@ -1,0 +1,140 @@
+{
+  "home": {
+    "govLabel": "Federal Democratic Republic of Ethiopia",
+    "sysLabel": "Ministry of Finance — ARMAS Portal",
+    "navLogin": "Staff Login",
+    "heroEyebrow": "Integrated Government Platform",
+    "heroHeadline": "One Portal for All\nInstitutional Operations",
+    "heroBody": "ARMAS streamlines reporting, audit oversight, document management, and access control into a single authorised ecosystem — enabling faster decisions and full accountability across all directorates.",
+    "heroCta": "Access Secure Portal",
+    "heroCtaSub": "Authorised personnel only",
+    "trustTitle": "Why institutions rely on ARMAS",
+    "pillars": [
+      {
+        "icon": "report",
+        "title": "Centralised Reporting",
+        "body": "Submit, review, and approve institutional reports from all departments through a single, auditable pipeline."
+      },
+      {
+        "icon": "audit",
+        "title": "Full Audit Trails",
+        "body": "Every action is timestamped and logged in an immutable record, ensuring complete accountability."
+      },
+      {
+        "icon": "docs",
+        "title": "Task Management System",
+        "body": "Secure archiving, versioning, and dispatch of critical institutional documents and correspondence."
+      },
+      {
+        "icon": "access",
+        "title": "Role-Based Access",
+        "body": "Fine-grained permissions ensure each user sees and does exactly what their role requires — nothing more."
+      },
+      {
+        "icon": "analytics",
+        "title": "Real-Time Analytics",
+        "body": "Executive dashboards surface the metrics that matter, updated in real time across all reporting units."
+      },
+      {
+        "icon": "security",
+        "title": "Enterprise Security",
+        "body": "AES-256 encryption, multi-factor authentication, and ISO 27001-aligned controls protect every record."
+      }
+    ],
+    "statsLabel": "Platform at a glance",
+    "stats": [
+      { "value": "99.9%", "label": "Uptime SLA" },
+      { "value": "AES-256", "label": "Encryption" },
+      { "value": "ISO 27001", "label": "Compliance" },
+      { "value": "Tier IV", "label": "Data Centre" }
+    ],
+    "capLabel": "Platform Capabilities",
+    "portalTitle": "ARMAS Services",
+    "portalOnline": "● Online",
+    "portalServices": [
+      "Reporting Engine",
+      "Audit & Compliance",
+      "Document Management",
+      "Access Control"
+    ],
+    "portalNote": "Login required to access all modules",
+    "ctaBannerHeadline": "Ready to get started?",
+    "ctaBannerBody": "Access the ARMAS portal with your institutional credentials.",
+    "ctaBannerBtn": "Sign In to Portal",
+    "footer": "© 2026 ARMAS — Federal Democratic Republic of Ethiopia. All rights reserved."
+  },
+  "sidebar": {
+    "logoSub": "Audit & Report Mgmt",
+    "footer": "ARMAS System © 2026",
+    "sections": {
+      "main": "Main",
+      "myActions": "My Actions",
+      "managerActions": "Manager Actions",
+      "manageOrganization": "Manage Organization",
+      "manageAccess": "Manage Access",
+      "reportsTransactions": "Reports & Transactions",
+      "organizationActions": "Organization Actions",
+      "reporting": "Reporting"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "outgoingReports": "Outgoing Reports",
+      "incomingLetters": "Incoming Letters",
+      "fileHistory": "File History",
+      "viewLetters": "View Letters",
+      "organizations": "Organizations",
+      "directorates": "Directorates",
+      "reportType": "Report Type",
+      "budgetYear": "Budget Year",
+      "users": "Users",
+      "roles": "Roles",
+      "assignRole": "Assign Role",
+      "assignPrivileges": "Assign Privileges",
+      "translations": "Translations",
+      "uploadToOrganizations": "Upload to Organizations",
+      "incomingReports": "Incoming Reports",
+      "approvedReports": "Approved Reports",
+      "pendingReports": "Pending Reports",
+      "assignedTasks": "Assigned Tasks",
+      "rejectedReports": "Rejected Reports",
+      "underReview": "Under Review",
+      "correctedReports": "Corrected Reports",
+      "advancedFilters": "Advanced Filters"
+    },
+    "roles": {
+      "ADMIN": "Administrator",
+      "USER": "User",
+      "ARCHIVER": "Archiver",
+      "SENIOR_AUDITOR": "Senior Auditor",
+      "APPROVER": "Approver",
+      "MANAGER": "Manager"
+    }
+  },
+  "header": {
+    "roles": {
+      "ADMIN": "Administrator",
+      "USER": "User",
+      "ARCHIVER": "Archiver",
+      "SENIOR_AUDITOR": "Senior Auditor",
+      "APPROVER": "Approver",
+      "MANAGER": "Manager"
+    },
+    "notifications": "Notifications",
+    "unread": "unread",
+    "noNotifications": "No new notifications",
+    "logout": "Logout"
+  },
+  "login": {
+    "portalSub": "Portal",
+    "heading": "Welcome back",
+    "subheading": "Sign in to access the institutional portal",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signingIn": "Signing in…",
+    "signIn": "Sign in to Portal",
+    "backToHome": "← Back to Home",
+    "securedBadge": "256-bit Secured"
+  }
+}

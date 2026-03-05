@@ -1,0 +1,152 @@
+{
+    "home": {
+        "govLabel": "Rippaabiliika Dimookiraatawaa Federaalaa Itoophiyaa",
+        "sysLabel": "Ministeera Maallaqaa — Marsariitii ARMAS",
+        "navLogin": "Hojjettootaaf Seeni",
+        "heroEyebrow": "Marsariitii Mootummaa Tokkummaa",
+        "heroHeadline": "Hojii Dhaabbataa Hunda\nMarsariitii Tokko Keessatti",
+        "heroBody": "ARMAS gabaasaa, odiitii, sanadoota, fi to'annoo hayyamaa giddugala tokko keessatti walitti fidee qindeessa — itti gaafatamummaa mirkaneessa.",
+        "heroCta": "Marsariitii Nageenyi Qabu Seeni",
+        "heroCtaSub": "Hojjettoota hayyamaman qofaaf",
+        "trustTitle": "Maaliif dhaabbatoonni ARMAS amanuu?",
+        "pillars": [
+            {
+                "icon": "report",
+                "title": "Gabaasaa Giddugalaa",
+                "body": "Gabaasoonni hundi sirna to'annaa tokko keessa dhihaatu, ilaalamu, fi mirkanaa'u."
+            },
+            {
+                "icon": "audit",
+                "title": "Galmee Odiitii Guutuu",
+                "body": "Hojiin hundi yeroo isaa fi ragaa waliin galmaa'a — jijjiiramuu hin danda'u."
+            },
+            {
+                "icon": "docs",
+                "title": "Bulchiinsa Sanadootaa",
+                "body": "Sanadoota kuusuu, jijjiiramuu to'achuu fi raabsuuf nageenyi ni kennamaaf."
+            },
+            {
+                "icon": "access",
+                "title": "Hayyama Gahee Irratti",
+                "body": "Hayyamni addaa — hojjettaan gahee isaa barbaachisu qofa argata."
+            },
+            {
+                "icon": "analytics",
+                "title": "Xiinxala Yeroo Dhugaa",
+                "body": "Daashboordiin raawwataa lakkoofsoota murteessoo, haaromfamu agarsiisa."
+            },
+            {
+                "icon": "security",
+                "title": "Nageenyaa Sadarkaa Ol'aanaa",
+                "body": "Icciitii AES-256 fi too'annoo ISO 27001 wajjin walsimu."
+            }
+        ],
+        "statsLabel": "Marsariitiin akka gabaabsetti",
+        "stats": [
+            {
+                "value": "99.9%",
+                "label": "Yeroo Hojii"
+            },
+            {
+                "value": "AES-256",
+                "label": "Icciitii"
+            },
+            {
+                "value": "ISO 27001",
+                "label": "Hordoffii"
+            },
+            {
+                "value": "Tier IV",
+                "label": "Giddugala Ragaa"
+            }
+        ],
+        "capLabel": "Dandeettiwwan Marsariitii",
+        "portalTitle": "Tajaajiloota ARMAS",
+        "portalOnline": "● Hojii Irratti",
+        "portalServices": [
+            "Sirna Gabaasaa",
+            "Odiitii fi Hordoffii",
+            "Bulchiinsa Sanadootaa",
+            "To'annoo Hayyamaa"
+        ],
+        "portalNote": "Moduuloota hundaa argachuuf seeni",
+        "ctaBannerHeadline": "Jalqabuu qophii dha?",
+        "ctaBannerBody": "Eenyummeessaa dhaabbataa keessan fayyadamuun seenaa.",
+        "ctaBannerBtn": "Marsariitii Seeni",
+        "footer": "© 2026 ARMAS — Rippaabiliika Dimookiraatawaa Federaalaa Itoophiyaa. Mirgi hunduu eegamaadha."
+    },
+    "sidebar": {
+        "logoSub": "Odiitii fi Gabaasaa Bulchiinsa",
+        "footer": "Sirna ARMAS © 2026",
+        "sections": {
+            "main": "Mura Jalqabaa",
+            "myActions": "Hojii Koo",
+            "managerActions": "Hojii Meneejarii",
+            "manageOrganization": "Dhaabbata Bulchi",
+            "manageAccess": "Hayyama Bulchi",
+            "reportsTransactions": "Gabaasaa fi Daldalaa",
+            "organizationActions": "Hojii Dhaabbataa",
+            "reporting": "Gabaasaa"
+        },
+        "items": {
+            "dashboard": "Daashboordii",
+            "outgoingReports": "Gabaasaa Bahu",
+            "incomingLetters": "Waraqaa Dhufaa",
+            "fileHistory": "Seenaa Faayilii",
+            "viewLetters": "Waraqaa Ilaali",
+            "organizations": "Dhaabbilee",
+            "directorates": "Daayireektoreetii",
+            "reportType": "Gosa Gabaasaa",
+            "budgetYear": "Waggaa Baajataa",
+            "users": "Fayyadamtootaa",
+            "roles": "Gaheelee",
+            "assignRole": "Gahee Kenni",
+            "assignPrivileges": "Mirga Addaa Kenni",
+            "translations": "Hiikkaa",
+            "uploadToOrganizations": "Dhaabbilaaf Olfeedi",
+            "incomingReports": "Gabaasaa Dhufaa",
+            "approvedReports": "Gabaasaa Mirkanaa'e",
+            "pendingReports": "Gabaasaa Eeggataa",
+            "assignedTasks": "Hojii Kenname",
+            "rejectedReports": "Gabaasaa Didame",
+            "underReview": "Ilaalcha Jala",
+            "correctedReports": "Gabaasaa Sirra'e",
+            "advancedFilters": "Filmaata Addaa"
+        },
+        "roles": {
+            "ADMIN": "Bulchaa",
+            "USER": "Fayyadamaa",
+            "ARCHIVER": "Kuusaa",
+            "SENIOR_AUDITOR": "Odiitara Olaanaa",
+            "APPROVER": "Mirkanneessaa",
+            "MANAGER": "Meneejarii"
+        }
+    },
+    "header": {
+        "roles": {
+            "ADMIN": "Bulchaa",
+            "USER": "Fayyadamaa",
+            "ARCHIVER": "Kuusaa",
+            "SENIOR_AUDITOR": "Odiitara Olaanaa",
+            "APPROVER": "Mirkanneessaa",
+            "MANAGER": "Meneejarii"
+        },
+        "notifications": "Beeksisa",
+        "unread": "hin dubbifamne",
+        "noNotifications": "Beeksisa haaraa hin jiru",
+        "logout": "Ba'i"
+    },
+    "login": {
+        "portalSub": "Marsariitii",
+        "heading": "Baga deebittan",
+        "subheading": "Marsariitii dhaabbataa seenuuf gali",
+        "usernameLabel": "Maqaa Fayyadamaa",
+        "usernamePlaceholder": "Maqaa fayyadamaa keessan galchaa",
+        "passwordLabel": "Jecha Darbii",
+        "passwordPlaceholder": "Jecha darbii keessan galchaa",
+        "signingIn": "Seenaa jira…",
+        "signIn": "Marsariitii Seeni",
+        "backToHome": "← Gara Manaatti",
+        "securedBadge": "256-bit Nagahaan"
+    }
+}

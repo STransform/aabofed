@@ -17,149 +17,13 @@ import {
     Building2,
     ChevronRight,
 } from "lucide-react";
-
-type Lang = "en" | "am" | "om";
+import { getMessages, type Lang } from "@/lib/messages";
 
 const LANGS = [
     { code: "en" as Lang, label: "English", flag: "🇺🇸" },
     { code: "am" as Lang, label: "አማርኛ", flag: "🇪🇹" },
     { code: "om" as Lang, label: "Afaan Oromoo", flag: "🇪🇹" },
 ];
-
-const T = {
-    en: {
-        govLabel: "Federal Democratic Republic of Ethiopia",
-        sysLabel: "Ministry of Finance — ARMAS Portal",
-        navLogin: "Staff Login",
-        heroEyebrow: "Integrated Government Platform",
-        heroHeadline: "One Portal for All\nInstitutional Operations",
-        heroBody:
-            "ARMAS streamlines reporting, audit oversight, document management, and access control into a single authorised ecosystem — enabling faster decisions and full accountability across all directorates.",
-        heroCta: "Access Secure Portal",
-        heroCtaSub: "Authorised personnel only",
-        trustTitle: "Why institutions rely on ARMAS",
-        pillars: [
-            {
-                icon: "report",
-                title: "Centralised Reporting",
-                body: "Submit, review, and approve institutional reports from all departments through a single, auditable pipeline.",
-            },
-            {
-                icon: "audit",
-                title: "Full Audit Trails",
-                body: "Every action is timestamped and logged in an immutable record, ensuring complete accountability.",
-            },
-            {
-                icon: "docs",
-                title: "Task Management System",
-                body: "Secure archiving, versioning, and dispatch of critical institutional documents and correspondence.",
-            },
-            {
-                icon: "access",
-                title: "Role-Based Access",
-                body: "Fine-grained permissions ensure each user sees and does exactly what their role requires — nothing more.",
-            },
-            {
-                icon: "analytics",
-                title: "Real-Time Analytics",
-                body: "Executive dashboards surface the metrics that matter, updated in real time across all reporting units.",
-            },
-            {
-                icon: "security",
-                title: "Enterprise Security",
-                body: "AES-256 encryption, multi-factor authentication, and ISO 27001-aligned controls protect every record.",
-            },
-        ],
-        statsLabel: "Platform at a glance",
-        stats: [
-            { value: "99.9%", label: "Uptime SLA" },
-            { value: "AES-256", label: "Encryption" },
-            { value: "ISO 27001", label: "Compliance" },
-            { value: "Tier IV", label: "Data Centre" },
-        ],
-        capLabel: "Platform Capabilities",
-        portalTitle: "ARMAS Services",
-        portalOnline: "● Online",
-        portalServices: ["Reporting Engine", "Audit & Compliance", "Document Management", "Access Control"],
-        portalNote: "Login required to access all modules",
-        ctaBannerHeadline: "Ready to get started?",
-        ctaBannerBody: "Access the ARMAS portal with your institutional credentials.",
-        ctaBannerBtn: "Sign In to Portal",
-        footer: "© 2026 ARMAS — Federal Democratic Republic of Ethiopia. All rights reserved.",
-    },
-    am: {
-        govLabel: "የኢትዮጵያ ፌዴራላዊ ዲሞክራሲያዊ ሪፐብሊክ",
-        sysLabel: "የፋይናንስ ሚኒስቴር — ARMAS ፖርታል",
-        navLogin: "ለሠራተኞች ግባ",
-        heroEyebrow: "የተዋሃደ የመንግሥት መድረክ",
-        heroHeadline: "ሁሉም የተቋም ሥራዎች\nበአንድ ፖርታል",
-        heroBody:
-            "ARMAS ሪፖርቶችን፣ ኦዲትን፣ ሰነዶችን እና የፍቃድ ቁጥጥርን በአንድ ሥርዓት ውስጥ ያዋህዳል — ተጠያቂነትን ያረጋግጣል።",
-        heroCta: "ወደ ፖርታሉ ይግቡ",
-        heroCtaSub: "ለፈቃድ ያላቸው ሠራተኞች ብቻ",
-        trustTitle: "ለምን ተቋማት ARMAS ያምናሉ",
-        pillars: [
-            { icon: "report", title: "ማዕከላዊ ሪፖርቲንግ", body: "ሁሉም ሪፖርቶች በአንድ ሥርዓት ውስጥ ይቀርባሉ፣ ይከለካላሉ፣ ይጸድቃሉ።" },
-            { icon: "audit", title: "ሙሉ የኦዲት ምዝገባ", body: "እያንዳንዱ ድርጊት ሊለወጥ በማይችል ምዝገባ ይቀዳል።" },
-            { icon: "docs", title: "የሰነድ አስተዳደር", body: "ሰነዶችን ደህና ማስቀመጥ፣ ስሪቶችን መቆጣጠር እና ማሰራጨት።" },
-            { icon: "access", title: "በሚና ላይ ፍቃድ", body: "ዝርዝር የሚና ፍቃድ — ሠራተኛው የሚፈልገውን ብቻ ያገኛል።" },
-            { icon: "analytics", title: "ምስላዊ ትንታኔ", body: "የስራ አስፈጻሚ ዳሽቦርዶች ዋና ዋና ቁጥሮችን ወቅታዊ ያሳያሉ።" },
-            { icon: "security", title: "ከፍተኛ ደህንነት", body: "AES-256 ምስጠራ እና ISO 27001 ተኳሃኝ ቁጥጥሮች።" },
-        ],
-        statsLabel: "ፕሌትፎርሙ በአጭሩ",
-        stats: [
-            { value: "99.9%", label: "የሥራ ሰዓት" },
-            { value: "AES-256", label: "ምስጠራ" },
-            { value: "ISO 27001", label: "ተኳሃኝነት" },
-            { value: "Tier IV", label: "ዳታ ማዕከል" },
-        ],
-        capLabel: "የፕሌትፎርም አቅሞች",
-        portalTitle: "ARMAS አገልግሎቶች",
-        portalOnline: "● በሥራ ላይ",
-        portalServices: ["የሪፖርት ሞተር", "ኦዲት እና ተኳሃኝነት", "የሰነድ አስተዳደር", "የፍቃድ ቁጥጥር"],
-        portalNote: "ሁሉንም ሞጁሎች ለመጠቀም ግቡ",
-        ctaBannerHeadline: "ለመጀመር ዝግጁ ነዎት?",
-        ctaBannerBody: "በተቋም ምስክርነቶ ARMAS ፖርታልን ይጠቀሙ።",
-        ctaBannerBtn: "ወደ ፖርታሉ ይግቡ",
-        footer: "© 2026 ARMAS — የኢትዮጵያ ፌዴራላዊ ዲሞክራሲያዊ ሪፐብሊክ። ሁሉም መብቶች ተጠብቀዋል።",
-    },
-    om: {
-        govLabel: "Rippaabiliika Dimookiraatawaa Federaalaa Itoophiyaa",
-        sysLabel: "Ministeera Maallaqaa — Marsariitii ARMAS",
-        navLogin: "Hojjettootaaf Seeni",
-        heroEyebrow: "Marsariitii Mootummaa Tokkummaa",
-        heroHeadline: "Hojii Dhaabbataa Hunda\nMarsariitii Tokko Keessatti",
-        heroBody:
-            "ARMAS gabaasaa, odiitii, sanadoota, fi to'annoo hayyamaa giddugala tokko keessatti walitti fidee qindeessa — itti gaafatamummaa mirkaneessa.",
-        heroCta: "Marsariitii Nageenyi Qabu Seeni",
-        heroCtaSub: "Hojjettoota hayyamaman qofaaf",
-        trustTitle: "Maaliif dhaabbatoonni ARMAS amanuu?",
-        pillars: [
-            { icon: "report", title: "Gabaasaa Giddugalaa", body: "Gabaasoonni hundi sirna to'annaa tokko keessa dhihaatu, ilaalamu, fi mirkanaa'u." },
-            { icon: "audit", title: "Galmee Odiitii Guutuu", body: "Hojiin hundi yeroo isaa fi ragaa waliin galmaa'a — jijjiiramuu hin danda'u." },
-            { icon: "docs", title: "Bulchiinsa Sanadootaa", body: "Sanadoota kuusuu, jijjiiramuu to'achuu fi raabsuuf nageenyi ni kennamaaf." },
-            { icon: "access", title: "Hayyama Gahee Irratti", body: "Hayyamni addaa — hojjettaan gahee isaa barbaachisu qofa argata." },
-            { icon: "analytics", title: "Xiinxala Yeroo Dhugaa", body: "Daashboordiin raawwataa lakkoofsoota murteessoo, haaromfamu agarsiisa." },
-            { icon: "security", title: "Nageenyaa Sadarkaa Ol'aanaa", body: "Icciitii AES-256 fi too'annoo ISO 27001 wajjin walsimu." },
-        ],
-        statsLabel: "Marsariitiin akka gabaabsetti",
-        stats: [
-            { value: "99.9%", label: "Yeroo Hojii" },
-            { value: "AES-256", label: "Icciitii" },
-            { value: "ISO 27001", label: "Hordoffii" },
-            { value: "Tier IV", label: "Giddugala Ragaa" },
-        ],
-        capLabel: "Dandeettiwwan Marsariitii",
-        portalTitle: "Tajaajiloota ARMAS",
-        portalOnline: "● Hojii Irratti",
-        portalServices: ["Sirna Gabaasaa", "Odiitii fi Hordoffii", "Bulchiinsa Sanadootaa", "To'annoo Hayyamaa"],
-        portalNote: "Moduuloota hundaa argachuuf seeni",
-        ctaBannerHeadline: "Jalqabuu qophii dha?",
-        ctaBannerBody: "Eenyummeessaa dhaabbataa keessan fayyadamuun seenaa.",
-        ctaBannerBtn: "Marsariitii Seeni",
-        footer: "© 2026 ARMAS — Rippaabiliika Dimookiraatawaa Federaalaa Itoophiyaa. Mirgi hunduu eegamaadha.",
-    },
-};
 
 const PillarIcon = ({ type }: { type: string }) => {
     const cls = "w-6 h-6";
@@ -190,7 +54,7 @@ export default function HomePage() {
     useEffect(() => {
         setMounted(true);
         const s = localStorage.getItem("armas_lang") as Lang | null;
-        if (s && s in T) setLang(s);
+        if (s && (s === "en" || s === "am" || s === "om")) setLang(s);
     }, []);
 
     const pick = (code: Lang) => {
@@ -199,7 +63,8 @@ export default function HomePage() {
     };
 
     if (!mounted) return null;
-    const t = T[lang];
+
+    const t = getMessages(lang).home;
     const cur = LANGS.find(l => l.code === lang)!;
 
     return (

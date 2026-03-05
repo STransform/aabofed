@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { Bell, LogOut, UserCircle } from 'lucide-react';
+import { getMessages, type Lang } from '@/lib/messages';
 
 function timeAgo(dateStr: string): string {
     const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -33,6 +34,20 @@ export function Header() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const [lang, setLang] = useState<Lang>('en');
+    useEffect(() => {
+        const s = localStorage.getItem('armas_lang') as Lang | null;
+        if (s && (s === 'en' || s === 'am' || s === 'om')) setLang(s);
+        const handler = () => {
+            const v = localStorage.getItem('armas_lang') as Lang | null;
+            if (v && (v === 'en' || v === 'am' || v === 'om')) setLang(v);
+        };
+        window.addEventListener('storage', handler);
+        return () => window.removeEventListener('storage', handler);
+    }, []);
+
+    const msgs = getMessages(lang).header;
 
     const isArchiver = userRole === 'ARCHIVER';
     const isSeniorAuditor = userRole === 'SENIOR_AUDITOR';
@@ -98,14 +113,7 @@ export function Header() {
         }
     };
 
-    const roleLabel: Record<string, string> = {
-        ADMIN: 'Administrator',
-        USER: 'User',
-        ARCHIVER: 'Archiver',
-        SENIOR_AUDITOR: 'Senior Auditor',
-        APPROVER: 'Approver',
-        MANAGER: 'Manager',
-    };
+    const roleLabel = msgs.roles[userRole as keyof typeof msgs.roles] || userRole;
 
     return (
         <header className="bg-white border-b border-gray-200 shadow-sm z-10">
@@ -115,7 +123,7 @@ export function Header() {
                     <span className="text-sm text-gray-400">ARMAS</span>
                     <span className="text-gray-300">/</span>
                     <span className="text-sm font-medium text-gray-700">
-                        {roleLabel[userRole || ''] || userRole}
+                        {roleLabel}
                     </span>
                 </div>
 
@@ -127,7 +135,7 @@ export function Header() {
                         <button
                             onClick={() => setIsOpen(prev => !prev)}
                             className="relative p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            aria-label="Notifications"
+                            aria-label={msgs.notifications}
                         >
                             <Bell className="w-5 h-5 text-gray-500" />
                             {unreadCount > 0 && (
@@ -140,10 +148,10 @@ export function Header() {
                         {isOpen && (
                             <div className="absolute right-0 mt-2 w-96 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden z-50">
                                 <div className="px-4 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-between">
-                                    <h3 className="text-sm font-semibold text-white">Notifications</h3>
+                                    <h3 className="text-sm font-semibold text-white">{msgs.notifications}</h3>
                                     {unreadCount > 0 && (
                                         <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">
-                                            {unreadCount} unread
+                                            {unreadCount} {msgs.unread}
                                         </span>
                                     )}
                                 </div>
@@ -152,7 +160,7 @@ export function Header() {
                                     {notifications.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-10 text-gray-400">
                                             <Bell className="w-8 h-8 mb-2 opacity-30" />
-                                            <p className="text-sm">No new notifications</p>
+                                            <p className="text-sm">{msgs.noNotifications}</p>
                                         </div>
                                     ) : (
                                         notifications.map(n => (
@@ -185,7 +193,7 @@ export function Header() {
                             <UserCircle className="w-5 h-5 text-indigo-600" />
                         </div>
                         <span className="text-sm font-medium text-gray-700 hidden sm:block">
-                            {roleLabel[userRole || ''] || userRole}
+                            {roleLabel}
                         </span>
                     </div>
 
@@ -195,7 +203,7 @@ export function Header() {
                         className="flex items-center space-x-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                         <LogOut className="w-4 h-4" />
-                        <span className="hidden sm:inline">Logout</span>
+                        <span className="hidden sm:inline">{msgs.logout}</span>
                     </button>
                 </div>
             </div>

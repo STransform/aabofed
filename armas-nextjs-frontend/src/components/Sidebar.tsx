@@ -3,25 +3,44 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useEffect, useState } from 'react';
 import {
     Building2, Users, FileText, Calculator, Shell, Lock, CheckCircle,
     XOctagon, Clock, Edit3, UploadCloud, DownloadCloud, ClipboardList,
     LayoutDashboard, Filter, ShieldCheck, Briefcase, ChevronRight,
     UserCog, Languages
 } from 'lucide-react';
+import { getMessages, type Lang } from '@/lib/messages';
 
-const roleColors: Record<string, { label: string; bg: string; text: string }> = {
-    ADMIN: { label: 'Administrator', bg: 'bg-violet-500/20', text: 'text-violet-300' },
-    USER: { label: 'User', bg: 'bg-sky-500/20', text: 'text-sky-300' },
-    ARCHIVER: { label: 'Archiver', bg: 'bg-amber-500/20', text: 'text-amber-300' },
-    SENIOR_AUDITOR: { label: 'Senior Auditor', bg: 'bg-emerald-500/20', text: 'text-emerald-300' },
-    APPROVER: { label: 'Approver', bg: 'bg-rose-500/20', text: 'text-rose-300' },
-    MANAGER: { label: 'Manager', bg: 'bg-cyan-500/20', text: 'text-cyan-300' },
+const roleColors: Record<string, { bg: string; text: string }> = {
+    ADMIN: { bg: 'bg-violet-500/20', text: 'text-violet-300' },
+    USER: { bg: 'bg-sky-500/20', text: 'text-sky-300' },
+    ARCHIVER: { bg: 'bg-amber-500/20', text: 'text-amber-300' },
+    SENIOR_AUDITOR: { bg: 'bg-emerald-500/20', text: 'text-emerald-300' },
+    APPROVER: { bg: 'bg-rose-500/20', text: 'text-rose-300' },
+    MANAGER: { bg: 'bg-cyan-500/20', text: 'text-cyan-300' },
 };
 
 export function Sidebar() {
     const { userRole } = useAuth();
     const pathname = usePathname();
+
+    const [lang, setLang] = useState<Lang>('en');
+    useEffect(() => {
+        const s = localStorage.getItem('armas_lang') as Lang | null;
+        if (s && (s === 'en' || s === 'am' || s === 'om')) setLang(s);
+        // Re-sync whenever localStorage changes (e.g. user picks a new language on home page)
+        const handler = () => {
+            const v = localStorage.getItem('armas_lang') as Lang | null;
+            if (v && (v === 'en' || v === 'am' || v === 'om')) setLang(v);
+        };
+        window.addEventListener('storage', handler);
+        return () => window.removeEventListener('storage', handler);
+    }, []);
+
+    const msgs = getMessages(lang).sidebar;
+    const s = msgs.sections;
+    const it = msgs.items;
 
     const isAdmin = userRole === 'ADMIN';
     const isUser = userRole === 'USER';
@@ -30,58 +49,59 @@ export function Sidebar() {
     const isApprover = userRole === 'APPROVER';
     const isManager = userRole === 'MANAGER';
 
-    const commonItems = [{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard }];
+    const commonItems = [{ name: it.dashboard, href: '/dashboard', icon: LayoutDashboard }];
 
     const userItems = [
-        { name: 'Outgoing Reports', href: '/buttons/file-upload', icon: UploadCloud },
-        { name: 'Incoming Letters', href: '/buttons/letter-download', icon: DownloadCloud },
-        { name: 'File History', href: '/file-history', icon: ClipboardList },
+        { name: it.outgoingReports, href: '/buttons/file-upload', icon: UploadCloud },
+        { name: it.incomingLetters, href: '/buttons/letter-download', icon: DownloadCloud },
+        { name: it.fileHistory, href: '/file-history', icon: ClipboardList },
     ];
 
     const managerItems = [
-        { name: 'View Letters', href: '/transactions/letters', icon: FileText },
+        { name: it.viewLetters, href: '/transactions/letters', icon: FileText },
     ];
 
     const adminManageItems = [
-        { name: 'Organizations', href: '/buttons/organizations', icon: Building2 },
-        { name: 'Directorates', href: '/buttons/directorates', icon: Briefcase },
-        { name: 'Report Type', href: '/buttons/documents', icon: FileText },
-        { name: 'Budget Year', href: '/buttons/budgetyear', icon: Calculator },
+        { name: it.organizations, href: '/buttons/organizations', icon: Building2 },
+        { name: it.directorates, href: '/buttons/directorates', icon: Briefcase },
+        { name: it.reportType, href: '/buttons/documents', icon: FileText },
+        { name: it.budgetYear, href: '/buttons/budgetyear', icon: Calculator },
     ];
 
     const adminUserItems = [
-        { name: 'Users', href: '/buttons/users', icon: Users },
-        { name: 'Roles', href: '/buttons/roles', icon: Shell },
-        { name: 'Assign Role', href: '/buttons/assign', icon: UserCog },
-        { name: 'Assign Privileges', href: '/buttons/assign-privileges', icon: Lock },
-        { name: 'Translations', href: '/buttons/translations', icon: Languages },
+        { name: it.users, href: '/buttons/users', icon: Users },
+        { name: it.roles, href: '/buttons/roles', icon: Shell },
+        { name: it.assignRole, href: '/buttons/assign', icon: UserCog },
+        { name: it.assignPrivileges, href: '/buttons/assign-privileges', icon: Lock },
+        { name: it.translations, href: '/buttons/translations', icon: Languages },
     ];
 
     const uploadorgItems = isApprover ? [
-        { name: 'Upload to Organizations', href: '/transactions/upload-to-organizations', icon: UploadCloud }
+        { name: it.uploadToOrganizations, href: '/transactions/upload-to-organizations', icon: UploadCloud }
     ] : [];
 
     const archiverItems = isArchiver ? [
-        { name: 'Incoming Reports', href: '/buttons/file-download', icon: DownloadCloud },
-        { name: 'Approved Reports', href: '/transactions/approved-reports', icon: CheckCircle },
-        { name: 'Pending Reports', href: '/transactions/pending-reports', icon: ClipboardList },
+        { name: it.incomingReports, href: '/buttons/file-download', icon: DownloadCloud },
+        { name: it.approvedReports, href: '/transactions/approved-reports', icon: CheckCircle },
+        { name: it.pendingReports, href: '/transactions/pending-reports', icon: ClipboardList },
     ] : [];
 
     const auditorApproverItems = isSeniorAuditor || isApprover ? [
-        { name: 'Assigned Tasks', href: '/transactions/auditor-tasks', icon: ClipboardList },
-        { name: 'Rejected Reports', href: '/transactions/rejected-reports', icon: XOctagon },
-        { name: 'Approved Reports', href: '/transactions/approved-reports', icon: CheckCircle },
-        { name: 'Under Review', href: '/transactions/under-review-reports', icon: Clock },
-        { name: 'Corrected Reports', href: '/transactions/corrected-reports', icon: Edit3 },
+        { name: it.assignedTasks, href: '/transactions/auditor-tasks', icon: ClipboardList },
+        { name: it.rejectedReports, href: '/transactions/rejected-reports', icon: XOctagon },
+        { name: it.approvedReports, href: '/transactions/approved-reports', icon: CheckCircle },
+        { name: it.underReview, href: '/transactions/under-review-reports', icon: Clock },
+        { name: it.correctedReports, href: '/transactions/corrected-reports', icon: Edit3 },
     ] : [];
 
     const advancedFiltersItem = isAdmin || isApprover || isArchiver || isSeniorAuditor ? [
-        { name: 'Advanced Filters', href: '/transactions/advanced-filters', icon: Filter }
+        { name: it.advancedFilters, href: '/transactions/advanced-filters', icon: Filter }
     ] : [];
 
     const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
-    const roleInfo = roleColors[userRole || ''] || { label: userRole || 'Unknown', bg: 'bg-slate-500/20', text: 'text-slate-300' };
+    const roleInfo = roleColors[userRole || ''] || { bg: 'bg-slate-500/20', text: 'text-slate-300' };
+    const roleLabel = msgs.roles[userRole as keyof typeof msgs.roles] || userRole || 'Unknown';
 
     const renderSection = (title: string, items: { name: string; href: string; icon: any }[]) => {
         if (items.length === 0) return null;
@@ -95,7 +115,7 @@ export function Sidebar() {
                         const Icon = item.icon;
                         const active = isActive(item.href);
                         return (
-                            <li key={item.name}>
+                            <li key={item.href}>
                                 <Link
                                     href={item.href}
                                     className={`group flex items-center justify-between px-4 py-2.5 rounded-lg mx-2 text-sm font-medium transition-all duration-150 ${active
@@ -128,7 +148,7 @@ export function Sidebar() {
                     </div>
                     <div>
                         <span className="font-extrabold text-lg text-white tracking-tight leading-none">ARMAS</span>
-                        <p className="text-[9px] text-slate-500 uppercase tracking-widest leading-none mt-0.5">Audit & Report Mgmt</p>
+                        <p className="text-[9px] text-slate-500 uppercase tracking-widest leading-none mt-0.5">{msgs.logoSub}</p>
                     </div>
                 </div>
             </div>
@@ -136,36 +156,36 @@ export function Sidebar() {
             {/* Role badge */}
             <div className="px-5 py-3 border-b border-slate-700/40">
                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${roleInfo.bg} ${roleInfo.text}`}>
-                    {roleInfo.label}
+                    {roleLabel}
                 </span>
             </div>
 
             {/* Nav */}
             <nav className="flex-1 py-4 overflow-y-auto">
-                {renderSection('Main', commonItems)}
+                {renderSection(s.main, commonItems)}
 
-                {isUser && renderSection('My Actions', userItems)}
-                {isManager && renderSection('Manager Actions', managerItems)}
+                {isUser && renderSection(s.myActions, userItems)}
+                {isManager && renderSection(s.managerActions, managerItems)}
 
                 {isAdmin && (
                     <>
-                        {renderSection('Manage Organization', adminManageItems)}
-                        {renderSection('Manage Access', adminUserItems)}
+                        {renderSection(s.manageOrganization, adminManageItems)}
+                        {renderSection(s.manageAccess, adminUserItems)}
                     </>
                 )}
 
                 {(isArchiver || isSeniorAuditor || isApprover) && renderSection(
-                    'Reports & Transactions',
+                    s.reportsTransactions,
                     [...archiverItems, ...auditorApproverItems]
                 )}
 
-                {uploadorgItems.length > 0 && renderSection('Organization Actions', uploadorgItems)}
-                {advancedFiltersItem.length > 0 && renderSection('Reporting', advancedFiltersItem)}
+                {uploadorgItems.length > 0 && renderSection(s.organizationActions, uploadorgItems)}
+                {advancedFiltersItem.length > 0 && renderSection(s.reporting, advancedFiltersItem)}
             </nav>
 
             {/* Footer */}
             <div className="px-5 py-4 border-t border-slate-700/40 shrink-0">
-                <p className="text-[10px] text-slate-600 text-center">ARMAS System © 2026</p>
+                <p className="text-[10px] text-slate-600 text-center">{msgs.footer}</p>
             </div>
         </div>
     );

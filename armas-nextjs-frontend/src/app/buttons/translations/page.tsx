@@ -13,10 +13,13 @@ import {
     ArrowLeft,
     FileText,
     Globe,
+    FileJson,
+    Database
 } from "lucide-react";
 import axiosInstance from "../../../lib/axios";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
+import { flattenMessages } from "@/lib/messages";
 
 // ──────────────────────────────────────────────
 // Types
@@ -25,7 +28,6 @@ interface LangStats {
     code: string;
     name: string;
     nativeName: string;
-    file: string;
     totalKeys: number;
     translated: number;
     untranslated: number;
@@ -37,6 +39,7 @@ interface TranslationRow {
     en: string;
     target: string;
     isDirty: boolean;
+    source: "static" | "dynamic";
 }
 
 type FilterType = "all" | "untranslated" | "translated";
@@ -74,23 +77,40 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
         const fetchStats = async () => {
             try {
                 // Fetch English as the base truth for total keys
-                const enRes = await axiosInstance.get('/transactions/translations', { params: { lang: 'en' } });
-                const enKeys = Object.keys(enRes.data || {});
-                const totalKeys = enKeys.length;
+                const [enDynamicRes, enStaticRaw] = await Promise.all([
+                    axiosInstance.get('/transactions/translations', { params: { lang: 'en' } }),
+                    fetch('/api/messages?lang=en').then(r => r.json())
+                ]);
+
+                const enDynamic = enDynamicRes.data || {};
+                const enStatic = flattenMessages(enStaticRaw);
+
+                const enDynamicKeys = Object.keys(enDynamic);
+                const enStaticKeys = Object.keys(enStatic);
+                const totalKeys = enDynamicKeys.length + enStaticKeys.length;
 
                 const newStats: LangStats[] = [];
 
                 // Fetch target languages to calculate stats
                 for (const code of Object.keys(LANGUAGES)) {
-                    const targetRes = await axiosInstance.get('/transactions/translations', { params: { lang: code } });
-                    const targetData = targetRes.data || {};
+                    const [targetDynamicRes, targetStaticRaw] = await Promise.all([
+                        axiosInstance.get('/transactions/translations', { params: { lang: code } }),
+                        fetch(`/api/messages?lang=${code}`).then(r => r.json())
+                    ]);
+
+                    const targetDynamic = targetDynamicRes.data || {};
+                    const targetStatic = flattenMessages(targetStaticRaw);
 
                     let translatedCount = 0;
-                    enKeys.forEach(key => {
-                        const val = targetData[key];
-                        if (val && val.trim() !== '') {
-                            translatedCount++;
-                        }
+
+                    enDynamicKeys.forEach(key => {
+                        const val = targetDynamic[key];
+                        if (val && val.trim() !== '') translatedCount++;
+                    });
+
+                    enStaticKeys.forEach(key => {
+                        const val = targetStatic[key];
+                        if (val && val.trim() !== '') translatedCount++;
                     });
 
                     const untranslatedCount = totalKeys - translatedCount;
@@ -100,7 +120,6 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
                         code,
                         name: LANGUAGES[code].name,
                         nativeName: LANGUAGES[code].nativeName,
-                        file: `messages/${code}.json`,
                         totalKeys,
                         translated: translatedCount,
                         untranslated: untranslatedCount,
@@ -133,7 +152,6 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
-            {/* Header */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                 <div className="flex items-center gap-4">
                     <div className="bg-primary/10 p-3 rounded-xl text-primary">
@@ -148,7 +166,6 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
                 </div>
             </div>
 
-            {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-sm text-slate-500">
                 <Home size={14} />
                 <span>Home</span>
@@ -163,7 +180,6 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
                 </div>
             )}
 
-            {/* Language Cards */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
                     <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wider">
@@ -171,14 +187,12 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
                     </h2>
                 </div>
 
-                {/* Table Header */}
-                <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_1fr_2fr] gap-4 px-6 py-3 bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <div className="hidden md:grid grid-cols-[2fr_2fr_1fr_1fr_1fr] gap-4 px-6 py-3 bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     <span>Language</span>
                     <span>Progress</span>
                     <span>Translated</span>
                     <span>Untranslated</span>
                     <span>Total Keys</span>
-                    <span>File</span>
                 </div>
 
                 <div className="divide-y divide-slate-100">
@@ -188,7 +202,6 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
                             onClick={() => onSelect(lang.code)}
                             className="w-full text-left px-6 py-5 hover:bg-slate-50 transition-colors group"
                         >
-                            {/* Mobile layout */}
                             <div className="md:hidden space-y-3">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
@@ -214,8 +227,7 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
                                 </div>
                             </div>
 
-                            {/* Desktop layout */}
-                            <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_1fr_2fr] gap-4 items-center">
+                            <div className="hidden md:grid grid-cols-[2fr_2fr_1fr_1fr_1fr] gap-4 items-center">
                                 <div className="flex items-center gap-3">
                                     <span className="text-2xl">{LANGUAGES[lang.code]?.flag}</span>
                                     <div>
@@ -225,7 +237,7 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
                                         <div className="text-xs text-slate-500">{lang.nativeName}</div>
                                     </div>
                                 </div>
-                                <div className="space-y-1.5">
+                                <div className="space-y-1.5 pr-8">
                                     <ProgressBar value={lang.progress} />
                                     <span className={`text-xs font-bold ${lang.progress >= 80 ? "text-emerald-600" : lang.progress >= 50 ? "text-amber-600" : "text-red-600"}`}>
                                         {lang.progress}%
@@ -234,9 +246,6 @@ function LanguageSelectionView({ onSelect }: { onSelect: (lang: string) => void 
                                 <span className="text-emerald-600 font-semibold">{lang.translated}</span>
                                 <span className="text-red-500 font-semibold">{lang.untranslated}</span>
                                 <span className="text-slate-600">{lang.totalKeys}</span>
-                                <code className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded font-mono">
-                                    {lang.file}
-                                </code>
                             </div>
                         </button>
                     ))}
@@ -262,6 +271,7 @@ function TranslationEditorView({
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [filter, setFilter] = useState<FilterType>("untranslated");
+    const [sourceFilter, setSourceFilter] = useState<"all" | "static" | "dynamic">("all");
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -270,17 +280,36 @@ function TranslationEditorView({
         setLoading(true);
         Promise.all([
             axiosInstance.get('/transactions/translations', { params: { lang: 'en' } }),
-            axiosInstance.get(`/transactions/translations`, { params: { lang: langCode } })
-        ]).then(([enRes, targetRes]) => {
-            const enData = enRes.data || {};
-            const targetData = targetRes.data || {};
+            fetch('/api/messages?lang=en').then(r => r.json()),
+            axiosInstance.get(`/transactions/translations`, { params: { lang: langCode } }),
+            fetch(`/api/messages?lang=${langCode}`).then(r => r.json())
+        ]).then(([enDynamicRes, enStaticRaw, targetDynamicRes, targetStaticRaw]) => {
+            const enDynamic = enDynamicRes.data || {};
+            const enStatic = flattenMessages(enStaticRaw);
+            const targetDynamic = targetDynamicRes.data || {};
+            const targetStatic = flattenMessages(targetStaticRaw);
 
-            const parsed = Object.keys(enData).map((key) => ({
-                key,
-                en: enData[key] || "",
-                target: targetData[key] || "",
-                isDirty: false,
-            }));
+            const parsed: TranslationRow[] = [];
+
+            Object.keys(enStatic).forEach(key => {
+                parsed.push({
+                    key,
+                    en: enStatic[key] || "",
+                    target: targetStatic[key] || "",
+                    isDirty: false,
+                    source: "static"
+                });
+            });
+
+            Object.keys(enDynamic).forEach(key => {
+                parsed.push({
+                    key,
+                    en: enDynamic[key] || "",
+                    target: targetDynamic[key] || "",
+                    isDirty: false,
+                    source: "dynamic"
+                });
+            });
 
             setRows(parsed);
         }).catch(() => {
@@ -306,13 +335,37 @@ function TranslationEditorView({
             return;
         }
 
-        const updates: Record<string, string> = {};
-        dirtyRows.forEach((r) => { updates[r.key] = r.target; });
+        const dirtyStatic = dirtyRows.filter(r => r.source === "static");
+        const dirtyDynamic = dirtyRows.filter(r => r.source === "dynamic");
 
         try {
-            await axiosInstance.post('/transactions/translations', updates, {
-                params: { lang: langCode }
-            });
+            const promises = [];
+
+            if (dirtyStatic.length > 0) {
+                const staticUpdates: Record<string, string> = {};
+                dirtyStatic.forEach(r => { staticUpdates[r.key] = r.target; });
+                promises.push(
+                    fetch(`/api/messages?lang=${langCode}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(staticUpdates)
+                    }).then(r => {
+                        if (!r.ok) throw new Error("Failed to save static translations");
+                    })
+                );
+            }
+
+            if (dirtyDynamic.length > 0) {
+                const dynamicUpdates: Record<string, string> = {};
+                dirtyDynamic.forEach(r => { dynamicUpdates[r.key] = r.target; });
+                promises.push(
+                    axiosInstance.post('/transactions/translations', dynamicUpdates, {
+                        params: { lang: langCode }
+                    })
+                );
+            }
+
+            await Promise.all(promises);
 
             setRows((prev) => prev.map((r) => ({ ...r, isDirty: false })));
             setStatus({ type: "success", text: `${dirtyRows.length} strings saved successfully!` });
@@ -324,7 +377,6 @@ function TranslationEditorView({
         }
     };
 
-    // Filtering logic
     const filteredRows = rows.filter((r) => {
         const matchesSearch =
             !search ||
@@ -333,6 +385,9 @@ function TranslationEditorView({
             r.target.toLowerCase().includes(search.toLowerCase());
 
         if (!matchesSearch) return false;
+
+        if (sourceFilter !== "all" && r.source !== sourceFilter) return false;
+
         if (filter === "translated") return r.target.trim() !== "";
         if (filter === "untranslated") return r.target.trim() === "";
         return true;
@@ -355,7 +410,6 @@ function TranslationEditorView({
 
     return (
         <div className="max-w-6xl mx-auto space-y-4 pt-6">
-            {/* Header bar */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
@@ -395,7 +449,6 @@ function TranslationEditorView({
                 </div>
             </div>
 
-            {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-sm text-slate-500">
                 <Home size={14} />
                 <span>Home</span>
@@ -407,18 +460,23 @@ function TranslationEditorView({
                 <span className="text-slate-500">Progress: {progress}%</span>
             </nav>
 
-            {/* Pick file bar */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2 text-amber-800">
                     <FileText size={16} />
-                    <span className="font-medium">Welcome to the translation editor</span>
+                    <span className="font-medium">Managing both Static & Dynamic strings</span>
                 </div>
-                <code className="text-xs text-amber-700 bg-amber-100 px-2 py-1 rounded font-mono">
-                    messages/{langCode}.json
-                </code>
+                <div className="flex gap-2">
+                    <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 bg-white/60 px-2 py-1 rounded border border-amber-200/50">
+                        <FileJson size={14} className="text-amber-600" />
+                        messages/{langCode}.json
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 bg-white/60 px-2 py-1 rounded border border-amber-200/50">
+                        <Database size={14} className="text-amber-600" />
+                        Database
+                    </span>
+                </div>
             </div>
 
-            {/* Status message */}
             {status && (
                 <div className={`p-4 rounded-lg flex items-center gap-2 ${status.type === "error" ? "bg-red-50 text-red-700 border border-red-200" : "bg-green-50 text-green-700 border border-green-200"}`}>
                     {status.type === "error" ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
@@ -426,12 +484,10 @@ function TranslationEditorView({
                 </div>
             )}
 
-            {/* Toolbar: search + filter */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
-                    <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                        {/* Search */}
-                        <div className="relative w-full md:w-80">
+                <div className="flex flex-col xl:flex-row gap-3 items-start xl:items-center justify-between">
+                    <div className="flex flex-col lg:flex-row gap-3 w-full xl:w-auto">
+                        <div className="relative w-full lg:w-80">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                             <input
                                 type="text"
@@ -442,25 +498,47 @@ function TranslationEditorView({
                             />
                         </div>
 
-                        {/* Filter tabs */}
-                        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg text-sm">
-                            {(["all", "untranslated", "translated"] as FilterType[]).map((f) => {
-                                const label =
-                                    f === "all"
-                                        ? `All (${rows.length})`
-                                        : f === "untranslated"
-                                            ? `Untranslated (${rows.length - translatedCount})`
-                                            : `Translated (${translatedCount})`;
-                                return (
-                                    <button
-                                        key={f}
-                                        onClick={() => setFilter(f)}
-                                        className={`px-3 py-1.5 rounded-md font-medium transition-colors ${filter === f ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
-                                    >
-                                        {label}
-                                    </button>
-                                );
-                            })}
+                        <div className="flex gap-3">
+                            <div className="flex items-center bg-slate-100 p-1 rounded-lg text-sm">
+                                {(["all", "untranslated", "translated"] as FilterType[]).map((f) => {
+                                    const label =
+                                        f === "all"
+                                            ? `All (${rows.length})`
+                                            : f === "untranslated"
+                                                ? `Missing (${rows.length - translatedCount})`
+                                                : `Done (${translatedCount})`;
+                                    return (
+                                        <button
+                                            key={f}
+                                            onClick={() => setFilter(f)}
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-colors ${filter === f ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
+                                        >
+                                            {label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="flex items-center bg-slate-100 p-1 rounded-lg text-sm">
+                                <button
+                                    onClick={() => setSourceFilter("all")}
+                                    className={`px-3 py-1.5 rounded-md font-medium transition-colors ${sourceFilter === "all" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
+                                >
+                                    All Sources
+                                </button>
+                                <button
+                                    onClick={() => setSourceFilter("static")}
+                                    className={`px-3 py-1.5 rounded-md font-medium transition-colors ${sourceFilter === "static" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
+                                >
+                                    Static
+                                </button>
+                                <button
+                                    onClick={() => setSourceFilter("dynamic")}
+                                    className={`px-3 py-1.5 rounded-md font-medium transition-colors ${sourceFilter === "dynamic" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
+                                >
+                                    Dynamic
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -470,9 +548,7 @@ function TranslationEditorView({
                 </div>
             </div>
 
-            {/* Translation Table */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-10">
-                {/* Table Header */}
                 <div className="grid grid-cols-[1fr_1fr_auto] md:grid-cols-[1.2fr_1.5fr_1fr_auto] gap-0 border-b border-slate-200 bg-slate-50">
                     <div className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider border-r border-slate-200">
                         Original (English)
@@ -481,14 +557,13 @@ function TranslationEditorView({
                         {langMeta.name}
                     </div>
                     <div className="hidden md:block px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider border-r border-slate-200">
-                        Key / Occurrences
+                        Key & Source
                     </div>
                     <div className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">
                         Status
                     </div>
                 </div>
 
-                {/* Rows */}
                 <div className="divide-y divide-slate-100">
                     {filteredRows.length === 0 ? (
                         <div className="px-6 py-16 text-center">
@@ -504,14 +579,12 @@ function TranslationEditorView({
                                     key={row.key}
                                     className={`grid grid-cols-[1fr_1fr_auto] md:grid-cols-[1.2fr_1.5fr_1fr_auto] gap-0 hover:bg-slate-50/50 transition-colors ${row.isDirty ? "bg-amber-50/40" : ""}`}
                                 >
-                                    {/* English original */}
                                     <div className="px-4 py-4 border-r border-slate-100">
                                         <p className="text-slate-800 text-sm leading-relaxed font-medium">
                                             {row.en || <span className="text-slate-400 italic">Empty</span>}
                                         </p>
                                     </div>
 
-                                    {/* Editable translation */}
                                     <div className="px-4 py-4 border-r border-slate-100">
                                         <textarea
                                             value={row.target}
@@ -523,14 +596,23 @@ function TranslationEditorView({
                                         />
                                     </div>
 
-                                    {/* Key / occurrences */}
                                     <div className="hidden md:block px-4 py-4 border-r border-slate-100">
-                                        <code className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded block break-all">
-                                            {row.key}
-                                        </code>
+                                        <div className="flex flex-col items-start gap-1">
+                                            <code className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded block break-all">
+                                                {row.key}
+                                            </code>
+                                            {row.source === "static" ? (
+                                                <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                                    <FileJson size={10} /> Static
+                                                </span>
+                                            ) : (
+                                                <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
+                                                    <Database size={10} /> Dynamic
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
-                                    {/* Status badge */}
                                     <div className="px-4 py-4 flex items-start justify-center pt-5">
                                         {row.isDirty ? (
                                             <span className="w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-amber-200" title="Unsaved changes" />
@@ -550,9 +632,6 @@ function TranslationEditorView({
     );
 }
 
-// ──────────────────────────────────────────────
-// Root Page — Controller (wrapped in Suspense for useSearchParams)
-// ──────────────────────────────────────────────
 function TranslationsController() {
     const router = useRouter();
     const searchParams = useSearchParams();
