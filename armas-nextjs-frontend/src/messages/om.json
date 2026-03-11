@@ -1,65 +1,58 @@
 {
   "home": {
     "govLabel": "Rippaabiliika Dimookiraatawaa Federaalaa Itoophiyaa",
-    "sysLabel": "Ministeera Maallaqaa — Marsariitii ARMAS",
+    "sysLabel": "Bulchiinsa Magaalaa Finfinnee — Biiroo Maallaqaa",
     "navLogin": "Hojjettootaaf Seeni",
-    "heroEyebrow": "Marsariitii Mootummaa Tokkummaa",
+    "heroEyebrow": "Biiroo Maallaqaa Finfinnee",
     "heroHeadline": "Sirna Odiitii fi Qorannoo\nBulchiinsa Gabaasaa",
-    "heroBody": "ARMAS gabaasaa, odiitii, sanadoota, fi to'annoo hayyamaa giddugala tokko keessatti walitti fidee qindeessa — itti gaafatamummaa mirkaneessa.",
+    "heroBody": "ARMAS sirna raawwataa fi gabaasaa odiitii Biiroo Maallaqaa Finfinnee kan offiishaala ta'e yoo ta'u, naannoo iftoominna qabu, itti gaafatamummaa fi to'annoo mirkaneessa.",
     "heroCta": "Marsariitii Nageenya Qabu Seeni",
     "heroCtaSub": "Hojjettoota hayyamaman qofaaf",
+    "aboutLabel": "Biiroo Kanaaa",
+    "aboutTitle": "Biiroo Maallaqaa Bulchiinsa Magaalaa Finfinnee",
+    "aboutBody": "Biiroo Maallaqaa Finfinnee dhaabbata guddaa to'annaa maallaqaa mootummaa, karoora bajataa, to'oo baasii, fi to'annaa odiitii kiflee magaalaa Finfinnee hunda keessatti itti gaafatamummaa qabu dha. ARMAS suphaa walitti bu'insaa fi digitaalummaa raawwii gabaasaa odiitii biiroo kanaa ta'uuf dhiyaate.",
+    "aboutStats": [
+      { "value": "14+", "label": "Kifleewwan Magaalaa" },
+      { "value": "60+", "label": "Waajjira Seektaraa" },
+      { "value": "100%", "label": "Hojii Dijitaala" }
+    ],
+    "visionLabel": "Mul'ata Keenya",
+    "visionTitle": "Mul'ata",
+    "visionBody": "Itoophiyaa keessatti fakkeenya iftoo, dandamtuu, fi itti gaafatamaa ta'e bulchiinsa maallaqaa mootummaa keessatti ta'uuf — birrii mootummaa hundi guddaa bahaa fi kaayyoo qabuun bulamu akka mirkanaawan taasisuuf.",
+    "missionLabel": "Hojii Bobaa Keenya",
+    "missionTitle": "Hojii Bobaa",
+    "missionBody": "Sirna odiitii, gabaasaa fi to'annoo cimaa giddugidduudhaan bulchiinsa maallaqaa mootummaa cimsuuf — itti gaafatamummaa guddisuuf, qisaasama hir'isuuf, fi bulchiinsi sadar-maallaqaa ga'umsa qabu Finfinnee kiflee magaalaa hundaaf mirkanaa'u akka ta'u.",
+    "valuesLabel": "Gatii Keenya",
+    "valuesTitle": "Gatiileen Ijoo",
+    "values": [
+      { "icon": "shield", "title": "Amanaummaa", "body": "Hojii keenya hunda keessatti amanaummaa, dhugaa, fi iftoominna ol'aana kabajna." },
+      { "icon": "users", "title": "Itti Gaafatamummaa", "body": "Eenyuyyuu miseensa dhaabbataa fi waajjirri sadarkaa raawwii ifa ta'e irratti qoratamu, bu'aawwaan ni gabaasamu." },
+      { "icon": "chart", "title": "Ol'Aanummaa", "body": "Tajaajila waaltessaa nagaa ta'e kennuuf, fooyya'iinsa ittifufiinsa qabu irratti kutannoo qabna." },
+      { "icon": "globe", "title": "Hirmaachisummaa", "body": "Garaagarummaa kabajja, mirkaneessii ga'umsa walqixa qabeenya mootummaa fi tajaajiloota maallaqaa hawaasa hundaa." },
+      { "icon": "check", "title": "Seerummaa", "body": "Hojiin maallaqaa hundi seera federaalaa fi magaalaa Itoophiyaan walsimu guutuutti raawwatama." },
+      { "icon": "lock", "title": "Iftoomina", "body": "Qabeenya mootummaa fi bu'aawwan odiitii iftoomaan ni gabaasamu, amanamummaa mootummaatti amanamtummaa uuma." }
+    ],
     "trustTitle": "Maaliif dhaabbatoonni ARMAS amanuu?",
     "pillars": [
-      {
-        "icon": "report",
-        "title": "Gabaasaa Giddugalaa",
-        "body": "Gabaasoonni hundi sirna to'annaa tokko keessa dhihaatu, ilaalamu, fi mirkanaa'u."
-      },
-      {
-        "icon": "audit",
-        "title": "Galmee Odiitii Guutuu",
-        "body": "Hojiin hundi yeroo isaa fi ragaa waliin galmaa'a — jijjiiramuu hin danda'u."
-      },
-      {
-        "icon": "docs",
-        "title": "Bulchiinsa Sanadootaa",
-        "body": "Sanadoota kuusuu, jijjiiramuu to'achuu fi raabsuuf nageenyi ni kennamaaf."
-      },
-      {
-        "icon": "access",
-        "title": "Hayyama Gahee Irratti",
-        "body": "Hayyamni addaa — hojjettaan gahee isaa barbaachisu qofa argata."
-      },
-      {
-        "icon": "analytics",
-        "title": "Xiinxala Yeroo Dhugaa",
-        "body": "Daashboordiin raawwataa lakkoofsoota murteessoo, haaromfamu agarsiisa."
-      },
-      {
-        "icon": "security",
-        "title": "Nageenyaa Sadarkaa Ol'aanaa",
-        "body": "Icciitii AES-256 fi too'annoo ISO 27001 wajjin walsimu."
-      }
+      { "icon": "report", "title": "Gabaasaa Giddugalaa", "body": "Gabaasoonni hundi sirna to'annaa tokko keessa dhihaatu, ilaalamu, fi mirkanaa'u." },
+      { "icon": "audit", "title": "Galmee Odiitii Guutuu", "body": "Hojiin hundi yeroo isaa fi ragaa waliin galmaa'a — jijjiiramuu hin danda'u." },
+      { "icon": "docs", "title": "Bulchiinsa Sanadootaa Ammayyaa", "body": "Raawwii sanadootaa isa sirna ta'e argannoo, xalayaa fi gabaasaa yeroo hunda hordofuu danda'u mirkaneessa." },
+      { "icon": "access", "title": "Hayyama Gahee Irratti", "body": "Hayyamni addaa — hojjettaan gahee isaa barbaachisu qofa argata." },
+      { "icon": "analytics", "title": "Xiinxala Yeroo Dhugaa", "body": "Daashboordiin raawwataa lakkoofsoota murteessoo, haaromfamu agarsiisa." },
+      { "icon": "security", "title": "Nageenyaa 256-bit", "body": "Icciitii sadarkaa dhaabbataa fi Keycloak mirkaneessuu sanadoota raaga-dhuunfaan daangessuu eegg." }
     ],
     "statsLabel": "Marsariitiin akka gabaabsetti",
     "stats": [
-      {
-        "key": "organizations",
-        "label": "Dhaabbilee"
-      },
-      {
-        "key": "users",
-        "label": "Fayyadamtootaa"
-      }
+      { "key": "organizations", "label": "Dhaabbilee" },
+      { "key": "users", "label": "Fayyadamtootaa" }
     ],
     "capLabel": "Dandeettiwwan Marsariitii",
     "portalTitle": "Tajaajiloota ARMAS",
     "portalOnline": "● Hojii Irratti",
     "portalServices": [
-      "Sirna Gabaasaa",
-      "Odiitii fi Hordoffii",
-      "Bulchiinsa Sanadootaa",
-      "To'annoo Hayyamaa"
+      "Sirna Bulchiinsa Gabaasaa",
+      "Sirna Bulchiinsa Deebii",
+      "Sirna Hojii Mirkanneessaa"
     ],
     "portalNote": "Moduuloota hundaa argachuuf seeni",
     "ctaBannerHeadline": "Jalqabuu qophii dha?",
