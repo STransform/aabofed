@@ -8,11 +8,25 @@ import axiosInstance from '@/lib/axios';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useTranslation } from '@/hooks/useTranslation';
+import { getMessages, type Lang } from '@/lib/messages';
 
 
 export default function OrganizationsPage() {
     const { isAuthenticated } = useAuth();
     const { resolve } = useTranslation();
+
+    const [lang, setLang] = useState<Lang>('en');
+    useEffect(() => {
+        const s = localStorage.getItem('armas_lang') as Lang | null;
+        if (s && (s === 'en' || s === 'am' || s === 'om')) setLang(s);
+        const handler = () => {
+            const v = localStorage.getItem('armas_lang') as Lang | null;
+            if (v && (v === 'en' || v === 'am' || v === 'om')) setLang(v);
+        };
+        window.addEventListener('storage', handler);
+        return () => window.removeEventListener('storage', handler);
+    }, []);
+    const msgs = getMessages(lang);
 
     const [organizations, setOrganizations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -132,14 +146,14 @@ export default function OrganizationsPage() {
                 <main className="flex-1 overflow-y-auto p-8 max-w-7xl w-full mx-auto">
                     <div className="flex justify-between items-end mb-6">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Organizations</h1>
-                            <p className="text-sm text-gray-500 mt-1">Manage external and internal reporting organizations.</p>
+                            <h1 className="text-3xl font-bold text-gray-900">{msgs.orgs.title}</h1>
+                            <p className="text-sm text-gray-500 mt-1">{msgs.orgs.subtitle}</p>
                         </div>
                         <button
                             onClick={handleOpenAdd}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 flex items-center rounded-md font-medium transition shadow-sm"
                         >
-                            <Plus className="w-4 h-4 mr-2" /> Add Organization
+                            <Plus className="w-4 h-4 mr-2" /> {msgs.orgs.addBtn}
                         </button>
                     </div>
 
@@ -151,33 +165,33 @@ export default function OrganizationsPage() {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Search by name or email..."
+                                    placeholder={msgs.table.search}
                                     className="w-full pl-9 pr-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                     value={filterText}
                                     onChange={e => setFilterText(e.target.value)}
                                 />
                             </div>
-                            <span className="text-sm text-gray-500 font-medium">Total: {filtered.length} entries</span>
+                            <span className="text-sm text-gray-500 font-medium">{msgs.table.total}: {filtered.length} {msgs.table.entries}</span>
                         </div>
 
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telephone</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{msgs.table.colNum}</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{msgs.table.colName}</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{msgs.table.colEmail}</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{msgs.table.colTelephone}</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{msgs.table.colAddress}</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{msgs.table.colType}</th>
+                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{msgs.table.colActions}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {loading ? (
-                                        <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-500">Loading records...</td></tr>
+                                        <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-500">{msgs.table.loading}</td></tr>
                                     ) : filtered.length === 0 ? (
-                                        <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-500">No organizations found.</td></tr>
+                                        <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-500">{msgs.orgs.empty}</td></tr>
                                     ) : (
                                         filtered.map((org, index) => (
                                             <tr key={org.id} className="hover:bg-gray-50 transition-colors">
@@ -208,37 +222,37 @@ export default function OrganizationsPage() {
                     <Dialog.Overlay className="fixed inset-0 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
                     <Dialog.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 sm:rounded-lg">
                         <Dialog.Title className="text-lg font-semibold leading-none tracking-tight">
-                            {formMode === 'new' ? 'Create Organization' : 'Edit Organization'}
+                            {formMode === 'new' ? msgs.orgs.createTitle : msgs.orgs.editTitle}
                         </Dialog.Title>
                         <form onSubmit={handleSave} className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <label className="text-right text-sm font-medium">Org Code <span className="text-red-500">*</span></label>
+                                <label className="text-right text-sm font-medium">{msgs.orgs.lblOrgCode} <span className="text-red-500">*</span></label>
                                 <input required value={currentOrg.id} onChange={e => setCurrentOrg({ ...currentOrg, id: e.target.value })} disabled={formMode === 'edit'} className="col-span-3 flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 disabled:bg-gray-100" placeholder="e.g. ORG123" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <label className="text-right text-sm font-medium">Name <span className="text-red-500">*</span></label>
+                                <label className="text-right text-sm font-medium">{msgs.table.colName} <span className="text-red-500">*</span></label>
                                 <input required value={currentOrg.orgname} onChange={e => setCurrentOrg({ ...currentOrg, orgname: e.target.value })} className="col-span-3 flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500" placeholder="e.g. Ministry of Finance" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <label className="text-right text-sm font-medium">Email <span className="text-red-500">*</span></label>
+                                <label className="text-right text-sm font-medium">{msgs.table.colEmail} <span className="text-red-500">*</span></label>
                                 <input required type="email" value={currentOrg.email} onChange={e => setCurrentOrg({ ...currentOrg, email: e.target.value })} className="col-span-3 flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <label className="text-right text-sm font-medium">Phone</label>
+                                <label className="text-right text-sm font-medium">{msgs.table.colTelephone}</label>
                                 <input type="tel" value={currentOrg.telephone} onChange={e => setCurrentOrg({ ...currentOrg, telephone: e.target.value })} className="col-span-3 flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <label className="text-right text-sm font-medium">Address</label>
+                                <label className="text-right text-sm font-medium">{msgs.table.colAddress}</label>
                                 <input value={currentOrg.organizationhead} onChange={e => setCurrentOrg({ ...currentOrg, organizationhead: e.target.value })} className="col-span-3 flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <label className="text-right text-sm font-medium">Type <span className="text-red-500">*</span></label>
+                                <label className="text-right text-sm font-medium">{msgs.table.colType} <span className="text-red-500">*</span></label>
                                 <input required value={currentOrg.orgtype} onChange={e => setCurrentOrg({ ...currentOrg, orgtype: e.target.value })} className="col-span-3 flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500" placeholder="e.g. Social" />
                             </div>
 
                             <div className="flex justify-end gap-3 mt-4">
-                                <button type="button" onClick={() => setIsAddEditOpen(false)} className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-gray-50">Cancel</button>
-                                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">Save</button>
+                                <button type="button" onClick={() => setIsAddEditOpen(false)} className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-gray-50">{msgs.table.btnCancel}</button>
+                                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">{msgs.table.btnSave}</button>
                             </div>
                         </form>
                     </Dialog.Content>
@@ -250,11 +264,11 @@ export default function OrganizationsPage() {
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/40" />
                     <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] border bg-white p-6 shadow-lg rounded-lg">
-                        <Dialog.Title className="text-lg font-semibold mb-2">Confirm Deletion</Dialog.Title>
-                        <Dialog.Description className="text-sm text-gray-500 mb-6">Are you sure you want to delete this organization? This action cannot be undone.</Dialog.Description>
+                        <Dialog.Title className="text-lg font-semibold mb-2">{msgs.table.confirmDeletion}</Dialog.Title>
+                        <Dialog.Description className="text-sm text-gray-500 mb-6">{msgs.orgs.confirmDelete}</Dialog.Description>
                         <div className="flex justify-end gap-3">
-                            <button onClick={() => setIsDeleteOpen(false)} className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-gray-50">Cancel</button>
-                            <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">Delete</button>
+                            <button onClick={() => setIsDeleteOpen(false)} className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-gray-50">{msgs.table.btnCancel}</button>
+                            <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">{msgs.table.btnDelete}</button>
                         </div>
                     </Dialog.Content>
                 </Dialog.Portal>
@@ -265,31 +279,31 @@ export default function OrganizationsPage() {
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/40" />
                     <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] border bg-white p-6 shadow-lg rounded-lg">
-                        <Dialog.Title className="text-lg font-semibold mb-4 border-b pb-2">Organization Details: {resolve(currentOrg.orgname)}</Dialog.Title>
+                        <Dialog.Title className="text-lg font-semibold mb-4 border-b pb-2">{msgs.orgs.viewDetails}: {resolve(currentOrg.orgname)}</Dialog.Title>
                         <div className="grid grid-cols-2 gap-6 text-sm mt-4">
                             <div className="border border-gray-100 rounded p-4 bg-gray-50">
-                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Org Code</span>
+                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{msgs.orgs.lblOrgCode}</span>
                                 <span className="font-medium text-gray-900">{currentOrg.id || 'N/A'}</span>
                             </div>
                             <div className="border border-gray-100 rounded p-4 bg-gray-50">
-                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Type</span>
+                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{msgs.table.colType}</span>
                                 <span className="font-medium text-gray-900">{currentOrg.orgtype || 'N/A'}</span>
                             </div>
                             <div className="border border-gray-100 rounded p-4 bg-gray-50">
-                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Email</span>
+                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{msgs.table.colEmail}</span>
                                 <span className="font-medium text-gray-900">{currentOrg.email || 'N/A'}</span>
                             </div>
                             <div className="border border-gray-100 rounded p-4 bg-gray-50">
-                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Telephone</span>
+                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{msgs.table.colTelephone}</span>
                                 <span className="font-medium text-gray-900">{currentOrg.telephone || 'N/A'}</span>
                             </div>
                             <div className="col-span-2 border border-gray-100 rounded p-4 bg-gray-50">
-                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Address</span>
+                                <span className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{msgs.table.colAddress}</span>
                                 <span className="font-medium text-gray-900">{currentOrg.organizationhead || 'N/A'}</span>
                             </div>
                         </div>
                         <div className="flex justify-end mt-6">
-                            <button onClick={() => setIsViewOpen(false)} className="px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800">Close</button>
+                            <button onClick={() => setIsViewOpen(false)} className="px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800">{msgs.table.btnClose}</button>
                         </div>
                     </Dialog.Content>
                 </Dialog.Portal>

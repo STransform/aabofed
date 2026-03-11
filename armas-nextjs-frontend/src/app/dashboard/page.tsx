@@ -6,6 +6,7 @@ import axiosInstance from '@/lib/axios';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { getMessages, type Lang } from '@/lib/messages';
 
 const EMPTY_GLOBAL_STATS = {
     totalOrganizations: 0,
@@ -23,7 +24,19 @@ export default function Dashboard() {
     const [budgetYears, setBudgetYears] = useState<any[]>([]);
     const [selectedFiscalYear, setSelectedFiscalYear] = useState('');
     const [reportTypeStats, setReportTypeStats] = useState<any>({});
-    const [translatedHello, setTranslatedHello] = useState('Welcome');
+
+    const [lang, setLang] = useState<Lang>('en');
+    useEffect(() => {
+        const s = localStorage.getItem('armas_lang') as Lang | null;
+        if (s && (s === 'en' || s === 'am' || s === 'om')) setLang(s);
+        const handler = () => {
+            const v = localStorage.getItem('armas_lang') as Lang | null;
+            if (v && (v === 'en' || v === 'am' || v === 'om')) setLang(v);
+        };
+        window.addEventListener('storage', handler);
+        return () => window.removeEventListener('storage', handler);
+    }, []);
+    const msgs = getMessages(lang);
 
     // UI state
     const [globalLoading, setGlobalLoading] = useState(true);
@@ -47,7 +60,6 @@ export default function Dashboard() {
 
                 if (isMounted) {
                     setGlobalStats(statsRes.data || EMPTY_GLOBAL_STATS);
-                    setTranslatedHello(transRes.data.hello || 'Welcome');
 
                     const years = Array.isArray(yearsRes.data) ? yearsRes.data : [];
                     setBudgetYears(years);
@@ -120,8 +132,8 @@ export default function Dashboard() {
                 <main className="flex-1 overflow-y-auto p-8 max-w-7xl w-full mx-auto">
                     {/* Header Section */}
                     <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">{translatedHello}, {userRole}</h1>
-                        <p className="text-gray-500 mt-2">Executive Overview</p>
+                        <h1 className="text-3xl font-bold text-gray-900">{msgs.dashboard.welcome}, {userRole}</h1>
+                        <p className="text-gray-500 mt-2">{msgs.dashboard.execOverview}</p>
                     </div>
 
                     {error && budgetYears.length === 0 && (
@@ -133,15 +145,15 @@ export default function Dashboard() {
                     {/* Global Stats Row */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                         <div className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-600 transition hover:-translate-y-1">
-                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Organizations</h3>
+                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">{msgs.dashboard.totalOrgs}</h3>
                             <p className="text-4xl font-extrabold text-gray-900 mt-2">{globalStats.totalOrganizations}</p>
                         </div>
                         <div className="bg-white rounded-lg shadow p-6 border-l-4 border-emerald-500 transition hover:-translate-y-1">
-                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Report Types</h3>
+                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">{msgs.dashboard.totalReportTypes}</h3>
                             <p className="text-4xl font-extrabold text-gray-900 mt-2">{globalStats.totalReportTypes}</p>
                         </div>
                         <div className="bg-white rounded-lg shadow p-6 border-l-4 border-amber-500 transition hover:-translate-y-1">
-                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Active Users</h3>
+                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">{msgs.dashboard.activeUsers}</h3>
                             <p className="text-4xl font-extrabold text-gray-900 mt-2">{globalStats.totalUsers}</p>
                         </div>
                     </div>
@@ -149,11 +161,11 @@ export default function Dashboard() {
                     {/* Filters Row */}
                     <div className="bg-white rounded-lg shadow p-6 mb-8 flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-semibold text-gray-900">Fiscal Year Analysis</h2>
-                            <p className="text-sm text-gray-500">Breakdown of senders vs non-senders per report type</p>
+                            <h2 className="text-xl font-semibold text-gray-900">{msgs.dashboard.fiscalAnalysis}</h2>
+                            <p className="text-sm text-gray-500">{msgs.dashboard.fiscalDesc}</p>
                         </div>
                         <div className="w-64">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Select Year</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{msgs.dashboard.selectYear}</label>
                             <select
                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
                                 value={selectedFiscalYear}

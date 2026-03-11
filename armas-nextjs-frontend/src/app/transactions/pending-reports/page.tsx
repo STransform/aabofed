@@ -5,14 +5,26 @@ import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from '@/hooks/useTranslation';
+import { getMessages, type Lang } from '@/lib/messages';
 import axiosInstance from '@/lib/axios';
-import { UserCog } from 'lucide-react';
-import * as Dialog from '@radix-ui/react-dialog';
 
 export default function PendingReportsPage() {
     const { isAuthenticated, userRole } = useAuth();
     const { resolve } = useTranslation();
     const isArchiver = userRole === 'ARCHIVER';
+
+    const [lang, setLang] = useState<Lang>('en');
+    useEffect(() => {
+        const s = localStorage.getItem('armas_lang') as Lang | null;
+        if (s && (s === 'en' || s === 'am' || s === 'om')) setLang(s);
+        const handler = () => {
+            const v = localStorage.getItem('armas_lang') as Lang | null;
+            if (v && (v === 'en' || v === 'am' || v === 'om')) setLang(v);
+        };
+        window.addEventListener('storage', handler);
+        return () => window.removeEventListener('storage', handler);
+    }, []);
+    const msgs = getMessages(lang);
 
     const [tasks, setTasks] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -105,8 +117,8 @@ export default function PendingReportsPage() {
                 <Header />
                 <main className="flex-1 overflow-y-auto p-8 max-w-7xl w-full mx-auto">
                     <div className="mb-6">
-                        <h1 className="text-3xl font-bold text-gray-900">Pending Assigned Reports</h1>
-                        <p className="text-sm text-gray-500 mt-1">Review your dispatched tasks and reassign them to different Senior Auditors if needed.</p>
+                        <h1 className="text-3xl font-bold text-gray-900">{msgs.reports.pendingTitle}</h1>
+                        <p className="text-sm text-gray-500 mt-1">{msgs.reports.pendingSub}</p>
                     </div>
 
                     {error && <div className="mb-4 bg-red-50 text-red-700 p-3 rounded">{error}</div>}
@@ -118,14 +130,14 @@ export default function PendingReportsPage() {
                             </svg>
                             <input
                                 type="text"
-                                placeholder="Search org, type, auditor..."
+                                placeholder={msgs.table.searchOrg}
                                 className="w-full pl-9 pr-4 py-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 transition-shadow"
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
                             />
                         </div>
                         <span className="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-                            Total: {filteredTasks.length} reports
+                            {msgs.table.total}: {filteredTasks.length} {msgs.table.lblReports}
                         </span>
                     </div>
 
@@ -133,20 +145,20 @@ export default function PendingReportsPage() {
                         <table className="min-w-full divide-y divide-gray-100">
                             <thead>
                                 <tr className="bg-gray-50/50">
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Organization</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Budget Year</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Report Type</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned Auditor</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{msgs.table.colDate}</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{msgs.table.colOrg}</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{msgs.table.colBudgetYear}</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{msgs.table.colReportType}</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{msgs.table.colAssignedAuditor}</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{msgs.table.colStatus}</th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">{msgs.table.colAction}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-50">
                                 {loading ? (
-                                    <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400">Loading pending tasks...</td></tr>
+                                    <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400">{msgs.table.loadingPending}</td></tr>
                                 ) : currentTasks.length === 0 ? (
-                                    <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400">No pending reports currently assigned.</td></tr>
+                                    <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400">{msgs.table.emptyPending}</td></tr>
                                 ) : (
                                     currentTasks.map(t => (
                                         <tr key={t.id} className="hover:bg-indigo-50/30 transition-colors group">
@@ -198,7 +210,7 @@ export default function PendingReportsPage() {
                     {!loading && filteredTasks.length > 0 && (
                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
                             <div className="text-sm text-gray-500">
-                                Showing <span className="font-medium text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-medium text-gray-900">{Math.min(currentPage * itemsPerPage, filteredTasks.length)}</span> of <span className="font-medium text-gray-900">{filteredTasks.length}</span> results
+                                {msgs.table.showing} <span className="font-medium text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> {msgs.table.to} <span className="font-medium text-gray-900">{Math.min(currentPage * itemsPerPage, filteredTasks.length)}</span> {msgs.table.of} <span className="font-medium text-gray-900">{filteredTasks.length}</span> {msgs.table.results}
                             </div>
                             <div className="flex space-x-2">
                                 <button
@@ -206,14 +218,14 @@ export default function PendingReportsPage() {
                                     disabled={currentPage === 1}
                                     className="px-3 py-1 border border-gray-200 rounded-md text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
-                                    Previous
+                                    {msgs.table.btnPrev}
                                 </button>
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                     disabled={currentPage === totalPages || totalPages === 0}
                                     className="px-3 py-1 border border-gray-200 rounded-md text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
-                                    Next
+                                    {msgs.table.btnNext}
                                 </button>
                             </div>
                         </div>
