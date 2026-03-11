@@ -53,28 +53,30 @@ export default function Login() {
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
                 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-                /* ── ROOT: full-page side-by-side ── */
+                /* ══ ROOT ══ */
                 .login-root {
                     min-height: 100vh;
                     display: flex;
                     font-family: 'Inter', sans-serif;
                     overflow: hidden;
                     position: relative;
+                    background: radial-gradient(ellipse at 62% 40%, #0d1f4e 0%, #060d1f 55%, #000510 100%);
                 }
 
-                /* ══════════════════════════════════
-                   LEFT PANEL  — compact bureau branding
-                ══════════════════════════════════ */
+                /* ═════════════════════════════════
+                   LEFT PANEL  — overlaid on left edge
+                ═════════════════════════════════ */
                 .login-left {
+                    position: absolute;
+                    left: 0; top: 0; bottom: 0;
                     width: 360px;
-                    flex-shrink: 0;
+                    z-index: 5;
                     background: radial-gradient(ellipse at 40% 35%, #003a85 0%, #001a50 45%, #000a28 100%);
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
                     padding: 36px 28px;
-                    position: relative;
                     overflow: hidden;
                 }
 
@@ -213,18 +215,17 @@ export default function Login() {
                     letter-spacing: 0.5px;
                 }
 
-                /* ══════════════════════════════════
-                   RIGHT PANEL — globe + login card
-                ══════════════════════════════════ */
+                /* ═════════════════════════════════
+                   RIGHT PANEL — full width, card centered
+                ═════════════════════════════════ */
                 .login-right {
-                    flex: 1;
-                    background: radial-gradient(ellipse at 60% 40%, #0d1f4e 0%, #060d1f 55%, #000510 100%);
+                    width: 100%;
+                    min-height: 100vh;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     position: relative;
                     overflow: hidden;
-                    min-height: 100vh;
                 }
 
                 /* Stars (right) */
@@ -332,13 +333,13 @@ export default function Login() {
                 /* ── LOGIN CARD ── */
                 .login-card {
                     position: relative; z-index: 10;
-                    background: rgba(8,18,42,0.85);
+                    background: rgba(8,18,42,0.88);
                     backdrop-filter: blur(28px);
                     -webkit-backdrop-filter: blur(28px);
-                    border: 1px solid rgba(80,140,255,0.2);
+                    border: 1px solid rgba(80,140,255,0.22);
                     border-radius: 24px;
-                    padding: 42px 38px;
-                    width: 380px;
+                    padding: 48px 48px;
+                    width: 460px;
                     box-shadow:
                         0 0 0 1px rgba(40,90,200,0.1),
                         0 24px 80px rgba(0,0,40,0.6),
@@ -408,7 +409,7 @@ export default function Login() {
                     .globe-scene { width:300px; height:300px; right:2%; }
                 }
                 @media (max-width: 860px) {
-                    .login-left  { display:none; }
+                    .login-left  { display: none; }
                     .globe-scene { width:280px; height:280px; right:-20px; top:initial; bottom:-20px; transform:none; opacity:0.35; }
                 }
                 @media (max-width: 480px) {
