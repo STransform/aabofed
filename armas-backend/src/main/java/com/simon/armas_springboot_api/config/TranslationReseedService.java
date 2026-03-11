@@ -29,7 +29,7 @@ public class TranslationReseedService implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         try {
             // Fetch all currently registered English translations once
-            Map<String, String> existingEnTranslations = translationServiceClient.getTranslationsByLocale("en");
+            Map<String, String> existingEnTranslations = translationServiceClient.getTranslations("en");
 
             reseedOrganizations(existingEnTranslations);
             reseedDocuments(existingEnTranslations);

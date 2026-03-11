@@ -11,13 +11,11 @@ import lombok.AllArgsConstructor;
 @FeignClient(name = "translation-service", configuration = FeignConfig.class)
 public interface TranslationServiceClient {
 
-    /** Fetch all translations for a given language (lang param, e.g. "en") */
-    @GetMapping("/api/translations")
-    Map<String, String> getTranslations(@RequestParam("lang") String lang);
-
-    /** Fetch translations for a specific locale path var (e.g. "am") */
+    /**
+     * Fetch all translations for a given language/locale (e.g. "en", "am", "om")
+     */
     @GetMapping("/api/translations/{locale}")
-    Map<String, String> getTranslationsByLocale(@PathVariable("locale") String locale);
+    Map<String, String> getTranslations(@PathVariable("locale") String locale);
 
     /** Batch update translations from admin UI */
     @PostMapping("/api/translations")
@@ -33,18 +31,27 @@ public interface TranslationServiceClient {
 
     @Data
     @NoArgsConstructor
-    @AllArgsConstructor
     class TranslationUpdateRequest {
         private String locale;
         private Map<String, String> updates;
+
+        public TranslationUpdateRequest(String locale, Map<String, String> updates) {
+            this.locale = locale;
+            this.updates = updates;
+        }
     }
 
     @Data
     @NoArgsConstructor
-    @AllArgsConstructor
     class TranslationRegistrationRequest {
         private String messageKey;
         private String locale;
         private String messageValue;
+
+        public TranslationRegistrationRequest(String messageKey, String locale, String messageValue) {
+            this.messageKey = messageKey;
+            this.locale = locale;
+            this.messageValue = messageValue;
+        }
     }
 }

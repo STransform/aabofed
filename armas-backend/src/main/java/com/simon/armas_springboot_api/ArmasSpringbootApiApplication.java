@@ -18,9 +18,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableConfigurationProperties(RsaKeyProperties.class)
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableFeignClients(basePackages = { "com.simon.armas_springboot_api" })
 // @EnableJpaAuditing(auditorAwareRef = "auditorAware")
-@ComponentScan(basePackages = "com.simon.armas_springboot_api")
+@ComponentScan(basePackages = { "com.simon.armas_springboot_api", "com.oss2.translationclient" })
 public class ArmasSpringbootApiApplication {
 
 	@Bean

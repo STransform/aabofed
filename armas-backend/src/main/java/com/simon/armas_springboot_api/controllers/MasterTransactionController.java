@@ -1,11 +1,16 @@
 package com.simon.armas_springboot_api.controllers;
 
 import com.simon.armas_springboot_api.models.BudgetYear;
+import com.simon.armas_springboot_api.models.Directorate;
 import com.simon.armas_springboot_api.models.Document;
+import com.simon.armas_springboot_api.models.DynamicTranslation;
 import com.simon.armas_springboot_api.models.MasterTransaction;
 import com.simon.armas_springboot_api.repositories.BudgetYearRepository;
+import com.simon.armas_springboot_api.repositories.DirectorateRepository;
 import com.simon.armas_springboot_api.repositories.DocumentRepository;
+import com.simon.armas_springboot_api.repositories.DynamicTranslationRepository;
 import com.simon.armas_springboot_api.repositories.MasterTransactionRepository;
+import com.simon.armas_springboot_api.repositories.OrganizationRepository;
 import com.simon.armas_springboot_api.repositories.UserRepository;
 import com.simon.armas_springboot_api.services.MasterTransactionService;
 import com.simon.armas_springboot_api.clients.TranslationServiceClient;
@@ -72,7 +77,16 @@ public class MasterTransactionController {
     private NotificationRepository notificationRepository;
 
     @Autowired
+    private OrganizationRepository organizationRepository;
+
+    @Autowired
+    private DirectorateRepository directorateRepository;
+
+    @Autowired
     private TranslationServiceClient translationServiceClient;
+
+    @Autowired
+    private DynamicTranslationRepository dynamicTranslationRepository;
 
     @GetMapping("/public-stats")
     public ResponseEntity<Map<String, Object>> getPublicStats() {
@@ -122,16 +136,79 @@ public class MasterTransactionController {
         return ResponseEntity.ok(finalTranslations);
     }
 
+    @GetMapping("/translations/dynamic")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, String>> getDynamicTranslations(@RequestParam(defaultValue = "en") String lang) {
+        Map<String, String> dynamicKeys = new HashMap<>();
+
+        // Load all saved translations for the target locale from local DB
+        Map<String, String> savedTranslations = new HashMap<>();
+        if (!"en".equals(lang)) {
+            dynamicTranslationRepository.findByLocale(lang)
+                    .forEach(dt -> savedTranslations.put(dt.getMessageKey(), dt.getMessageValue()));
+        }
+
+        // Scan Organizations
+        try {
+            for (Organization org : organizationRepository.findAll()) {
+                if (org.getId() == null) continue;
+                String key = "organization." + org.getId() + ".orgname";
+                String name = org.getOrgname();
+                if (name == null || name.startsWith("organization.")) name = org.getId();
+                dynamicKeys.put(key, "en".equals(lang) ? name : savedTranslations.getOrDefault(key, ""));
+            }
+        } catch (Exception e) {
+            System.err.println("[DynamicTranslations] organizations: " + e.getMessage());
+        }
+
+        // Scan Directorates
+        try {
+            for (Directorate dir : directorateRepository.findAll()) {
+                if (dir.getId() == null) continue;
+                String key = "directorate." + dir.getId() + ".directoratename";
+                String name = dir.getDirectoratename();
+                if (name == null || name.startsWith("directorate.")) name = dir.getId();
+                dynamicKeys.put(key, "en".equals(lang) ? name : savedTranslations.getOrDefault(key, ""));
+            }
+        } catch (Exception e) {
+            System.err.println("[DynamicTranslations] directorates: " + e.getMessage());
+        }
+
+        // Scan Documents (Report Types)
+        try {
+            for (Document doc : documentRepository.findAll()) {
+                if (doc.getId() == null) continue;
+                String key = "document." + doc.getId() + ".reportype";
+                String name = doc.getReportype();
+                if (name == null || name.startsWith("document.")) name = doc.getId();
+                dynamicKeys.put(key, "en".equals(lang) ? name : savedTranslations.getOrDefault(key, ""));
+            }
+        } catch (Exception e) {
+            System.err.println("[DynamicTranslations] documents: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(dynamicKeys);
+    }
+
     @PostMapping("/translations")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> processTranslationsUpdate(
             @RequestParam(defaultValue = "en") String lang,
             @RequestBody Map<String, String> updates) {
+        if (updates == null || updates.isEmpty()) return ResponseEntity.ok().build();
 
-        TranslationServiceClient.TranslationUpdateRequest request = new TranslationServiceClient.TranslationUpdateRequest(
-                lang, updates);
+        for (Map.Entry<String, String> entry : updates.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key == null || value == null || value.trim().isEmpty()) continue;
 
-        translationServiceClient.updateTranslations(request);
+            // Save or update directly in local DB
+            DynamicTranslation dt = dynamicTranslationRepository
+                    .findByMessageKeyAndLocale(key, lang)
+                    .orElse(new DynamicTranslation(null, key, lang, value));
+            dt.setMessageValue(value);
+            dynamicTranslationRepository.save(dt);
+        }
         return ResponseEntity.ok().build();
     }
 

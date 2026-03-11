@@ -1,144 +1,144 @@
 {
-    "home": {
-        "govLabel": "የኢትዮጵያ ፌዴራላዊ ዲሞክራሲያዊ ሪፐብሊክ",
-        "sysLabel": "የፋይናንስ ሚኒስቴር — ARMAS ፖርታል",
-        "navLogin": "ለሠራተኞች ግባ",
-        "heroEyebrow": "የተዋሃደ የመንግሥት መድረክ",
-        "heroHeadline": "የኦዲት እና ምርመራ\nሪፖርት አስተዳደር ሥርዓት",
-        "heroBody": "ARMAS ሪፖርቶችን፣ ኦዲትን፣ ሰነዶችን እና የፍቃድ ቁጥጥርን በአንድ ሥርዓት ውስጥ ያዋህዳል — ተጠያቂነትን ያረጋግጣል።",
-        "heroCta": "ወደ ፖርታሉ ይግቡ",
-        "heroCtaSub": "ለፈቃድ ያላቸው ሠራተኞች ብቻ",
-        "trustTitle": "ለምን ተቋማት ARMAS ያምናሉ",
-        "pillars": [
-            {
-                "icon": "report",
-                "title": "ማዕከላዊ ሪፖርቲንግ",
-                "body": "ሁሉም ሪፖርቶች በአንድ ሥርዓት ውስጥ ይቀርባሉ፣ ይከለካላሉ፣ ይጸድቃሉ።"
-            },
-            {
-                "icon": "audit",
-                "title": "ሙሉ የኦዲት ምዝገባ",
-                "body": "እያንዳንዱ ድርጊት ሊለወጥ በማይችል ምዝገባ ይቀዳል።"
-            },
-            {
-                "icon": "docs",
-                "title": "የሰነድ አስተዳደር",
-                "body": "ሰነዶችን ደህና ማስቀመጥ፣ ስሪቶችን መቆጣጠር እና ማሰራጨት።"
-            },
-            {
-                "icon": "access",
-                "title": "በሚና ላይ ፍቃድ",
-                "body": "ዝርዝር የሚና ፍቃድ — ሠራተኛው የሚፈልገውን ብቻ ያገኛል።"
-            },
-            {
-                "icon": "analytics",
-                "title": "ምስላዊ ትንታኔ",
-                "body": "የስራ አስፈጻሚ ዳሽቦርዶች ዋና ዋና ቁጥሮችን ወቅታዊ ያሳያሉ።"
-            },
-            {
-                "icon": "security",
-                "title": "ከፍተኛ ደህንነት",
-                "body": "AES-256 ምስጠራ እና ISO 27001 ተኳሃኝ ቁጥጥሮች።"
-            }
-        ],
-        "statsLabel": "ፕሌትፎርሙ በአጭሩ",
-        "stats": [
-            {
-                "key": "organizations",
-                "label": "ድርጅቶች"
-            },
-            {
-                "key": "users",
-                "label": "ተጠቃሚዎች"
-            }
-        ],
-        "capLabel": "የፕሌትፎርም አቅሞች",
-        "portalTitle": "ARMAS አገልግሎቶች",
-        "portalOnline": "● በሥራ ላይ",
-        "portalServices": [
-            "የሪፖርት ሞተር",
-            "ኦዲት እና ተኳሃኝነት",
-            "የሰነድ አስተዳደር",
-            "የፍቃድ ቁጥጥር"
-        ],
-        "portalNote": "ሁሉንም ሞጁሎች ለመጠቀም ግቡ",
-        "ctaBannerHeadline": "ለመጀመር ዝግጁ ነዎት?",
-        "ctaBannerBody": "በተቋም ምስክርነቶ ARMAS ፖርታልን ይጠቀሙ።",
-        "ctaBannerBtn": "ወደ ፖርታሉ ይግቡ",
-        "footer": "© 2026 ARMAS — የኢትዮጵያ ፌዴራላዊ ዲሞክራሲያዊ ሪፐብሊክ። ሁሉም መብቶች ተጠብቀዋል።"
+  "home": {
+    "govLabel": "የኢትዮጵያ ፌዴራላዊ ዲሞክራሲያዊ ሪፐብሊክ",
+    "sysLabel": "የፋይናንስ ሚኒስቴር — ARMAS ፖርታል",
+    "navLogin": "ለሠራተኞች ግባ",
+    "heroEyebrow": "የተዋሃደ የመንግሥት መድረክ",
+    "heroHeadline": "የኦዲት እና ምርመራ\nሪፖርት አስተዳደር ሥርዓት",
+    "heroBody": "ARMAS ሪፖርቶችን፣ ኦዲትን፣ ሰነዶችን እና የፍቃድ ቁጥጥርን በአንድ ሥርዓት ውስጥ ያዋህዳል — ተጠያቂነትን ያረጋግጣል።",
+    "heroCta": "ወደ ፖርታሉ ይግቡ",
+    "heroCtaSub": "ለፈቃድ ያላቸው ሠራተኞች ብቻ",
+    "trustTitle": "ለምን ተቋማት ARMAS ያምናሉ",
+    "pillars": [
+      {
+        "icon": "report",
+        "title": "ማዕከላዊ ሪፖርቲንግ",
+        "body": "ሁሉም ሪፖርቶች በአንድ ሥርዓት ውስጥ ይቀርባሉ፣ ይከለካላሉ፣ ይጸድቃሉ።"
+      },
+      {
+        "icon": "audit",
+        "title": "ሙሉ የኦዲት ምዝገባ",
+        "body": "እያንዳንዱ ድርጊት ሊለወጥ በማይችል ምዝገባ ይቀዳል።"
+      },
+      {
+        "icon": "docs",
+        "title": "የሰነድ አስተዳደር",
+        "body": "ሰነዶችን ደህና ማስቀመጥ፣ ስሪቶችን መቆጣጠር እና ማሰራጨት።"
+      },
+      {
+        "icon": "access",
+        "title": "በሚና ላይ ፍቃድ",
+        "body": "ዝርዝር የሚና ፍቃድ — ሠራተኛው የሚፈልገውን ብቻ ያገኛል።"
+      },
+      {
+        "icon": "analytics",
+        "title": "ምስላዊ ትንታኔ",
+        "body": "የስራ አስፈጻሚ ዳሽቦርዶች ዋና ዋና ቁጥሮችን ወቅታዊ ያሳያሉ።"
+      },
+      {
+        "icon": "security",
+        "title": "ከፍተኛ ደህንነት",
+        "body": "AES-256 ምስጠራ እና ISO 27001 ተኳሃኝ ቁጥጥሮች።"
+      }
+    ],
+    "statsLabel": "ፕሌትፎርሙ በአጭሩ",
+    "stats": [
+      {
+        "key": "organizations",
+        "label": "ድርጅቶች"
+      },
+      {
+        "key": "users",
+        "label": "ተጠቃሚዎች"
+      }
+    ],
+    "capLabel": "የፕሌትፎርም አቅሞች",
+    "portalTitle": "ARMAS አገልግሎቶች",
+    "portalOnline": "● በሥራ ላይ",
+    "portalServices": [
+      "የሪፖርት ሞተር",
+      "ኦዲት እና ተኳሃኝነት",
+      "የሰነድ አስተዳደር",
+      "የፍቃድ ቁጥጥር"
+    ],
+    "portalNote": "ሁሉንም ሞጁሎች ለመጠቀም ግቡ",
+    "ctaBannerHeadline": "ለመጀመር ዝግጁ ነዎት?",
+    "ctaBannerBody": "በተቋም ምስክርነቶ ARMAS ፖርታልን ይጠቀሙ።",
+    "ctaBannerBtn": "ወደ ፖርታሉ ይግቡ",
+    "footer": "© 2026 ARMAS — የኢትዮጵያ ፌዴራላዊ ዲሞክራሲያዊ ሪፐብሊክ። ሁሉም መብቶች ተጠብቀዋል።"
+  },
+  "sidebar": {
+    "logoSub": "ኦዲት እና ሪፖርት አስተዳደር",
+    "footer": "ARMAS ሲስተም © 2026",
+    "sections": {
+      "main": "ዋና",
+      "myActions": "የኔ ተግባራት",
+      "managerActions": "የሥራ አስኪያጅ ተግባራት",
+      "manageOrganization": "ድርጅቱን ያስተዳድሩ",
+      "manageAccess": "ፍቃድ ያስተዳድሩ",
+      "reportsTransactions": "ሪፖርቶች እና ግብይቶች",
+      "organizationActions": "የድርጅት ተግባራት",
+      "reporting": "ሪፖርቲንግ"
     },
-    "sidebar": {
-        "logoSub": "ኦዲት እና ሪፖርት አስተዳደር",
-        "footer": "ARMAS ሲስተም © 2026",
-        "sections": {
-            "main": "ዋና",
-            "myActions": "የኔ ተግባራት",
-            "managerActions": "የሥራ አስኪያጅ ተግባራት",
-            "manageOrganization": "ድርጅቱን ያስተዳድሩ",
-            "manageAccess": "ፍቃድ ያስተዳድሩ",
-            "reportsTransactions": "ሪፖርቶች እና ግብይቶች",
-            "organizationActions": "የድርጅት ተግባራት",
-            "reporting": "ሪፖርቲንግ"
-        },
-        "items": {
-            "dashboard": "ዳሽቦርድ",
-            "outgoingReports": "ወጪ ሪፖርቶች",
-            "incomingLetters": "ገቢ ደብዳቤዎች",
-            "fileHistory": "የፋይል ታሪክ",
-            "viewLetters": "ደብዳቤዎችን ይመልከቱ",
-            "organizations": "ድርጅቶች",
-            "directorates": "ዳይሬክቶሬቶች",
-            "reportType": "የሪፖርት ዓይነት",
-            "budgetYear": "የበጀት ዓመት",
-            "users": "ተጠቃሚዎች",
-            "roles": "ሚናዎች",
-            "assignRole": "ሚና ሰጥ",
-            "assignPrivileges": "ልዩ መብቶችን ሰጥ",
-            "translations": "ትርጉሞች",
-            "uploadToOrganizations": "ለድርጅቶች አስገባ",
-            "incomingReports": "ገቢ ሪፖርቶች",
-            "approvedReports": "የጸደቁ ሪፖርቶች",
-            "pendingReports": "በጥበቃ ላይ ያሉ ሪፖርቶች",
-            "assignedTasks": "የተሰጡ ተግባራት",
-            "rejectedReports": "የተቀቡ ሪፖርቶች",
-            "underReview": "በግምገማ ላይ",
-            "correctedReports": "የተስተካከሉ ሪፖርቶች",
-            "advancedFilters": "የላቀ ማጣሪያዎች"
-        },
-        "roles": {
-            "ADMIN": "አስተዳዳሪ",
-            "USER": "ተጠቃሚ",
-            "ARCHIVER": "ማህደርክ",
-            "SENIOR_AUDITOR": "ዋና ኦዲተር",
-            "APPROVER": "አጽዳቂ",
-            "MANAGER": "ሥራ አስኪያጅ"
-        }
+    "items": {
+      "dashboard": "ዳሽቦርድ",
+      "outgoingReports": "ወጪ ሪፖርቶች",
+      "incomingLetters": "ገቢ ደብዳቤዎች",
+      "fileHistory": "የፋይል ታሪክ",
+      "viewLetters": "ደብዳቤዎችን ይመልከቱ",
+      "organizations": "ድርጅቶች",
+      "directorates": "ዳይሬክቶሬቶች",
+      "reportType": "የሪፖርት ዓይነት",
+      "budgetYear": "የበጀት ዓመት",
+      "users": "ተጠቃሚዎች",
+      "roles": "ሚናዎች",
+      "assignRole": "ሚና ሰጥ",
+      "assignPrivileges": "ልዩ መብቶችን ሰጥ",
+      "translations": "ትርጉሞች",
+      "uploadToOrganizations": "ለድርጅቶች አስገባ",
+      "incomingReports": "ገቢ ሪፖርቶች",
+      "approvedReports": "የጸደቁ ሪፖርቶች",
+      "pendingReports": "በጥበቃ ላይ ያሉ ሪፖርቶች",
+      "assignedTasks": "የተሰጡ ተግባራት",
+      "rejectedReports": "የተቀቡ ሪፖርቶች",
+      "underReview": "በግምገማ ላይ",
+      "correctedReports": "የተስተካከሉ ሪፖርቶች",
+      "advancedFilters": "የላቀ ማጣሪያዎች"
     },
-    "header": {
-        "roles": {
-            "ADMIN": "አስተዳዳሪ",
-            "USER": "ተጠቃሚ",
-            "ARCHIVER": "ማህደርክ",
-            "SENIOR_AUDITOR": "ዋና ኦዲተር",
-            "APPROVER": "አጽዳቂ",
-            "MANAGER": "ሥራ አስኪያጅ"
-        },
-        "notifications": "ማሳወቂያዎች",
-        "unread": "አልተነበበም",
-        "noNotifications": "አዲስ ማሳወቂያ የለም",
-        "logout": "ውጣ"
-    },
-    "login": {
-        "portalSub": "ፖርታል",
-        "heading": "እንኳን ደህና መጡ",
-        "subheading": "ወደ ተቋሙ ፖርታል ለመግባት ይግቡ",
-        "usernameLabel": "የተጠቃሚ ስም",
-        "usernamePlaceholder": "የተጠቃሚ ስምዎን ያስገቡ",
-        "passwordLabel": "የሚስጥር ቃል",
-        "passwordPlaceholder": "የሚስጥር ቃልዎን ያስገቡ",
-        "signingIn": "በመግባት ላይ…",
-        "signIn": "ፖርታሉ ይግቡ",
-        "backToHome": "← ወደ ዋናው ገጽ",
-        "securedBadge": "256-bit ደህንነት"
+    "roles": {
+      "ADMIN": "አስተዳዳሪ",
+      "USER": "ተጠቃሚ",
+      "ARCHIVER": "ማህደርክ",
+      "SENIOR_AUDITOR": "ዋና ኦዲተር",
+      "APPROVER": "አጽዳቂ",
+      "MANAGER": "ሥራ አስኪያጅ"
     }
+  },
+  "header": {
+    "roles": {
+      "ADMIN": "አስተዳዳሪ",
+      "USER": "ተጠቃሚ",
+      "ARCHIVER": "ማህደርክ",
+      "SENIOR_AUDITOR": "ዋና ኦዲተር",
+      "APPROVER": "አጽዳቂ",
+      "MANAGER": "ሥራ አስኪያጅ"
+    },
+    "notifications": "ማሳወቂያዎች",
+    "unread": "አልተነበበም",
+    "noNotifications": "አዲስ ማሳወቂያ የለም",
+    "logout": "ውጣ"
+  },
+  "login": {
+    "portalSub": "ፖርታል",
+    "heading": "እንኳን ደህና መጡ",
+    "subheading": "ወደ ተቋሙ ፖርታል ለመግባት ይግቡ",
+    "usernameLabel": "የተጠቃሚ ስም",
+    "usernamePlaceholder": "የተጠቃሚ ስምዎን ያስገቡ",
+    "passwordLabel": "የሚስጥር ቃል",
+    "passwordPlaceholder": "የሚስጥር ቃልዎን ያስገቡ",
+    "signingIn": "በመግባት ላይ…",
+    "signIn": "ፖርታሉ ይግቡ",
+    "backToHome": "← ወደ ዋናው ገጽ",
+    "securedBadge": "256-bit ደህንነት"
+  }
 }

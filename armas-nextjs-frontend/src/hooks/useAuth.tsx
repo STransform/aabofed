@@ -26,8 +26,13 @@ function readAuthFromCookies(): { isAuthenticated: boolean; userRole: string | n
     return { isAuthenticated: !!token, userRole: role };
 }
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const initial = readAuthFromCookies();
+interface AuthProviderProps {
+    children: React.ReactNode;
+    initialAuth?: { isAuthenticated: boolean; userRole: string | null };
+}
+
+export const AuthProvider = ({ children, initialAuth }: AuthProviderProps) => {
+    const initial = initialAuth || readAuthFromCookies();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(initial.isAuthenticated);
     const [userRole, setUserRole] = useState<string | null>(initial.userRole);
     const router = useRouter();
