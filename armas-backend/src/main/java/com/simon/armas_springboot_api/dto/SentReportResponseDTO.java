@@ -14,12 +14,13 @@ public class SentReportResponseDTO {
     private String remarks;
     private String user;
     private String submittedByAuditorUsername;
+    private String assignedAuditorUsername;
     private String responseNeeded;
 
     public SentReportResponseDTO(Integer id, String orgname, String reportype, String fiscal_year, Date createdDate,
             String docname, String supportingDocname, String reportstatus,
             String remarks, String user,
-            String submittedByAuditorUsername, String responseNeeded) {
+            String submittedByAuditorUsername, String assignedAuditorUsername, String responseNeeded) {
         this.id = id;
         this.orgname = orgname != null ? orgname : "Unknown";
         this.reportype = reportype != null ? reportype : "Unknown";
@@ -31,6 +32,7 @@ public class SentReportResponseDTO {
         this.remarks = remarks;
         this.user = user;
         this.submittedByAuditorUsername = submittedByAuditorUsername;
+        this.assignedAuditorUsername = assignedAuditorUsername;
         this.responseNeeded = responseNeeded;
     }
 
@@ -81,6 +83,10 @@ public class SentReportResponseDTO {
 
     public String getResponseNeeded() {
         return responseNeeded;
+    }
+
+    public String getAssignedAuditorUsername() {
+        return assignedAuditorUsername;
     }
 
     public void setResponseNeeded(String responseNeeded) {

@@ -249,7 +249,7 @@ public class MasterTransactionService {
     public List<SentReportResponseDTO> getSentReportData(String role) {
         List<String> statuses;
         if ("ARCHIVER".equals(role)) {
-            statuses = Arrays.asList("Submitted", "Approved");
+            statuses = Arrays.asList("Submitted", "Assigned", "Approved");
         } else if ("SENIOR_AUDITOR".equals(role)) {
             statuses = Arrays.asList("Assigned", "Rejected");
         } else if ("APPROVER".equals(role)) {
@@ -691,7 +691,7 @@ public class MasterTransactionService {
     }
 
     @Transactional
-    public MasterTransaction reassignTask(Integer transactionId, String auditorUsername, String currentUsername) {
+    public MasterTransaction reassignTask(Integer transactionId, String auditorUsername, String assignmentReason, String currentUsername) {
         User archiver = userRepository.findByUsername(currentUsername);
         if (archiver == null) {
             throw new IllegalArgumentException("User not found: " + currentUsername);
@@ -718,6 +718,7 @@ public class MasterTransactionService {
         User previousAuditor = transaction.getUser2();
 
         transaction.setUser2(newAuditor);
+        transaction.setAssignmentReason(assignmentReason);
         transaction.setLastModifiedBy(currentUsername);
         transaction.setReportstatus("Assigned");
         try {

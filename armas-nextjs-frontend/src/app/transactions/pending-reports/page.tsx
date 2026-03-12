@@ -37,6 +37,7 @@ export default function PendingReportsPage() {
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const [auditors, setAuditors] = useState<any[]>([]);
     const [selectedAuditor, setSelectedAuditor] = useState('');
+    const [assignmentReason, setAssignmentReason] = useState('');
     const [reassigning, setReassigning] = useState(false);
 
     // Search and Pagination
@@ -66,6 +67,7 @@ export default function PendingReportsPage() {
     const handleOpenReassign = async (task: any) => {
         setSelectedTask(task);
         setSelectedAuditor('');
+        setAssignmentReason('');
         setIsReassignOpen(true);
 
         try {
@@ -82,7 +84,11 @@ export default function PendingReportsPage() {
         setReassigning(true);
         try {
             await axiosInstance.post(`/transactions/reassign/${selectedTask.id}`, null, {
-                params: { newAuditorUsername: selectedAuditor }
+                params: { 
+                    newAuditorUsername: selectedAuditor,
+                    auditorUsername: selectedAuditor,
+                    assignmentReason: assignmentReason || undefined
+                }
             });
             setIsReassignOpen(false);
             fetchPendingTasks();
@@ -172,7 +178,7 @@ export default function PendingReportsPage() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                                    {t.budgetYear?.fiscalYear || t.fiscalYear || 'N/A'}
+                                                    {t.budgetYear?.fiscalYear || t.fiscal_year || t.fiscalYear || 'N/A'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -241,18 +247,30 @@ export default function PendingReportsPage() {
                     <Dialog.Overlay className="fixed inset-0 bg-black/40" />
                     <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] border bg-white p-6 shadow-lg rounded-lg">
                         <Dialog.Title className="text-lg font-semibold mb-4 border-b pb-2">Reassign Senior Auditor</Dialog.Title>
-                        <div className="my-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Select new Senior Auditor:</label>
-                            <select
-                                className="w-full rounded-md border border-gray-300 py-2.5 px-3 text-sm focus:ring-1 focus:ring-indigo-500 bg-white"
-                                value={selectedAuditor}
-                                onChange={e => setSelectedAuditor(e.target.value)}
-                            >
-                                <option value="">Select Auditor</option>
-                                {auditors.map(a => (
-                                    <option key={a.id} value={a.username}>{a.firstName} {a.lastName} ({a.username})</option>
-                                ))}
-                            </select>
+                        <div className="my-4 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Select new Senior Auditor:</label>
+                                <select
+                                    className="w-full rounded-md border border-gray-300 py-2.5 px-3 text-sm focus:ring-1 focus:ring-indigo-500 bg-white"
+                                    value={selectedAuditor}
+                                    onChange={e => setSelectedAuditor(e.target.value)}
+                                >
+                                    <option value="">Select Auditor</option>
+                                    {auditors.map(a => (
+                                        <option key={a.id} value={a.username}>{a.firstName} {a.lastName} ({a.username})</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Assignment Reason / Instructions <span className="text-gray-400 font-normal">(optional)</span></label>
+                                <textarea
+                                    rows={3}
+                                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:ring-1 focus:ring-indigo-500"
+                                    placeholder="e.g. Previous auditor is unavailable. Please prioritize this task."
+                                    value={assignmentReason}
+                                    onChange={e => setAssignmentReason(e.target.value)}
+                                />
+                            </div>
                         </div>
                         <div className="flex justify-end gap-3 mt-6">
                             <button onClick={() => setIsReassignOpen(false)} className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-gray-50">Cancel</button>

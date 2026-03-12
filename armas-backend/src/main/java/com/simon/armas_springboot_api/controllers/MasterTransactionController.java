@@ -683,10 +683,11 @@ public class MasterTransactionController {
     public ResponseEntity<?> reassignTask(
             @PathVariable Integer transactionId,
             @RequestParam String auditorUsername,
+            @RequestParam(required = false) String assignmentReason,
             Principal principal) {
         try {
             MasterTransaction transaction = masterTransactionService.reassignTask(transactionId, auditorUsername,
-                    principal.getName());
+                    assignmentReason, principal.getName());
             return ResponseEntity.ok(transaction);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

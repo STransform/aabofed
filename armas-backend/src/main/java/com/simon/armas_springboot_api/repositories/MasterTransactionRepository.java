@@ -50,9 +50,9 @@ public interface MasterTransactionRepository extends JpaRepository<MasterTransac
        @Query("SELECT new com.simon.armas_springboot_api.dto.SentReportResponseDTO(" +
                      "m.id, o.orgname, d.reportype, m.budgetYear.fiscalYear, m.createdDate, m.docname, m.supportingDocname, m.reportstatus, m.remarks, "
                      +
-                     "m.user.username, m.submittedByAuditor.username, m.response_needed) " +
+                     "m.user.username, m.submittedByAuditor.username, m.user2.username, m.response_needed) " +
                      "FROM MasterTransaction m INNER JOIN m.organization o INNER JOIN m.transactiondocument d " +
-                     "LEFT JOIN m.user LEFT JOIN m.submittedByAuditor " +
+                     "LEFT JOIN m.user LEFT JOIN m.submittedByAuditor LEFT JOIN m.user2 " +
                      "WHERE m.reportstatus IN :statuses ORDER BY m.createdDate DESC")
        List<SentReportResponseDTO> fetchDataByStatuses(@Param("statuses") List<String> statuses);
 
