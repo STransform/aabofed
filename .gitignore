@@ -10,7 +10,10 @@ target/
 .env
 # Logs
 *.log
-
+*.docx
+*.pptx
+*.png
+AMSReports/
 # Maven
 /target/
 .mvn/wrapper/maven-wrapper.jar
