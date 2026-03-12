@@ -81,7 +81,7 @@ export default function RejectedReportsPage() {
         setIsActionOpen(true);
 
         try {
-            const res = await axiosInstance.get('/api/users/role?role=APPROVER');
+            const res = await axiosInstance.get('/transactions/users-by-role/APPROVER');
             setApprovers(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             alert('Failed to load approvers');
@@ -182,7 +182,7 @@ export default function RejectedReportsPage() {
                                                     {resolve(r.transactiondocument?.reportype) || 'N/A'}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {r.responseNeeded || 'N/A'}
+                                                    {r.response_needed || 'N/A'}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-100">
@@ -294,9 +294,9 @@ export default function RejectedReportsPage() {
                         <Dialog.Title className="text-lg font-semibold mb-6 border-b pb-2">Report Details</Dialog.Title>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm mt-4">
                             <div><label className="text-gray-500 font-medium">Organization</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedReport?.organization?.orgname) || 'N/A'}</div></div>
-                            <div><label className="text-gray-500 font-medium">Type</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedReport?.transactiondocument?.reportype) || 'N/A'}</div></div>
-                            <div><label className="text-gray-500 font-medium">Status</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.reportstatus || 'N/A'}</div></div>
-                            <div className="col-span-2"><label className="text-gray-500 font-medium">Rejection Reason</label><div className="p-2 bg-red-50 border border-red-100 rounded text-red-900">{selectedReport?.reasonOfRejection || 'N/A'}</div></div>
+                            <div className="col-span-2"><label className="text-gray-500 font-medium">Type</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedReport?.transactiondocument?.reportype) || 'N/A'}</div></div>
+                            <div className="col-span-2"><label className="text-gray-500 font-medium">Status</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.reportstatus || 'N/A'}</div></div>
+                            <div className="col-span-2"><label className="text-gray-500 font-medium">Rejection Reason</label><div className="p-2 bg-red-50 border border-red-100 rounded text-red-900">{selectedReport?.reason_of_rejection || 'N/A'}</div></div>
                             <div className="col-span-2"><label className="text-gray-500 font-medium">Audit Findings</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.remarks || 'N/A'}</div></div>
                         </div>
                         <div className="flex justify-end mt-6 border-t pt-4">

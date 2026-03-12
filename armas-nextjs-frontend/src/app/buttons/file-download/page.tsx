@@ -207,7 +207,7 @@ export default function FileDownloadPage() {
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div className="flex justify-end gap-2">
                                                         <button onClick={() => { setSelectedReport(r); setIsDetailsOpen(true); }} className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors" title="View Details">
                                                             <Eye className="w-4 h-4" />
                                                         </button>

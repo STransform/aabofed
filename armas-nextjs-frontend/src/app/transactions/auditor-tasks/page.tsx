@@ -135,7 +135,7 @@ export default function AuditorTasksPage() {
             try {
                 await axiosInstance.post(`/transactions/reject/${selectedTask.id}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
-                    params: { reasonOfRejection: remarks }
+                    params: { rejectionReason: remarks }
                 });
                 setIsFindingsOpen(false);
                 fetchTasks();
@@ -399,8 +399,13 @@ export default function AuditorTasksPage() {
                         <Dialog.Title className="text-lg font-semibold mb-6 border-b pb-2">Task Details</Dialog.Title>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm mt-4">
                             <div><label className="text-gray-500 font-medium">Organization</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedTask?.orgname) || 'N/A'}</div></div>
-                            <div><label className="text-gray-500 font-medium">Type</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedTask?.reportype) || 'N/A'}</div></div>
-                            <div><label className="text-gray-500 font-medium">Status</label><div className="p-2 bg-gray-50 border rounded">{selectedTask?.reportstatus || 'N/A'}</div></div>
+                            <div className="col-span-2"><label className="text-gray-500 font-medium">Type</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedTask?.reportype) || 'N/A'}</div></div>
+                            <div className="col-span-2"><label className="text-gray-500 font-medium">Status</label><div className="p-2 bg-gray-50 border rounded">{selectedTask?.reportstatus || 'N/A'}</div></div>
+                            {selectedTask?.reportstatus === 'Rejected' && (
+                                <div className="col-span-2"><label className="text-gray-500 font-medium text-red-600">Rejection Reason</label><div className="p-2 bg-red-50 border border-red-100 rounded text-red-900">{selectedTask?.reason_of_rejection || 'N/A'}</div></div>
+                            )}
+                            <div className="col-span-2"><label className="text-gray-500 font-medium">Audit Findings</label><div className="p-2 bg-gray-50 border rounded">{selectedTask?.remarks || 'N/A'}</div></div>
+                            <div><label className="text-gray-500 font-medium text-indigo-600">Response Needed</label><div className="p-2 bg-indigo-50 border border-indigo-100 rounded text-indigo-900 font-medium">{selectedTask?.responseNeeded || selectedTask?.response_needed || 'N/A'}</div></div>
                             <div><label className="text-gray-500 font-medium">Submitted By</label><div className="p-2 bg-gray-50 border rounded">{selectedTask?.submittedByAuditorUsername || selectedTask?.user || 'N/A'}</div></div>
                         </div>
 

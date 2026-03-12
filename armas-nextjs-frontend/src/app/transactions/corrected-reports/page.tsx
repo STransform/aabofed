@@ -96,12 +96,12 @@ export default function CorrectedReportsPage() {
 
         setSubmitting(true);
         const formData = new FormData();
-        formData.append('reason', rejectionReason);
         if (rejectionDocument) formData.append('rejectionDocument', rejectionDocument);
 
         try {
             await axiosInstance.post(`/transactions/reject/${selectedReport.id}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
+                params: { rejectionReason }
             });
             setIsRejectOpen(false);
             setRejectionReason('');
@@ -191,7 +191,7 @@ export default function CorrectedReportsPage() {
                                                     {r.createdBy || 'N/A'}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {r.responseNeeded || 'N/A'}
+                                                    {r.response_needed || 'N/A'}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                                     <div className="flex items-center justify-end gap-2 flex-wrap">
@@ -347,8 +347,8 @@ export default function CorrectedReportsPage() {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-500 uppercase">Response Needed</label>
-                                    <div className="mt-1 text-sm text-gray-900 border p-2 rounded-md bg-gray-50">
-                                        {selectedReport.responseNeeded || 'N/A'}
+                                    <div className="mt-1 text-sm text-indigo-900 border p-2 rounded-md bg-indigo-50 border-indigo-100 font-medium">
+                                        {selectedReport.response_needed || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="col-span-2">

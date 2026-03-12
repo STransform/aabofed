@@ -446,7 +446,22 @@ public class MasterTransactionService {
         }
         transaction.setUser2(transaction.getSubmittedByAuditor());
         transaction.setLastModifiedBy(currentUsername);
-        return masterTransactionRepository.save(transaction);
+
+        MasterTransaction savedTransaction = masterTransactionRepository.save(transaction);
+        
+        // Notify the Senior Auditor who submitted the report
+        if (savedTransaction.getUser2() != null) {
+            createNotification(
+                    savedTransaction.getUser2(),
+                    "Report Rejected",
+                    "Your evaluation report '" + savedTransaction.getDocname() + "' has been rejected by " + currentUsername + ". Reason: " + rejectionReason,
+                    "MasterTransaction",
+                    savedTransaction.getId().longValue(),
+                    "report_rejected"
+            );
+        }
+
+        return savedTransaction;
     }
 
     public List<MasterTransaction> getTasks(Long userId, String role) {

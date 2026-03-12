@@ -83,7 +83,7 @@ export default function ApprovedReportsPage() {
         setUploading(true);
 
         const formData = new FormData();
-        formData.append('file', uploadFile);
+        formData.append('letter', uploadFile);
 
         try {
             await axiosInstance.post(`/transactions/upload-letter/${uploadingItem.id}`, formData, {
@@ -308,6 +308,7 @@ export default function ApprovedReportsPage() {
                             <div><label className="text-gray-500 font-medium">Organization</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedReport?.orgname) || 'N/A'}</div></div>
                             <div><label className="text-gray-500 font-medium">Budget Year</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.fiscalYear || 'N/A'}</div></div>
                             <div><label className="text-gray-500 font-medium">Report Type</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedReport?.reportype) || 'N/A'}</div></div>
+                            <div><label className="text-gray-500 font-medium text-indigo-600">Response</label><div className="p-2 bg-indigo-50 border border-indigo-100 rounded text-indigo-900 font-medium">{selectedReport?.response_needed || 'N/A'}</div></div>
                             <div><label className="text-gray-500 font-medium">Auditor</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.submittedByAuditorUsername || 'N/A'}</div></div>
                             <div><label className="text-gray-500 font-medium">Approver</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.lastModifiedBy || 'N/A'}</div></div>
                             <div><label className="text-gray-500 font-medium">Archiver</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.assignedByUsername || 'N/A'}</div></div>

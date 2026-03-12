@@ -6,7 +6,7 @@ import { Header } from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from '@/hooks/useTranslation';
 import axiosInstance from '@/lib/axios';
-import { Search, Download, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Download, CheckCircle, XCircle, Eye } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 
 export default function UnderReviewReportsPage() {
@@ -26,6 +26,7 @@ export default function UnderReviewReportsPage() {
     const [selectedReport, setSelectedReport] = useState<any>(null);
     const [isApproveOpen, setIsApproveOpen] = useState(false);
     const [isRejectOpen, setIsRejectOpen] = useState(false);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
     const [approvalDocument, setApprovalDocument] = useState<File | null>(null);
     const [rejectionDocument, setRejectionDocument] = useState<File | null>(null);
@@ -93,7 +94,7 @@ export default function UnderReviewReportsPage() {
         try {
             await axiosInstance.post(`/transactions/reject/${selectedReport.id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
-                params: { reasonOfRejection: rejectionReason }
+                params: { rejectionReason }
             });
             setIsRejectOpen(false);
             setRejectionDocument(null);
@@ -182,6 +183,10 @@ export default function UnderReviewReportsPage() {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                                     <div className="flex items-center justify-end gap-2 flex-wrap">
+                                                        <button onClick={() => { setSelectedReport(r); setIsDetailsOpen(true); }} className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md transition-colors" title="View Details">
+                                                            <Eye className="w-3.5 h-3.5" />
+                                                            Details
+                                                        </button>
                                                         {r.docname && (
                                                             <button
                                                                 onClick={() => handleDownload(r.id, r.docname, 'original')}
@@ -298,6 +303,25 @@ export default function UnderReviewReportsPage() {
                     </Dialog.Content>
                 </Dialog.Portal>
             </Dialog.Root>
+            <Dialog.Root open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 bg-black/40" />
+                    <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] border bg-white p-6 shadow-lg rounded-lg">
+                        <Dialog.Title className="text-lg font-semibold mb-6 border-b pb-2">Report Details</Dialog.Title>
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm mt-4">
+                            <div><label className="text-gray-500 font-medium">Organization</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedReport?.organization?.orgname) || 'N/A'}</div></div>
+                            <div><label className="text-gray-500 font-medium">Type</label><div className="p-2 bg-gray-50 border rounded">{resolve(selectedReport?.transactiondocument?.reportype) || 'N/A'}</div></div>
+                            <div><label className="text-gray-500 font-medium">Status</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.reportstatus || 'N/A'}</div></div>
+                            <div><label className="text-gray-500 font-medium text-indigo-600">Response</label><div className="p-2 bg-indigo-50 border border-indigo-100 rounded text-indigo-900 font-medium">{selectedReport?.response_needed || 'N/A'}</div></div>
+                            <div className="col-span-2"><label className="text-gray-500 font-medium">Audit Findings</label><div className="p-2 bg-gray-50 border rounded">{selectedReport?.remarks || 'N/A'}</div></div>
+                        </div>
+                        <div className="flex justify-end mt-6 border-t pt-4">
+                            <button onClick={() => setIsDetailsOpen(false)} className="px-4 py-2 border rounded-md text-sm">Close</button>
+                        </div>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
+
         </div>
     );
 }
