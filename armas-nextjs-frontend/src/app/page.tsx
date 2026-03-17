@@ -170,63 +170,27 @@ export default function HomePage() {
                     <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-blue-400/10 blur-[160px] rounded-full pointer-events-none" />
                     <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-400/10 blur-[120px] rounded-full pointer-events-none" />
 
-                    <div className="relative mx-auto max-w-7xl px-5 sm:px-8 py-24 sm:py-36 grid lg:grid-cols-2 gap-16 items-center">
-                        {/* Left */}
-                        <div>
-                            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-blue-200 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-8 border border-white/20">
-                                <Building2 className="w-3.5 h-3.5" />
-                                {t.heroEyebrow}
-                            </div>
+                    <div className="relative mx-auto max-w-4xl px-5 sm:px-8 py-24 sm:py-36 flex flex-col items-center text-center">
 
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight text-white whitespace-pre-line mb-6">
-                                {t.heroHeadline}
-                            </h1>
+                        <h1 className="text-5xl sm:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-200 font-extrabold leading-[1.1] tracking-tight whitespace-pre-line mb-8 drop-shadow-sm">
+                            {t.heroHeadline}
+                        </h1>
 
-                            <p className="text-blue-100 text-lg leading-relaxed max-w-lg mb-10">
-                                {t.heroBody}
+                        <p className="text-blue-100/90 text-lg sm:text-xl leading-relaxed max-w-3xl mb-12">
+                            {t.heroBody}
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                            <Link href="/login"
+                                className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-[#003580] rounded-2xl font-bold text-base hover:bg-blue-50 transition-all shadow-xl shadow-black/20 active:scale-95 hover:-translate-y-1">
+                                <ShieldCheck className="w-5 h-5 text-[#003580]" />
+                                {t.heroCta}
+                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                            </Link>
+                            <p className="text-sm text-blue-300 font-medium flex items-center justify-center gap-2 bg-black/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/5">
+                                <Lock className="w-4 h-4" />
+                                {t.heroCtaSub}
                             </p>
-
-                            <div className="flex flex-col sm:flex-row items-start gap-4">
-                                <Link href="/login"
-                                    className="group inline-flex items-center gap-3 px-7 py-3.5 bg-white text-[#003580] rounded-xl font-bold text-sm hover:bg-blue-50 transition-all shadow-xl shadow-black/20 active:scale-95">
-                                    <ShieldCheck className="w-5 h-5 text-[#003580]" />
-                                    {t.heroCta}
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </Link>
-                                <p className="text-xs text-blue-300 font-medium self-center sm:self-auto mt-2 sm:mt-0 flex items-center gap-1.5">
-                                    <Lock className="w-3.5 h-3.5" />
-                                    {t.heroCtaSub}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Right — portal preview card */}
-                        <div className="hidden lg:block">
-                            <div className="bg-white/8 border border-white/15 rounded-3xl p-8 backdrop-blur-md shadow-2xl">
-                                <div className="flex items-center justify-between mb-6 pb-5 border-b border-white/10">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
-                                            <BarChart2 className="w-5 h-5 text-white" />
-                                        </div>
-                                        <p className="font-bold text-sm text-white">{t.portalTitle}</p>
-                                    </div>
-                                    <span className="text-[11px] font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full border border-emerald-400/20">{t.portalOnline}</span>
-                                </div>
-                                <div className="space-y-3">
-                                    {t.portalServices.map((item, i) => (
-                                        <div key={i} className="flex items-center justify-between bg-white/8 hover:bg-white/12 border border-white/10 rounded-2xl px-4 py-3.5 transition-colors group cursor-default">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${["bg-blue-500/20", "bg-violet-500/20", "bg-emerald-500/20"][i]}`}>
-                                                    <PillarIcon type={["report", "audit", "docs"][i]} />
-                                                </div>
-                                                <span className="text-sm font-medium text-slate-200">{item}</span>
-                                            </div>
-                                            <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors" />
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="mt-5 text-center text-xs text-blue-300/70">{t.portalNote}</p>
-                            </div>
                         </div>
                     </div>
 
@@ -235,45 +199,18 @@ export default function HomePage() {
                 {/* ── ABOUT THE BUREAU ── */}
                 <section className="py-24 px-5 sm:px-8 bg-slate-50 border-b border-slate-200">
                     <div className="mx-auto max-w-7xl">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            {/* Left text */}
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-widest text-[#003580] mb-4 flex items-center gap-2">
-                                    <span className="h-px w-8 bg-[#003580] inline-block" />
-                                    {t.aboutLabel}
-                                </p>
-                                <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
-                                    {t.aboutTitle}
-                                </h2>
-                                <p className="text-slate-600 text-lg leading-relaxed mb-10">
-                                    {t.aboutBody}
-                                </p>
-                            </div>
-
-                            {/* Right decorative block */}
-                            <div className="relative hidden lg:block">
-                                <div className="bg-gradient-to-br from-[#003580] to-[#0057c2] rounded-3xl p-10 text-white shadow-2xl relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full translate-x-16 -translate-y-16" />
-                                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -translate-x-8 translate-y-8" />
-                                    <div className="relative">
-                                        <div className="w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center mb-6">
-                                            <Building2 className="w-8 h-8 text-white" />
-                                        </div>
-                                        <h3 className="text-2xl font-extrabold mb-3 leading-tight">Addis Ababa<br />Finance Bureau</h3>
-                                        <p className="text-blue-200 text-sm leading-relaxed mb-8">
-                                            Serving the people of Addis Ababa through sound financial governance since its establishment.
-                                        </p>
-                                        <div className="space-y-3">
-                                            {["Budget Planning & Execution", "Public Financial Audit Oversight", "Expenditure Control & Reporting", "Sub-City Financial Coordination"].map((item, i) => (
-                                                <div key={i} className="flex items-center gap-3 text-sm text-blue-100">
-                                                    <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
-                                                    {item}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
+                            <p className="text-xs font-bold uppercase tracking-widest text-[#003580] mb-5 flex items-center justify-center gap-3">
+                                <span className="h-px w-8 bg-[#003580] inline-block" />
+                                {t.aboutLabel}
+                                <span className="h-px w-8 bg-[#003580] inline-block" />
+                            </p>
+                            <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-8">
+                                {t.aboutTitle}
+                            </h2>
+                            <p className="text-slate-600 text-lg sm:text-xl leading-relaxed mb-0 max-w-3xl">
+                                {t.aboutBody}
+                            </p>
                         </div>
                     </div>
                 </section>

@@ -33,16 +33,11 @@ public class OrganizationService {
     }
 
     public Organization save(Organization organization) {
-        // Capture the human-readable name BEFORE save, because
-        // @PrePersist in TranslationEntityListener will replace the field
-        // with a translation key (e.g. "organization.BSC.orgname") before
-        // the entity is persisted to the DB.
+
         String originalOrgName = organization.getOrgname();
 
         Organization saved = organizationRepository.save(organization);
 
-        // Auto-register the English translation key so it immediately appears
-        // in the Translations admin UI under "Untranslated".
         try {
             String id = saved.getId();
             String key = "organization." + id + ".orgname";
@@ -64,7 +59,6 @@ public class OrganizationService {
 
     public void deleteOrganization(String id) {
         organizationRepository.deleteById(id);
-        // Cleanup translations asynchronously
         try {
             translationServiceClient.deleteTranslationsByPrefix("organization." + id + ".");
         } catch (Exception e) {
