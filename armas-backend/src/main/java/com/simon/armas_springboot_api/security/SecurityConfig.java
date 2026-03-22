@@ -64,6 +64,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/register", "/login").permitAll()
+                        .requestMatchers("/notices/public").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/notices/*/view").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/transactions/public-stats").permitAll()

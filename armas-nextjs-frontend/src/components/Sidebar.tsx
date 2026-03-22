@@ -75,10 +75,12 @@ export function Sidebar() {
         { name: it.assignRole, href: '/buttons/assign', icon: UserCog },
         { name: it.assignPrivileges, href: '/buttons/assign-privileges', icon: Lock },
         { name: it.translations, href: '/buttons/translations', icon: Languages },
+        { name: it.notices || 'Notices', href: '/transactions/notices', icon: FileText },
     ];
 
     const uploadorgItems = isApprover ? [
-        { name: it.uploadToOrganizations, href: '/transactions/upload-to-organizations', icon: UploadCloud }
+        { name: it.uploadToOrganizations || 'Upload to Organizations', href: '/transactions/upload-to-organizations', icon: UploadCloud },
+        { name: it.notices || 'Notices', href: '/transactions/notices', icon: FileText }
     ] : [];
 
     const archiverItems = isArchiver ? [
@@ -115,6 +117,7 @@ export function Sidebar() {
                 '/buttons/assign',
                 '/buttons/assign-privileges',
                 '/buttons/translations',
+                '/transactions/notices',
                 '/transactions/advanced-filters'
             );
         }
@@ -136,7 +139,7 @@ export function Sidebar() {
                 '/transactions/advanced-filters'
             );
         }
-        if (isApprover) hrefs.push('/transactions/upload-to-organizations');
+        if (isApprover) hrefs.push('/transactions/upload-to-organizations', '/transactions/notices');
 
         const uniqueHrefs = Array.from(new Set(hrefs));
         const prefetchRoutes = () => {

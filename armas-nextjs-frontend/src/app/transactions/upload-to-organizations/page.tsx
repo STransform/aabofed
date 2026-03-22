@@ -23,8 +23,54 @@ export default function UploadToOrganizationsPage() {
 
     const fetchOrgs = async () => {
         try {
-            const res = await axiosInstance.get('/transactions/organizations-with-reports');
-            setOrganizations(Array.isArray(res.data) ? res.data : []);
+            const [dispatchRes, orgsRes, usersRes] = await Promise.allSettled([
+                axiosInstance.get('/transactions/dispatch-organizations', {
+                    params: { _: Date.now() }
+                }),
+                axiosInstance.get('/organizations', {
+                    params: { _: Date.now() }
+                }),
+                axiosInstance.get('/users', {
+                    params: { _: Date.now() }
+                })
+            ]);
+
+            const dispatchOrganizations =
+                dispatchRes.status === 'fulfilled' && Array.isArray(dispatchRes.value.data)
+                    ? dispatchRes.value.data
+                    : [];
+
+            const allOrganizations =
+                orgsRes.status === 'fulfilled' && Array.isArray(orgsRes.value.data)
+                    ? orgsRes.value.data
+                    : [];
+
+            const usersDerivedOrganizations =
+                usersRes.status === 'fulfilled' && Array.isArray(usersRes.value.data)
+                    ? usersRes.value.data
+                        .map((user: any) => user?.organization)
+                        .filter((org: any): org is { id: string; orgname?: string | null } => Boolean(org?.id))
+                    : [];
+
+            const mergedOrganizations = [...dispatchOrganizations, ...allOrganizations, ...usersDerivedOrganizations]
+                .filter((org): org is { id: string; orgname?: string | null } => Boolean(org?.id))
+                .reduce<{ id: string; orgname?: string | null }[]>((acc, org) => {
+                    const existing = acc.find(item => item.id === org.id);
+                    if (!existing) {
+                        acc.push(org);
+                    } else if ((!existing.orgname || existing.orgname === existing.id) && org.orgname) {
+                        existing.orgname = org.orgname;
+                    }
+                    return acc;
+                }, [])
+                .sort((left, right) => {
+                    const leftName = left.orgname || left.id;
+                    const rightName = right.orgname || right.id;
+                    return leftName.localeCompare(rightName);
+                });
+
+            setOrganizations(mergedOrganizations);
+            setError(mergedOrganizations.length === 0 ? 'No organizations were returned by the server.' : null);
         } catch (err) {
             setError('Failed to load organizations.');
         }
@@ -41,7 +87,7 @@ export default function UploadToOrganizationsPage() {
         setLoading(true);
         const formData = new FormData();
         formData.append('letter', file);
-        formData.append('organizationIds', JSON.stringify(selectedOrganizations.map(id => parseInt(id, 10))));
+        formData.append('organizationIds', JSON.stringify(selectedOrganizations));
 
         try {
             await axiosInstance.post('/transactions/dispatch-letter', formData, {
@@ -94,7 +140,7 @@ export default function UploadToOrganizationsPage() {
                                                 onChange={() => toggleOrg(org.id.toString())}
                                                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                             />
-                                            <span className="text-sm text-gray-900 font-medium">{org.orgname}</span>
+                                            <span className="text-sm text-gray-900 font-medium">{org.orgname || org.id}</span>
                                         </label>
                                     ))}
                                 </div>

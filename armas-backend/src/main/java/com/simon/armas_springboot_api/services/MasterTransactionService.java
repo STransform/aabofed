@@ -2,6 +2,7 @@ package com.simon.armas_springboot_api.services;
 
 import com.simon.armas_springboot_api.dto.SentReportResponseDTO;
 import com.simon.armas_springboot_api.dto.MasterTransactionDTO;
+import com.simon.armas_springboot_api.dto.OrganizationDTO;
 import com.simon.armas_springboot_api.models.Document;
 import com.simon.armas_springboot_api.models.MasterTransaction;
 import com.simon.armas_springboot_api.models.User;
@@ -870,5 +871,17 @@ public class MasterTransactionService {
 
     public List<MasterTransaction> getDispatchedLettersForOrganization(String orgId) {
         return masterTransactionRepository.findDispatchedLettersByOrganization(orgId);
+    }
+
+    public List<OrganizationDTO> getDispatchOrganizations() {
+        return organizationRepository.findAll().stream()
+                .filter(Objects::nonNull)
+                .map(org -> new OrganizationDTO(org.getId(), org.getOrgname()))
+                .sorted((left, right) -> {
+                    String leftName = left.getOrgname() != null ? left.getOrgname() : left.getId();
+                    String rightName = right.getOrgname() != null ? right.getOrgname() : right.getId();
+                    return leftName.compareToIgnoreCase(rightName);
+                })
+                .collect(Collectors.toList());
     }
 }

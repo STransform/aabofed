@@ -21,6 +21,7 @@ import {
     Star,
 } from "lucide-react";
 import { getMessages, type Lang } from "@/lib/messages";
+import { NoticeFeed } from "@/components/NoticeFeed";
 
 const LANGS = [
     { code: "en" as Lang, label: "English", flag: "🇺🇸" },
@@ -215,6 +216,8 @@ export default function HomePage() {
                 </section>
 
                 {/* ── VISION & MISSION ── */}
+                <NoticeFeed />
+
                 <section className="py-24 px-5 sm:px-8 bg-white">
                     <div className="mx-auto max-w-7xl">
                         <div className="text-center mb-16">

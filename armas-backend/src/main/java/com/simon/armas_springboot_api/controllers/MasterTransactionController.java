@@ -15,6 +15,7 @@ import com.simon.armas_springboot_api.services.UserService;
 import com.simon.armas_springboot_api.clients.TranslationServiceClient;
 import com.simon.armas_springboot_api.dto.UserDTO;
 import com.simon.armas_springboot_api.dto.NotificationDTO;
+import com.simon.armas_springboot_api.dto.OrganizationDTO;
 import com.simon.armas_springboot_api.models.User;
 import com.simon.armas_springboot_api.models.Organization;
 import com.simon.armas_springboot_api.repositories.OrganizationRepository;
@@ -634,6 +635,12 @@ public class MasterTransactionController {
     public ResponseEntity<List<Organization>> getAllOrganizationsWithReports() {
         List<Organization> organizations = masterTransactionService.getAllOrganizationsWithReports();
         return ResponseEntity.ok(organizations);
+    }
+
+    @GetMapping("/dispatch-organizations")
+    @PreAuthorize("hasAnyRole('APPROVER','ADMIN')")
+    public ResponseEntity<List<OrganizationDTO>> getDispatchOrganizations() {
+        return ResponseEntity.ok(masterTransactionService.getDispatchOrganizations());
     }
 
     @GetMapping("/feedback-non-senders")

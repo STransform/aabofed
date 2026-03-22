@@ -72,4 +72,22 @@ public class FileStorageService {
             }
         }
     }
+
+    public String storeNoticeAttachment(MultipartFile file, String username, Long noticeId) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("No file provided for notice attachment.");
+        }
+
+        String originalName = StringUtils.cleanPath(file.getOriginalFilename() != null ? file.getOriginalFilename() : "notice_attachment");
+        Path uploadPath = Paths.get("C:/AMSReports/notices/" + username + "/" + noticeId + "/");
+        Files.createDirectories(uploadPath);
+
+        Path filePath = uploadPath.resolve(originalName);
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            return filePath.toString();
+        } catch (IOException ioe) {
+            throw new IOException("Could not save notice attachment: " + originalName, ioe);
+        }
+    }
 }
