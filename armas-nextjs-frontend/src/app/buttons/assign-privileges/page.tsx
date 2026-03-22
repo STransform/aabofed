@@ -7,6 +7,9 @@ import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { Search, Plus } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { SimplePagination } from '@/components/SimplePagination';
+
+const PAGE_SIZE = 5;
 
 export default function AssignPrivilegePage() {
     const { isAuthenticated } = useAuth();
@@ -15,6 +18,7 @@ export default function AssignPrivilegePage() {
     const [privileges, setPrivileges] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterText, setFilterText] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
     const [error, setError] = useState<string | null>(null);
 
     // Dialogs State
@@ -81,6 +85,18 @@ export default function AssignPrivilegePage() {
         (r.description || '').toLowerCase().includes(filterText.toLowerCase()) ||
         (r.details || '').toLowerCase().includes(filterText.toLowerCase())
     );
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filterText]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     if (!isAuthenticated) return null;
 
@@ -129,7 +145,7 @@ export default function AssignPrivilegePage() {
                                     ) : filtered.length === 0 ? (
                                         <tr><td colSpan={3} className="px-6 py-12 text-center text-gray-500">No roles found.</td></tr>
                                     ) : (
-                                        filtered.map((role) => (
+                                        paginated.map((role) => (
                                             <tr key={role.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{role.description || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{role.details || 'N/A'}</td>
@@ -144,6 +160,13 @@ export default function AssignPrivilegePage() {
                                 </tbody>
                             </table>
                         </div>
+                        <SimplePagination
+                            currentPage={currentPage}
+                            totalItems={filtered.length}
+                            pageSize={PAGE_SIZE}
+                            onPageChange={setCurrentPage}
+                            itemLabel="roles"
+                        />
                     </div>
                 </main>
             </div>

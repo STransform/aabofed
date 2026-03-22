@@ -7,6 +7,9 @@ import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { Search, Plus } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { SimplePagination } from '@/components/SimplePagination';
+
+const PAGE_SIZE = 5;
 
 export default function AssignRolePage() {
     const { isAuthenticated } = useAuth();
@@ -15,6 +18,7 @@ export default function AssignRolePage() {
     const [roles, setRoles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterText, setFilterText] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
     const [error, setError] = useState<string | null>(null);
 
     // Dialogs State
@@ -83,6 +87,18 @@ export default function AssignRolePage() {
         (u.username || '').toLowerCase().includes(filterText.toLowerCase()) ||
         (u.roles || []).some((r: any) => (r.description || '').toLowerCase().includes(filterText.toLowerCase()))
     );
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filterText]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     if (!isAuthenticated) return null;
 
@@ -132,9 +148,9 @@ export default function AssignRolePage() {
                                     ) : filtered.length === 0 ? (
                                         <tr><td colSpan={4} className="px-6 py-12 text-center text-gray-500">No users found.</td></tr>
                                     ) : (
-                                        filtered.map((u, idx) => (
+                                        paginated.map((u, idx) => (
                                             <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{idx + 1}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{((currentPage - 1) * PAGE_SIZE) + idx + 1}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{u.username || 'N/A'}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-500 flex flex-wrap gap-1">
                                                     {u.roles && u.roles.length > 0
@@ -152,6 +168,13 @@ export default function AssignRolePage() {
                                 </tbody>
                             </table>
                         </div>
+                        <SimplePagination
+                            currentPage={currentPage}
+                            totalItems={filtered.length}
+                            pageSize={PAGE_SIZE}
+                            onPageChange={setCurrentPage}
+                            itemLabel="users"
+                        />
                     </div>
                 </main>
             </div>

@@ -7,6 +7,9 @@ import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { Search, Plus, Edit, Trash2, Eye, KeyRound } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { SimplePagination } from '@/components/SimplePagination';
+
+const PAGE_SIZE = 5;
 
 export default function UsersPage() {
     const { isAuthenticated } = useAuth();
@@ -16,6 +19,7 @@ export default function UsersPage() {
     const [directorates, setDirectorates] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterText, setFilterText] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
     const [error, setError] = useState<string | null>(null);
 
     // Dialogs State
@@ -183,6 +187,18 @@ export default function UsersPage() {
         (u.organization?.orgname || '').toLowerCase().includes(filterText.toLowerCase()) ||
         (u.directorate?.directoratename || '').toLowerCase().includes(filterText.toLowerCase())
     );
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filterText]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     if (!isAuthenticated) return null;
 
@@ -239,7 +255,7 @@ export default function UsersPage() {
                                     ) : filtered.length === 0 ? (
                                         <tr><td colSpan={5} className="px-6 py-12 text-center text-gray-500">No users found.</td></tr>
                                     ) : (
-                                        filtered.map((u) => (
+                                        paginated.map((u) => (
                                             <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{u.firstName} {u.lastName}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{u.username}</td>
@@ -257,6 +273,13 @@ export default function UsersPage() {
                                 </tbody>
                             </table>
                         </div>
+                        <SimplePagination
+                            currentPage={currentPage}
+                            totalItems={filtered.length}
+                            pageSize={PAGE_SIZE}
+                            onPageChange={setCurrentPage}
+                            itemLabel="users"
+                        />
                     </div>
                 </main>
             </div>
