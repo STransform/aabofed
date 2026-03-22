@@ -6,9 +6,11 @@ import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { Bell, LogOut, UserCircle } from 'lucide-react';
 import { getMessages, type Lang } from '@/lib/messages';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const NOTIFICATIONS_CACHE_KEY = 'armas_notifications_cache';
 const NOTIFICATIONS_CACHE_TTL_MS = 30 * 1000;
+const CURRENT_USER_CACHE_KEY = 'armas_current_user_cache';
 
 function timeAgo(dateStr: string): string {
     const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -54,13 +56,19 @@ interface Notification {
     context: string;
 }
 
+interface CurrentUserSummary {
+    orgname?: string | null;
+}
+
 export function Header() {
     const { userRole, logout } = useAuth();
     const router = useRouter();
+    const { resolve } = useTranslation();
 
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState<CurrentUserSummary | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const [lang, setLang] = useState<Lang>('en');
@@ -82,6 +90,45 @@ export function Header() {
     const isApprover = userRole === 'APPROVER';
     const isUser = userRole === 'USER';
     const isManager = userRole === 'MANAGER';
+
+    useEffect(() => {
+        try {
+            const raw = sessionStorage.getItem(CURRENT_USER_CACHE_KEY);
+            if (!raw) return;
+            const cached = JSON.parse(raw) as CurrentUserSummary;
+            setCurrentUser(cached);
+        } catch {
+            // Ignore broken cache and fetch fresh user info.
+        }
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadCurrentUser = async () => {
+            try {
+                const res = await axiosInstance.get('/users/me');
+                if (cancelled) return;
+
+                const nextUser: CurrentUserSummary = {
+                    orgname: res.data?.orgname || res.data?.organization?.orgname || null,
+                };
+                setCurrentUser(nextUser);
+                try {
+                    sessionStorage.setItem(CURRENT_USER_CACHE_KEY, JSON.stringify(nextUser));
+                } catch {
+                    // Ignore storage failures.
+                }
+            } catch {
+                if (!cancelled) {
+                    setCurrentUser(null);
+                }
+            }
+        };
+
+        loadCurrentUser();
+        return () => { cancelled = true; };
+    }, []);
 
     useEffect(() => {
         const cached = readFreshNotificationsCache();
@@ -173,6 +220,7 @@ export function Header() {
     };
 
     const roleLabel = msgs.roles[userRole as keyof typeof msgs.roles] || userRole;
+    const orgLabel = currentUser?.orgname ? resolve(currentUser.orgname) || currentUser.orgname : null;
 
     return (
         <header className="bg-white border-b border-gray-200 shadow-sm z-10">
@@ -184,6 +232,14 @@ export function Header() {
                     <span className="text-sm font-medium text-gray-700">
                         {roleLabel}
                     </span>
+                    {orgLabel && (
+                        <>
+                            <span className="text-gray-300">/</span>
+                            <span className="text-sm font-medium text-gray-500 truncate max-w-[260px]">
+                                {orgLabel}
+                            </span>
+                        </>
+                    )}
                 </div>
 
                 {/* Right: bell + user + logout */}

@@ -70,7 +70,7 @@ public class UserController {
             .collect(Collectors.toList());
     }
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('SENIOR_AUDITOR', 'APPROVER', 'ARCHIVER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('SENIOR_AUDITOR', 'APPROVER', 'ARCHIVER', 'ADMIN', 'USER', 'MANAGER')")
     public ResponseEntity<UserDTO> getCurrentUser(Principal principal) {
         User user = userService.getUserByUsername(principal.getName());
         if (user == null) {

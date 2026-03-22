@@ -51,6 +51,9 @@ export const AuthProvider = ({ children, initialAuth }: AuthProviderProps) => {
     const login = useCallback((token: string, role: string) => {
         Cookies.set('token', token, { expires: 1 });
         Cookies.set('userRole', role, { expires: 1 });
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('armas_current_user_cache');
+        }
         setIsAuthenticated(true);
         setUserRole(role);
     }, []);
@@ -58,6 +61,9 @@ export const AuthProvider = ({ children, initialAuth }: AuthProviderProps) => {
     const logout = useCallback(() => {
         Cookies.remove('token');
         Cookies.remove('userRole');
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('armas_current_user_cache');
+        }
         setIsAuthenticated(false);
         setUserRole(null);
         router.push('/login');

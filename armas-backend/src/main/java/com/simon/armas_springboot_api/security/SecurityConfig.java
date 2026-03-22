@@ -74,7 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/directorates/**").hasRole("ADMIN")
                         .requestMatchers("/documents/**").hasRole("ADMIN")
                         .requestMatchers("/budgetyears/**").hasRole("ADMIN")
-                        .requestMatchers("/me/**").hasAnyRole("ADMIN", "USER", "ARCHIVER", "SENIOR_AUDITOR", "APPROVER")
+                        .requestMatchers("/me/**").hasAnyRole("ADMIN", "USER", "ARCHIVER", "SENIOR_AUDITOR", "APPROVER", "MANAGER")
                         .requestMatchers("/budget-years/**")
                         .hasAnyRole("ADMIN", "USER", "ARCHIVER", "SENIOR_AUDITOR", "APPROVER")
                         .requestMatchers("/master-transactions/**").hasRole("ADMIN")
