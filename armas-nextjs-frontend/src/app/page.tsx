@@ -128,11 +128,15 @@ export default function HomePage() {
         fetchStats();
 
         if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-            const idleId = window.requestIdleCallback(() => router.prefetch("/login"), { timeout: 1000 });
+            const idleId = window.requestIdleCallback(() => {
+                router.prefetch("/login");
+            }, { timeout: 1000 });
             return () => window.cancelIdleCallback(idleId);
         }
 
-        const timeoutId = globalThis.setTimeout(() => router.prefetch("/login"), 200);
+        const timeoutId = globalThis.setTimeout(() => {
+            router.prefetch("/login");
+        }, 200);
         return () => globalThis.clearTimeout(timeoutId);
     }, [router]);
 

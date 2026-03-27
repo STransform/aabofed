@@ -40,10 +40,20 @@ export default function Login() {
         setLoading(true);
         setError('');
         try {
-            const response = await axiosInstance.post('/login', { username, password });
+            const response = await axiosInstance.post(
+                '/login',
+                { username, password },
+                { skipAuthRedirect: true }
+            );
+
             const token = response.data.token;
+            if (!token) {
+                throw new Error('Login response did not include an access token.');
+            }
+
             const role = response.data.roles && response.data.roles.length > 0
                 ? response.data.roles[0] : 'USER';
+
             if (role === 'ADMIN') {
                 [
                     '/dashboard',
@@ -59,10 +69,17 @@ export default function Login() {
                     '/transactions/advanced-filters',
                 ].forEach((href) => router.prefetch(href));
             }
+
             login(token, role);
-            router.push('/dashboard');
+            router.replace('/dashboard');
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed');
+            console.error('Login error:', err.response?.data || err.message);
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                err.message ||
+                'Login failed. Please try again.'
+            );
         } finally {
             setLoading(false);
         }
