@@ -55,6 +55,36 @@
       "Sirna Hojii Mirkanneessaa"
     ],
     "portalNote": "Moduuloota hundaa argachuuf seeni",
+    "bureauName": "Biiroo Maallaqaa Oromiyaa",
+    "platformTagline": "Sirna Dijitaalaa To'annoo Odiitii fi Qorannoo",
+    "departmentLabel": "Kutaa Odiitii fi Qorannoo",
+    "heroHeadlinePro": "To'annoo ogummaa qabu hojii gabaasaa Biiroo Maallaqaa Oromiyaatiif",
+    "heroBodyPro": "ARMAS Biiroo Maallaqaa Oromiyaaf naannoo nageenya qabu, ifa ta'e, fi ammayyaa ta'e kan ittiin galmeen odiitii, hordoffiin qorannoo, bulchiinsi mirkaneessaa fi itti gaafatamummaan dhaabbataa raawwatamu ni kenna.",
+    "heroHighlights": [
+      {
+        "title": "Galmee Odiitii",
+        "body": "Gabaasota, argannoowwan, fi sanadoota mootummaa haala giddugaleessa ta'een galmeessuu fi simachuu."
+      },
+      {
+        "title": "Sirna Hojii Qorannoo",
+        "body": "Sadarkaalee qorannoo qindaa'an kan kuusaa, odiitara, mirkaneessaa fi hoggansa biirootiif qophaa'an."
+      },
+      {
+        "title": "Bulchiinsa Nageenya Qabu",
+        "body": "Hayyama gahee irratti hundaa'e fi sochiilee hordofamuu danda'an guutuu marsaa hojii keessatti."
+      }
+    ],
+    "readinessTitle": "Qophii dhaabbataa",
+    "liveLabel": "Hojii irra",
+    "metricLabels": {
+      "organizations": "Dhaabbilee mootummaa",
+      "users": "Hojjettoota hojii irra jiran"
+    },
+    "aboutTitlePro": "To'annoon Biiroo Maallaqaa Oromiyaa saffisa hojii caaluuf haaromfame",
+    "aboutBodyPro": "Pilaatformiin kun hojii odiitii, qorannoo fi gabaasaa qindaa'e deeggara; bifa mootummaa ifa ta'een, sadarkaa odeeffannoo ifa ta'een, fi fuulduraaf salphaatti dubbifamuu danda'uun hojii guyyaa guyyaa ni cimsaa.",
+    "strategicDirection": "Kallattii Tarsiimoo",
+    "purposeTitlePro": "Bulchiinsa maallaqaa mootummaa itti gaafatamaa ta'eef kan ijaarame",
+    "accessLabel": "Seensa Dhaabbataa",
     "ctaBannerHeadline": "Jalqabuu qophii dha?",
     "ctaBannerBody": "Eenyummeessaa dhaabbataa keessan fayyadamuun seenaa.",
     "ctaBannerBtn": "Marsariitii Seeni",
@@ -63,6 +93,10 @@
   "sidebar": {
     "logoSub": "Odiitii fi Gabaasaa Bulchiinsa",
     "footer": "Sirna ARMAS © 2026",
+    "institutionLabel": "Dhaabbata",
+    "institutionName": "Biiroo Maallaqaa Oromiyaa",
+    "institutionSub": "Hojiiwwan odiitii fi qorannoo",
+    "integrityTitle": "Qajeelfama Hojii Cimaa",
     "sections": {
       "main": "Mura Jalqabaa",
       "myActions": "Hojii Koo",
@@ -109,6 +143,8 @@
     }
   },
   "header": {
+    "bureauName": "Biiroo Maallaqaa Oromiyaa",
+    "departmentLabel": "Kutaa Odiitii fi Qorannoo",
     "roles": {
       "ADMIN": "Bulchaa",
       "USER": "Fayyadamaa",
@@ -208,6 +244,19 @@
   "dashboard": {
     "welcome": "Baga nagaan dhuftan",
     "execOverview": "Cuunfaa Raawwii",
+    "heroBody": "Biiroo Maallaqaa Oromiyaaf dhaabbilee, sochii gabaasaa, fi wal-simannaa bara baajataa irratti ilaalcha ogummaa qabu ni kenna.",
+    "monitoringFocus": "Fuulleffannoo Hordoffii",
+    "statusLabel": "Haala",
+    "liveAnalytics": "Xiinxala biiroo hojii irra jiru",
+    "selectorTitle": "Filannoo bara baajataa",
+    "loadingTitle": "Daashboordiin ARMAS fe'amaa jira...",
+    "loadingBody": "Lakkoofsoota to'annoo biiroo fi cuunfaawwan bara baajataa qopheessaa jira.",
+    "emptyTitle": "Odeeffannoon gosa gabaasaa hin jiru",
+    "emptyBody": "Ergitootaa fi hin ergitootaa ilaaluuf bara baajataa odeeffannoo qabu filadhu.",
+    "complianceOverview": "Cuunfaa wal-simannaa",
+    "totalRecords": "Galmeewwan waliigalaa",
+    "barComparison": "Wal bira qabinsa utubaa",
+    "distribution": "Raabsa",
     "totalOrgs": "Waliigala Dhaabbilee",
     "totalReportTypes": "Waliigala Gosa Gabaasaa",
     "activeUsers": "Fayyadamtoota Hojjataa Jiran",

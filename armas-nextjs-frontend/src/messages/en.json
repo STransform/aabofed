@@ -118,6 +118,36 @@
       "Finding and Approval Workflow"
     ],
     "portalNote": "Login required to access all modules",
+    "bureauName": "Oromia Finance Bureau",
+    "platformTagline": "Audit and Inspection Digital Oversight Platform",
+    "departmentLabel": "Audit and Inspection Department",
+    "heroHeadlinePro": "Professional oversight for Oromia Finance Bureau reporting workflows",
+    "heroBodyPro": "ARMAS supports the Oromia Bureau of Finance with a secure, traceable, and modern environment for audit intake, inspection follow-up, approval management, and institutional accountability.",
+    "heroHighlights": [
+      {
+        "title": "Audit Intake",
+        "body": "Centralized submission and registration of reports, findings, and official records."
+      },
+      {
+        "title": "Inspection Workflow",
+        "body": "Structured review stages for archivers, auditors, approvers, and bureau leadership."
+      },
+      {
+        "title": "Secure Governance",
+        "body": "Role-based access and traceable actions across the full reporting lifecycle."
+      }
+    ],
+    "readinessTitle": "Institutional readiness",
+    "liveLabel": "Live",
+    "metricLabels": {
+      "organizations": "Public Institutions",
+      "users": "Active Officers"
+    },
+    "aboutTitlePro": "Oromia Bureau of Finance oversight, redesigned for faster execution",
+    "aboutBodyPro": "This platform supports structured audit, inspection, and reporting operations with a stronger public-sector visual language, clearer hierarchy, and more readable interfaces for day-to-day bureau work.",
+    "strategicDirection": "Strategic Direction",
+    "purposeTitlePro": "Built for accountable public finance administration",
+    "accessLabel": "Institutional Access",
     "ctaBannerHeadline": "Ready to get started?",
     "ctaBannerBody": "Access the ARMAS portal with your institutional credentials.",
     "ctaBannerBtn": "Sign In to Portal",
@@ -126,6 +156,10 @@
   "sidebar": {
     "logoSub": "Audit & Report Mgmt",
     "footer": "ARMAS System © 2026",
+    "institutionLabel": "Institution",
+    "institutionName": "Oromia Finance Bureau",
+    "institutionSub": "Audit and inspection operations",
+    "integrityTitle": "Operational Integrity",
     "sections": {
       "main": "Main",
       "myActions": "My Actions",
@@ -172,6 +206,8 @@
     }
   },
   "header": {
+    "bureauName": "Oromia Finance Bureau",
+    "departmentLabel": "Audit and Inspection Department",
     "roles": {
       "ADMIN": "Administrator",
       "USER": "User",
@@ -271,6 +307,19 @@
   "dashboard": {
     "welcome": "Welcome",
     "execOverview": "Executive Overview",
+    "heroBody": "Professional bureau-level visibility into organizations, report flows, and fiscal-year compliance for the Oromia Finance Bureau audit and inspection function.",
+    "monitoringFocus": "Monitoring Focus",
+    "statusLabel": "Status",
+    "liveAnalytics": "Live bureau analytics",
+    "selectorTitle": "Fiscal-year selector",
+    "loadingTitle": "Loading ARMAS dashboard...",
+    "loadingBody": "Preparing bureau oversight metrics and fiscal-year summaries.",
+    "emptyTitle": "No report type data available",
+    "emptyBody": "Select a fiscal year with available compliance activity to visualize senders and non-senders.",
+    "complianceOverview": "Compliance Overview",
+    "totalRecords": "Total records",
+    "barComparison": "Bar comparison",
+    "distribution": "Distribution",
     "totalOrgs": "Total Organizations",
     "totalReportTypes": "Total Report Types",
     "activeUsers": "Active Users",

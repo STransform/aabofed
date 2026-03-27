@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
-import { Bell, LogOut, UserCircle } from 'lucide-react';
+import { Bell, LogOut, UserCircle, Building2, ShieldCheck } from 'lucide-react';
 import { getMessages, type Lang } from '@/lib/messages';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -159,7 +159,7 @@ export function Header() {
                 // Ignore storage failures.
             }
         } catch {
-            // silently fail — don't disrupt the UI
+            // silently fail - don't disrupt the UI
         }
     }, []);
 
@@ -176,14 +176,13 @@ export function Header() {
             cleanupPrefetch = () => globalThis.clearTimeout(timeoutId);
         }
 
-        const interval = setInterval(fetchNotifications, 120000); // poll every 2 minutes
+        const interval = setInterval(fetchNotifications, 120000);
         return () => {
             cleanupPrefetch?.();
             clearInterval(interval);
         };
     }, [fetchNotifications]);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -225,71 +224,77 @@ export function Header() {
     const orgLabel = currentUser?.orgname ? resolve(currentUser.orgname) || currentUser.orgname : null;
 
     return (
-        <header className="bg-white border-b border-gray-200 shadow-sm z-10">
-            <div className="px-6 h-16 flex items-center justify-between">
-                {/* Left: page context */}
-                <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-400">ARMAS</span>
-                    <span className="text-gray-300">/</span>
-                    <span className="text-sm font-medium text-gray-700">
-                        {usernameLabel}
-                    </span>
-                    {orgLabel && (
-                        <>
-                            <span className="text-gray-300">/</span>
-                            <span className="text-sm font-medium text-gray-500 truncate max-w-[260px]">
-                                {orgLabel}
+        <header className="sticky top-0 z-10 border-b border-[var(--line-soft)] bg-white/88 backdrop-blur-xl">
+            <div className="flex min-h-[92px] items-center justify-between gap-4 px-6 py-4">
+                <div className="flex min-w-0 items-center gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#064e3b_0%,#0f766e_100%)] shadow-[0_16px_30px_rgba(6,95,70,0.18)]">
+                        <ShieldCheck className="h-7 w-7 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--brand-700)]">{msgs.bureauName}</p>
+                        <h1 className="truncate font-display text-2xl font-black tracking-tight text-[var(--ink-900)]">
+                            {usernameLabel}
+                        </h1>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--ink-500)]">
+                            <span className="inline-flex items-center gap-1">
+                                <Building2 className="h-4 w-4" />
+                                {msgs.departmentLabel}
                             </span>
-                        </>
-                    )}
+                            {orgLabel && (
+                                <>
+                                    <span className="text-[var(--ink-300)]">|</span>
+                                    <span className="truncate font-medium text-[var(--ink-600)]">{orgLabel}</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Right: bell + user + logout */}
-                <div className="flex items-center space-x-3">
-
-                    {/* Notification Bell */}
+                <div className="flex items-center gap-3">
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setIsOpen(prev => !prev)}
-                            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--line-soft)] bg-[var(--surface-1)] text-[var(--ink-600)] transition hover:border-[var(--brand-300)] hover:text-[var(--brand-800)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-300)]"
                             aria-label={msgs.notifications}
                         >
-                            <Bell className="w-5 h-5 text-gray-500" />
+                            <Bell className="h-5 w-5" />
                             {unreadCount > 0 && (
-                                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none">
+                                <span className="absolute right-1.5 top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white">
                                     {unreadCount > 99 ? '99+' : unreadCount}
                                 </span>
                             )}
                         </button>
 
                         {isOpen && (
-                            <div className="absolute right-0 mt-2 w-96 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden z-50">
-                                <div className="px-4 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-between">
-                                    <h3 className="text-sm font-semibold text-white">{msgs.notifications}</h3>
-                                    {unreadCount > 0 && (
-                                        <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">
-                                            {unreadCount} {msgs.unread}
-                                        </span>
-                                    )}
+                            <div className="absolute right-0 mt-3 w-[26rem] overflow-hidden rounded-[1.5rem] border border-[var(--line-soft)] bg-white shadow-[0_28px_70px_rgba(15,23,42,0.16)]">
+                                <div className="bg-[linear-gradient(135deg,#064e3b_0%,#0f766e_100%)] px-5 py-4 text-white">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-bold">{msgs.notifications}</h3>
+                                        {unreadCount > 0 && (
+                                            <span className="rounded-full bg-white/12 px-3 py-1 text-xs font-black uppercase tracking-[0.16em]">
+                                                {unreadCount} {msgs.unread}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                                <div className="max-h-96 overflow-y-auto divide-y divide-[var(--line-soft)]">
                                     {notifications.length === 0 ? (
-                                        <div className="flex flex-col items-center justify-center py-10 text-gray-400">
-                                            <Bell className="w-8 h-8 mb-2 opacity-30" />
-                                            <p className="text-sm">{msgs.noNotifications}</p>
+                                        <div className="flex flex-col items-center justify-center px-6 py-12 text-[var(--ink-400)]">
+                                            <Bell className="mb-3 h-9 w-9 opacity-40" />
+                                            <p className="text-base font-semibold">{msgs.noNotifications}</p>
                                         </div>
                                     ) : (
                                         notifications.map(n => (
                                             <button
                                                 key={n.id}
                                                 onClick={() => handleNotificationClick(n)}
-                                                className="w-full text-left px-4 py-3 hover:bg-indigo-50 transition-colors"
+                                                className="w-full px-5 py-4 text-left transition hover:bg-[var(--surface-2)]"
                                             >
-                                                <p className="text-sm font-semibold text-gray-800 truncate">{n.title || 'Notification'}</p>
-                                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.message || ''}</p>
+                                                <p className="text-base font-bold text-[var(--ink-900)]">{n.title || 'Notification'}</p>
+                                                <p className="mt-1 text-sm leading-6 text-[var(--ink-500)]">{n.message || ''}</p>
                                                 {n.createdAt && (
-                                                    <p className="text-[10px] text-gray-400 mt-1">
+                                                    <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--brand-700)]">
                                                         {timeAgo(n.createdAt)}
                                                     </p>
                                                 )}
@@ -301,25 +306,25 @@ export function Header() {
                         )}
                     </div>
 
-                    {/* Divider */}
-                    <div className="h-6 w-px bg-gray-200" />
+                    <div className="hidden h-10 w-px bg-[var(--line-soft)] sm:block" />
 
-                    {/* User chip */}
-                    <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <UserCircle className="w-5 h-5 text-indigo-600" />
+                    <div className="hidden items-center gap-3 rounded-2xl border border-[var(--line-soft)] bg-white px-4 py-2.5 shadow-[0_10px_18px_rgba(15,23,42,0.04)] sm:flex">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--surface-2)]">
+                            <UserCircle className="h-6 w-6 text-[var(--brand-700)]" />
                         </div>
-                        <span className="text-sm font-medium text-gray-700 hidden sm:block">
-                            {usernameLabel}
-                        </span>
+                        <div>
+                            <p className="text-base font-bold text-[var(--ink-900)]">{usernameLabel}</p>
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-400)]">
+                                {msgs.roles[userRole as keyof typeof msgs.roles] || userRole}
+                            </p>
+                        </div>
                     </div>
 
-                    {/* Logout */}
                     <button
                         onClick={logout}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 transition hover:bg-rose-100"
                     >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="h-4 w-4" />
                         <span className="hidden sm:inline">{msgs.logout}</span>
                     </button>
                 </div>

@@ -8,17 +8,17 @@ import {
     Building2, Users, FileText, Calculator, Shell, Lock, CheckCircle,
     XOctagon, Clock, Edit3, UploadCloud, DownloadCloud, ClipboardList,
     LayoutDashboard, Filter, ShieldCheck, Briefcase, ChevronRight,
-    UserCog, Languages
+    UserCog, Languages, Landmark, BadgeCheck
 } from 'lucide-react';
 import { getMessages, type Lang } from '@/lib/messages';
 
-const roleColors: Record<string, { bg: string; text: string }> = {
-    ADMIN: { bg: 'bg-violet-500/20', text: 'text-violet-300' },
-    USER: { bg: 'bg-sky-500/20', text: 'text-sky-300' },
-    ARCHIVER: { bg: 'bg-amber-500/20', text: 'text-amber-300' },
-    SENIOR_AUDITOR: { bg: 'bg-emerald-500/20', text: 'text-emerald-300' },
-    APPROVER: { bg: 'bg-rose-500/20', text: 'text-rose-300' },
-    MANAGER: { bg: 'bg-cyan-500/20', text: 'text-cyan-300' },
+const roleColors: Record<string, { badge: string; dot: string }> = {
+    ADMIN: { badge: 'bg-sky-100 text-sky-800', dot: 'bg-sky-600' },
+    USER: { badge: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-600' },
+    ARCHIVER: { badge: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
+    SENIOR_AUDITOR: { badge: 'bg-violet-100 text-violet-800', dot: 'bg-violet-600' },
+    APPROVER: { badge: 'bg-rose-100 text-rose-800', dot: 'bg-rose-600' },
+    MANAGER: { badge: 'bg-cyan-100 text-cyan-800', dot: 'bg-cyan-600' },
 };
 
 export function Sidebar() {
@@ -30,7 +30,6 @@ export function Sidebar() {
     useEffect(() => {
         const s = localStorage.getItem('armas_lang') as Lang | null;
         if (s && (s === 'en' || s === 'am' || s === 'om')) setLang(s);
-        // Re-sync whenever localStorage changes (e.g. user picks a new language on home page)
         const handler = () => {
             const v = localStorage.getItem('armas_lang') as Lang | null;
             if (v && (v === 'en' || v === 'am' || v === 'om')) setLang(v);
@@ -157,17 +156,19 @@ export function Sidebar() {
 
     const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
-    const roleInfo = roleColors[userRole || ''] || { bg: 'bg-slate-500/20', text: 'text-slate-300' };
+    const roleInfo = roleColors[userRole || ''] || { badge: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500' };
     const roleLabel = msgs.roles[userRole as keyof typeof msgs.roles] || userRole || 'Unknown';
 
     const renderSection = (title: string, items: { name: string; href: string; icon: any }[]) => {
         if (items.length === 0) return null;
         return (
-            <div className="mb-5">
-                <p className="px-4 mb-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    {title}
-                </p>
-                <ul className="space-y-0.5">
+            <section className="mb-7">
+                <div className="mb-3 px-4">
+                    <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--ink-400)]">
+                        {title}
+                    </p>
+                </div>
+                <ul className="space-y-1.5">
                     {items.map(item => {
                         const Icon = item.icon;
                         const active = isActive(item.href);
@@ -175,52 +176,63 @@ export function Sidebar() {
                             <li key={item.href}>
                                 <Link
                                     href={item.href}
-                                    className={`group flex items-center justify-between px-4 py-2.5 rounded-lg mx-2 text-sm font-medium transition-all duration-150 ${active
-                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40'
-                                        : 'text-slate-400 hover:bg-slate-700/60 hover:text-slate-100'
+                                    className={`group mx-3 flex items-center justify-between rounded-2xl px-4 py-3.5 text-[15px] font-semibold transition-all duration-200 ${active
+                                        ? 'bg-[linear-gradient(135deg,#065f46_0%,#0f766e_100%)] text-white shadow-[0_18px_30px_rgba(6,95,70,0.22)]'
+                                        : 'text-[var(--ink-600)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-900)]'
                                         }`}
                                 >
-                                    <div className="flex items-center space-x-3">
-                                        <Icon className={`h-4 w-4 flex-shrink-0 ${active ? 'text-indigo-200' : 'text-slate-500 group-hover:text-slate-300'}`} />
-                                        <span>{item.name}</span>
+                                    <div className="flex items-center gap-3.5">
+                                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? 'bg-white/10' : 'bg-white shadow-[0_6px_18px_rgba(15,23,42,0.06)]'}`}>
+                                            <Icon className={`h-5 w-5 ${active ? 'text-white' : 'text-[var(--brand-700)] group-hover:text-[var(--brand-800)]'}`} />
+                                        </div>
+                                        <span className="leading-5">{item.name}</span>
                                     </div>
-                                    {active && <ChevronRight className="h-3 w-3 text-indigo-300 opacity-70" />}
+                                    <ChevronRight className={`h-4 w-4 transition ${active ? 'translate-x-0 text-white/80' : 'text-[var(--ink-300)] group-hover:translate-x-0.5 group-hover:text-[var(--brand-700)]'}`} />
                                 </Link>
                             </li>
                         );
                     })}
                 </ul>
-            </div>
+            </section>
         );
     };
 
     return (
-        <div className="flex flex-col w-64 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 h-screen overflow-y-auto flex-shrink-0 shadow-2xl">
-
-            {/* Logo */}
-            <div className="flex items-center h-16 px-5 shrink-0 border-b border-slate-700/60">
-                <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900/50">
-                        <ShieldCheck className="w-5 h-5 text-white" />
+        <aside className="flex h-screen w-[320px] flex-col overflow-hidden border-r border-[var(--line-soft)] bg-[linear-gradient(180deg,#f8fffc_0%,#f3faf6_46%,#edf7f1_100%)] shadow-[18px_0_48px_rgba(15,23,42,0.06)]">
+            <div className="border-b border-[var(--line-soft)] px-5 py-5">
+                <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#064e3b_0%,#0f766e_100%)] shadow-[0_18px_30px_rgba(6,95,70,0.2)]">
+                        <ShieldCheck className="h-7 w-7 text-white" />
                     </div>
                     <div>
-                        <span className="font-extrabold text-lg text-white tracking-tight leading-none">ARMAS</span>
-                        <p className="text-[9px] text-slate-500 uppercase tracking-widest leading-none mt-0.5">{msgs.logoSub}</p>
+                        <p className="font-display text-2xl font-black tracking-tight text-[var(--ink-900)]">ARMAS</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.28em] text-[var(--ink-500)]">{msgs.logoSub}</p>
+                    </div>
+                </div>
+
+                <div className="mt-5 rounded-3xl border border-[var(--line-soft)] bg-white p-4 shadow-[0_12px_24px_rgba(15,23,42,0.05)]">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--ink-400)]">{msgs.institutionLabel}</p>
+                            <p className="mt-2 text-lg font-bold text-[var(--ink-900)]">{msgs.institutionName}</p>
+                            <p className="mt-1 text-sm text-[var(--ink-500)]">{msgs.institutionSub}</p>
+                        </div>
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--surface-2)] text-[var(--brand-800)]">
+                            <Landmark className="h-5 w-5" />
+                        </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-2">
+                        <span className={`h-2.5 w-2.5 rounded-full ${roleInfo.dot}`} />
+                        <span className={`inline-flex rounded-full px-3 py-1.5 text-sm font-bold ${roleInfo.badge}`}>
+                            {roleLabel}
+                        </span>
                     </div>
                 </div>
             </div>
 
-            {/* Role badge */}
-            <div className="px-5 py-3 border-b border-slate-700/40">
-                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${roleInfo.bg} ${roleInfo.text}`}>
-                    {roleLabel}
-                </span>
-            </div>
-
-            {/* Nav */}
-            <nav className="flex-1 py-4 overflow-y-auto">
+            <nav className="flex-1 overflow-y-auto px-1 py-5">
                 {renderSection(s.main, commonItems)}
-
                 {isUser && renderSection(s.myActions, userItems)}
                 {isManager && renderSection(s.managerActions, managerItems)}
 
@@ -240,10 +252,17 @@ export function Sidebar() {
                 {advancedFiltersItem.length > 0 && renderSection(s.reporting, advancedFiltersItem)}
             </nav>
 
-            {/* Footer */}
-            <div className="px-5 py-4 border-t border-slate-700/40 shrink-0">
-                <p className="text-[10px] text-slate-600 text-center">{msgs.footer}</p>
+            <div className="border-t border-[var(--line-soft)] px-5 py-4">
+                <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_10px_20px_rgba(15,23,42,0.04)]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--surface-2)] text-[var(--brand-800)]">
+                        <BadgeCheck className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-bold text-[var(--ink-800)]">{msgs.integrityTitle}</p>
+                        <p className="text-xs text-[var(--ink-500)]">{msgs.footer}</p>
+                    </div>
+                </div>
             </div>
-        </div>
+        </aside>
     );
 }

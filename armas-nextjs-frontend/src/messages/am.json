@@ -55,6 +55,36 @@
       "ሰነድ ማፍቀዱ ሥርዓት"
     ],
     "portalNote": "ሁሉንም ሞጁሎች ለመጠቀም ግቡ",
+    "bureauName": "የኦሮሚያ ፋይናንስ ቢሮ",
+    "platformTagline": "የኦዲት እና ምርመራ ዲጂታል ክትትል ስርዓት",
+    "departmentLabel": "የኦዲት እና ምርመራ ክፍል",
+    "heroHeadlinePro": "ለኦሮሚያ ፋይናንስ ቢሮ ሪፖርቲንግ ዘርፎች ሙያዊ ቁጥጥር",
+    "heroBodyPro": "ARMAS ለኦሮሚያ ፋይናንስ ቢሮ የኦዲት መግቢያ፣ የምርመራ ክትትል፣ የማጽደቂያ አስተዳደር እና ተጠያቂነት ለማጠናከር ደህንነቱ የተጠበቀ፣ ግልጽ እና ዘመናዊ አካባቢ ያቀርባል።",
+    "heroHighlights": [
+      {
+        "title": "የኦዲት መግቢያ",
+        "body": "ሪፖርቶችን፣ ግኝቶችን እና ይፋዊ ሰነዶችን በአንድ ማዕከላዊ ስርዓት መመዝገብ እና ማስተዳደር።"
+      },
+      {
+        "title": "የምርመራ ሂደት",
+        "body": "ለማህደርክ፣ ለኦዲተሮች፣ ለአጽዳቂዎች እና ለቢሮ አመራሮች የተደራጀ የግምገማ ደረጃዎች።"
+      },
+      {
+        "title": "ደህንነቱ የተጠበቀ አስተዳደር",
+        "body": "በሚና ላይ የተመሠረተ ፍቃድ እና ሊከተሉ የሚችሉ እንቅስቃሴዎች በሁሉም አሠራር ይገኛሉ።"
+      }
+    ],
+    "readinessTitle": "የተቋማዊ ዝግጁነት",
+    "liveLabel": "በሥራ ላይ",
+    "metricLabels": {
+      "organizations": "የሕዝብ ተቋማት",
+      "users": "ንቁ ሰራተኞች"
+    },
+    "aboutTitlePro": "የኦሮሚያ ፋይናንስ ቢሮ ቁጥጥር ለፍጥነት አፈጻጸም በአዲስ ሁኔታ ተዘጋጅቷል",
+    "aboutBodyPro": "ይህ ፕላትፎርም የተደራጀ ኦዲት፣ ምርመራ እና ሪፖርቲንግ ሥርዓቶችን በሕዝብ ዘርፍ ምስላዊ ቋንቋ አሠራር፣ ግልጽ የሆነ የደረጃ ደረጃዎች እና ለለቱ ቀን የሚነበብ አገልግሎት ያቀርባል።",
+    "strategicDirection": "ስትራቴጂክ አቅጣጫ",
+    "purposeTitlePro": "ተጠያቂ የሕዝብ ፋይናንስ አስተዳደር ለመገንባት የተዘጋጀ",
+    "accessLabel": "ተቋማዊ መግቢያ",
     "ctaBannerHeadline": "ለመጀመር ዝግጁ ነዎት?",
     "ctaBannerBody": "በተቋም ምስክርነቶ ARMAS ፖርታልን ይጠቀሙ።",
     "ctaBannerBtn": "ወደ ፖርታሉ ይግቡ",
@@ -63,6 +93,10 @@
   "sidebar": {
     "logoSub": "ኦዲት እና ሪፖርት አስተዳደር",
     "footer": "ARMAS ሲስተም © 2026",
+    "institutionLabel": "ተቋም",
+    "institutionName": "የኦሮሚያ ፋይናንስ ቢሮ",
+    "institutionSub": "የኦዲት እና ምርመራ ሥራዎች",
+    "integrityTitle": "ኦፕሬሽናል ጥንካሬ",
     "sections": {
       "main": "ዋና",
       "myActions": "የኔ ተግባራት",
@@ -109,6 +143,8 @@
     }
   },
   "header": {
+    "bureauName": "የኦሮሚያ ፋይናንስ ቢሮ",
+    "departmentLabel": "የኦዲት እና ምርመራ ክፍል",
     "roles": {
       "ADMIN": "አስተዳዳሪ",
       "USER": "ተጠቃሚ",
@@ -208,6 +244,19 @@
   "dashboard": {
     "welcome": "እንኳን ደህና መጡ",
     "execOverview": "ዋና ማጠቃለያ",
+    "heroBody": "ለኦሮሚያ ፋይናንስ ቢሮ የኦዲት እና ምርመራ ተግባር ግልጽ የሆነ እይታ ይሰጣል።",
+    "monitoringFocus": "የክትትል ትኩረት",
+    "statusLabel": "ሁኔታ",
+    "liveAnalytics": "በሥራ ላይ ያለ የቢሮ ትንታኔ",
+    "selectorTitle": "የበጀት ዓመት መራጭ",
+    "loadingTitle": "ARMAS ዳሽቦርድ በመጫን ላይ...",
+    "loadingBody": "የቢሮ ቁጥጥር መረጃዎችን እና የበጀት ዓመት ማጠቃለያዎችን በማዘጋጀት ላይ።",
+    "emptyTitle": "የሪፖርት ዓይነት ውሂብ የለም",
+    "emptyBody": "ላኪዎችን እና ያልላኩዎችን ለማየት ውሂብ ያለውን የበጀት ዓመት ይምረጡ።",
+    "complianceOverview": "የተጣጣኝነት አጠቃላይ እይታ",
+    "totalRecords": "አጠቃላይ መዝገቦች",
+    "barComparison": "የአምድ ንጽጽር",
+    "distribution": "ስርጭት",
     "totalOrgs": "አጠቃላይ ድርጅቶች",
     "totalReportTypes": "አጠቃላይ የሪፖርት ዓይነቶች",
     "activeUsers": "ንቁ ተጠቃሚዎች",
