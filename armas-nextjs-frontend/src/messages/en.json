@@ -118,11 +118,11 @@
       "Finding and Approval Workflow"
     ],
     "portalNote": "Login required to access all modules",
-    "bureauName": "Oromia Finance Bureau",
+    "bureauName": "Addis Ababa Finance Bureau",
     "platformTagline": "Audit and Inspection Digital Oversight Platform",
     "departmentLabel": "Audit and Inspection Department",
-    "heroHeadlinePro": "Professional oversight for Oromia Finance Bureau reporting workflows",
-    "heroBodyPro": "ARMAS supports the Oromia Bureau of Finance with a secure, traceable, and modern environment for audit intake, inspection follow-up, approval management, and institutional accountability.",
+    "heroHeadlinePro": "Professional oversight for Addis Ababa Finance Bureau reporting workflows",
+    "heroBodyPro": "ARMAS supports the Addis Ababa Bureau of Finance with a secure, traceable, and modern environment for audit intake, inspection follow-up, approval management, and institutional accountability.",
     "heroHighlights": [
       {
         "title": "Audit Intake",
@@ -143,7 +143,7 @@
       "organizations": "Public Institutions",
       "users": "Active Officers"
     },
-    "aboutTitlePro": "Oromia Bureau of Finance oversight, redesigned for faster execution",
+    "aboutTitlePro": "Addis Ababa Bureau of Finance oversight, redesigned for faster execution",
     "aboutBodyPro": "This platform supports structured audit, inspection, and reporting operations with a stronger public-sector visual language, clearer hierarchy, and more readable interfaces for day-to-day bureau work.",
     "strategicDirection": "Strategic Direction",
     "purposeTitlePro": "Built for accountable public finance administration",
@@ -157,7 +157,7 @@
     "logoSub": "Audit & Report Mgmt",
     "footer": "ARMAS System © 2026",
     "institutionLabel": "Institution",
-    "institutionName": "Oromia Finance Bureau",
+    "institutionName": "Addis Ababa Finance Bureau",
     "institutionSub": "Audit and inspection operations",
     "integrityTitle": "Operational Integrity",
     "sections": {
@@ -206,7 +206,7 @@
     }
   },
   "header": {
-    "bureauName": "Oromia Finance Bureau",
+    "bureauName": "Addis Ababa Finance Bureau",
     "departmentLabel": "Audit and Inspection Department",
     "roles": {
       "ADMIN": "Administrator",
@@ -307,7 +307,7 @@
   "dashboard": {
     "welcome": "Welcome",
     "execOverview": "Executive Overview",
-    "heroBody": "Professional bureau-level visibility into organizations, report flows, and fiscal-year compliance for the Oromia Finance Bureau audit and inspection function.",
+    "heroBody": "Professional bureau-level visibility into organizations, report flows, and fiscal-year compliance for the Addis Ababa Finance Bureau audit and inspection function.",
     "monitoringFocus": "Monitoring Focus",
     "statusLabel": "Status",
     "liveAnalytics": "Live bureau analytics",
