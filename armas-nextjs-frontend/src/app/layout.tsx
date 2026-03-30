@@ -3,6 +3,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import "./globals.css";
 
 import { cookies } from "next/headers";
+import Footer from "@/components/Footer"; // Import the Footer component
 
 export const metadata: Metadata = {
     title: "ARMAS - Report Management",
@@ -28,6 +29,7 @@ export default function RootLayout({
             <body>
                 <AuthProvider initialAuth={initialAuth}>
                     {children}
+                    <Footer /> {/* Add the Footer component */}
                 </AuthProvider>
             </body>
         </html>
