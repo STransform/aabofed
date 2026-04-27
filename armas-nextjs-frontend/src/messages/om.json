@@ -32,21 +32,66 @@
       { "icon": "check", "title": "Seerummaa", "body": "Hojiin maallaqaa hundi seera federaalaa fi magaalaa Itoophiyaan walsimu guutuutti raawwatama." },
       { "icon": "lock", "title": "Iftoomina", "body": "Qabeenya mootummaa fi bu'aawwan odiitii iftoomaan ni gabaasamu, amanamummaa mootummaatti amanamtummaa uuma." }
     ],
-    "trustTitle": "Maaliif dhaabbatoonni ARMAS amanuu?",
-    "pillars": [
-      { "icon": "report", "title": "Gabaasaa Giddugalaa", "body": "Gabaasoonni hundi sirna to'annaa tokko keessa dhihaatu, ilaalamu, fi mirkanaa'u." },
-      { "icon": "audit", "title": "Galmee Odiitii Guutuu", "body": "Hojiin hundi yeroo isaa fi ragaa waliin galmaa'a — jijjiiramuu hin danda'u." },
-      { "icon": "docs", "title": "Bulchiinsa Sanadootaa Ammayyaa", "body": "Raawwii sanadootaa isa sirna ta'e argannoo, xalayaa fi gabaasaa yeroo hunda hordofuu danda'u mirkaneessa." },
-      { "icon": "access", "title": "Hayyama Gahee Irratti", "body": "Hayyamni addaa — hojjettaan gahee isaa barbaachisu qofa argata." },
-      { "icon": "analytics", "title": "Xiinxala Yeroo Dhugaa", "body": "Daashboordiin raawwataa lakkoofsoota murteessoo, haaromfamu agarsiisa." },
-      { "icon": "security", "title": "Nageenyaa 256-bit", "body": "Icciitii sadarkaa dhaabbataa fi Keycloak mirkaneessuu sanadoota raaga-dhuunfaan daangessuu eegg." }
+    "trustTitle": "Kutaa qorannoof karoora tarsiimoo fi karoora waggaa",
+    "planShowcaseIntro": "Kutaan agarsiisa karooraa kun kallattii yeroo dheeraa fi karoora hojii waggaa kutaa qorannoo bakka tokkotti ifaan akka mul'atu taasisa; dursa, yeroo raawwii fi hordoffii salphaatti akka ilaalaman gargaara.",
+    "planCards": [
+      {
+        "badge": "Karoora Tarsiimoo",
+        "title": "Kallattii waggoota hedduu raawwii qorannoo",
+        "summary": "Ajandaa qorannoo yeroo giddugaleessaa fi dheeraa, iddoo xiyyeeffannoo dhaabbataa fi bu'aawwan bulchiinsa irraa eegaman ifatti agarsiisa.",
+        "metaLabel": "Yeroo Karooraa",
+        "metaValue": "Waggaa 3-5",
+        "points": [
+          "Kaayyoo tarsiimoo dursa to'annoo biiroo waliin wal-simu",
+          "Naannoo fi dhaabbilee dhiibbaa guddaa qaban irratti xiyyeeffannoo bu'uura balaa",
+          "Agarsiistota raawwii hojii fi itti gaafatamummaa hordofu"
+        ]
+      },
+      {
+        "badge": "Karoora Waggaa",
+        "title": "Sagantaa hojii waggaa bajataa kanaa",
+        "summary": "Karoora qorannoo waggaa kanaa qoodinsa hojii, yeroo ilaalchaa, daangaa gabaasaa fi eegumsa raawwii kurmaanaa waliin agarsiisa.",
+        "metaLabel": "Marsaa Ammaa",
+        "metaValue": "Karoora FY",
+        "points": [
+          "Galma qorannoo kurmaana irratti hundaa'e fi haguuggii ramaddii",
+          "Milkaa'ina ergaa, ilaalchaa fi mirkaneessaa irraa eegamu",
+          "Tarkaanfii hordoffii hojii xumuraman fi kanneen eeggachaa jiran"
+        ]
+      }
     ],
     "statsLabel": "Marsariitiin akka gabaabsetti",
     "stats": [
       { "key": "organizations", "label": "Dhaabbilee" },
       { "key": "users", "label": "Fayyadamtootaa" }
     ],
-    "capLabel": "Dandeettiwwan Marsariitii",
+    "capLabel": "Wiirtuu Karoora Qorannoo",
+    "planTimelineEyebrow": "Mul'achuu Karooraa",
+    "planTimelineTitle": "Marsaan karooraa gabaabinaan",
+    "planTimelineBody": "Karoora tarsiimoo fi karoora waggaa kutaa tokko keessatti ilaaluun hoggantoota, odiitaroota fi gareewwan qorannoo waan karoorfame, waan hojiirra jiru fi waan hordoffii barbaadu saffisaan hubachiisa.",
+    "planTimeline": [
+      {
+        "phase": "Dursa Murteessuu",
+        "period": "Q1",
+        "body": "Mata dureewwan tarsiimoo murteessuu, dhaabbilee balaa olaanaa qaban adda baasuu fi galma qorannoo waggaa mirkaneessuu."
+      },
+      {
+        "phase": "Raawwii Dirree",
+        "period": "Q2-Q3",
+        "body": "Qorannoowwan saganteeffaman gaggeessuu, adeemsa ramaddii hordofuu fi ragaa fi argannoowwan wantoota karooraa waliin walqabsiisuu."
+      },
+      {
+        "phase": "Ilaalcha fi Cufinsa",
+        "period": "Q4",
+        "body": "Gabaasota xumuruun, raawwii galma waliin madaaluu fi hojii hordoffii hin xumuramin gara marsaa itti aanuutti dabarsuu."
+      }
+    ],
+    "planVisibilityTags": [
+      "Dursa tarsiimoo",
+      "Galma waggaa",
+      "Milkaa'ina kurmaanaa",
+      "Hordoffii qorannoo"
+    ],
     "portalTitle": "Tajaajiloota ARMAS",
     "portalOnline": "● Hojii Irratti",
     "portalServices": [

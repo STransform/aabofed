@@ -10,7 +10,7 @@ import { preloadTranslations } from '@/hooks/useTranslation';
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -33,6 +33,12 @@ export default function Login() {
         preloadTranslations('en');
     }, [lang, router]);
 
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.replace('/dashboard');
+        }
+    }, [isAuthenticated, router]);
+
     const t = getMessages(lang).login;
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -54,22 +60,6 @@ export default function Login() {
             const role = response.data.roles && response.data.roles.length > 0
                 ? response.data.roles[0] : 'USER';
 
-            if (role === 'ADMIN') {
-                [
-                    '/dashboard',
-                    '/buttons/organizations',
-                    '/buttons/directorates',
-                    '/buttons/documents',
-                    '/buttons/budgetyear',
-                    '/buttons/users',
-                    '/buttons/roles',
-                    '/buttons/assign',
-                    '/buttons/assign-privileges',
-                    '/buttons/translations',
-                    '/transactions/advanced-filters',
-                ].forEach((href) => router.prefetch(href));
-            }
-
             login(token, role);
             router.replace('/dashboard');
         } catch (err: any) {
@@ -84,6 +74,10 @@ export default function Login() {
             setLoading(false);
         }
     };
+
+    if (isAuthenticated) {
+        return null;
+    }
 
     return (
         <>

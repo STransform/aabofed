@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     Building2, Users, FileText, Calculator, Shell, Lock, CheckCircle,
     XOctagon, Clock, Edit3, UploadCloud, DownloadCloud, ClipboardList,
@@ -25,6 +25,7 @@ export function Sidebar() {
     const { userRole } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
+    const prefetchedRoutesRef = useRef<Set<string>>(new Set());
 
     const [lang, setLang] = useState<Lang>('en');
     useEffect(() => {
@@ -100,61 +101,12 @@ export function Sidebar() {
         { name: it.advancedFilters, href: '/transactions/advanced-filters', icon: Filter }
     ] : [];
 
-    useEffect(() => {
-        const hrefs = ['/dashboard'];
-
-        if (isUser) hrefs.push('/buttons/file-upload', '/buttons/letter-download', '/file-history');
-        if (isManager) hrefs.push('/transactions/letters');
-        if (isAdmin) {
-            hrefs.push(
-                '/buttons/organizations',
-                '/buttons/directorates',
-                '/buttons/documents',
-                '/buttons/budgetyear',
-                '/buttons/users',
-                '/buttons/roles',
-                '/buttons/assign',
-                '/buttons/assign-privileges',
-                '/buttons/translations',
-                '/transactions/notices',
-                '/transactions/advanced-filters'
-            );
-        }
-        if (isArchiver) {
-            hrefs.push(
-                '/buttons/file-download',
-                '/transactions/approved-reports',
-                '/transactions/pending-reports',
-                '/transactions/advanced-filters'
-            );
-        }
-        if (isSeniorAuditor || isApprover) {
-            hrefs.push(
-                '/transactions/auditor-tasks',
-                '/transactions/rejected-reports',
-                '/transactions/approved-reports',
-                '/transactions/under-review-reports',
-                '/transactions/corrected-reports',
-                '/transactions/advanced-filters'
-            );
-        }
-        if (isApprover) hrefs.push('/transactions/upload-to-organizations', '/transactions/notices');
-
-        const uniqueHrefs = Array.from(new Set(hrefs));
-        const prefetchRoutes = () => {
-            uniqueHrefs.forEach((href) => router.prefetch(href));
-        };
-
-        if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-            const idleId = window.requestIdleCallback(prefetchRoutes, { timeout: 1500 });
-            return () => window.cancelIdleCallback(idleId);
-        }
-
-        const timeoutId = globalThis.setTimeout(prefetchRoutes, 300);
-        return () => globalThis.clearTimeout(timeoutId);
-    }, [isAdmin, isApprover, isArchiver, isManager, isSeniorAuditor, isUser, router]);
-
     const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
+    const prefetchRoute = useCallback((href: string) => {
+        if (prefetchedRoutesRef.current.has(href)) return;
+        prefetchedRoutesRef.current.add(href);
+        router.prefetch(href);
+    }, [router]);
 
     const roleInfo = roleColors[userRole || ''] || { badge: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500' };
     const roleLabel = msgs.roles[userRole as keyof typeof msgs.roles] || userRole || 'Unknown';
@@ -176,6 +128,9 @@ export function Sidebar() {
                             <li key={item.href}>
                                 <Link
                                     href={item.href}
+                                    prefetch={false}
+                                    onMouseEnter={() => prefetchRoute(item.href)}
+                                    onFocus={() => prefetchRoute(item.href)}
                                     className={`group mx-3 flex items-center justify-between rounded-2xl px-4 py-3.5 text-[15px] font-semibold transition-all duration-200 ${active
                                         ? 'bg-[linear-gradient(135deg,#065f46_0%,#0f766e_100%)] text-white shadow-[0_18px_30px_rgba(6,95,70,0.22)]'
                                         : 'text-[var(--ink-600)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-900)]'

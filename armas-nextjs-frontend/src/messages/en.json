@@ -65,37 +65,32 @@
         "body": "Public funds and audit findings are reported openly, fostering public trust and confidence in government institutions."
       }
     ],
-    "trustTitle": "Why institutions trust ARMAS",
-    "pillars": [
+    "trustTitle": "Strategic and annual plans for inspection departments",
+    "planShowcaseIntro": "A dedicated planning workspace helps inspection departments present long-range direction and yearly execution plans in one place, with clearer visibility for priorities, timelines, and follow-up actions.",
+    "planCards": [
       {
-        "icon": "report",
-        "title": "Centralised Reporting",
-        "body": "Submit, review, and approve institutional reports from all departments through a single, auditable pipeline."
+        "badge": "Strategic Plan",
+        "title": "Multi-year direction for inspection performance",
+        "summary": "Show the department's medium and long-term inspection agenda with measurable priorities, institutional focus areas, and expected governance outcomes.",
+        "metaLabel": "Planning Horizon",
+        "metaValue": "3-5 Years",
+        "points": [
+          "Strategic objectives aligned with bureau oversight priorities",
+          "Risk-based focus areas for high-impact institutions and sectors",
+          "Performance indicators to track implementation and accountability"
+        ]
       },
       {
-        "icon": "audit",
-        "title": "Full Audit Trails",
-        "body": "Every action is timestamped and logged in an immutable record, ensuring complete accountability."
-      },
-      {
-        "icon": "docs",
-        "title": "Smart Document Management",
-        "body": "Structured document workflows ensure findings, letters and reports are always traceable and retrievable."
-      },
-      {
-        "icon": "access",
-        "title": "Role-Based Access",
-        "body": "Fine-grained permissions ensure each user sees and does exactly what their role requires — nothing more."
-      },
-      {
-        "icon": "analytics",
-        "title": "Real-Time Analytics",
-        "body": "Executive dashboards surface the metrics that matter, updated in real time across all reporting units."
-      },
-      {
-        "icon": "security",
-        "title": "256-bit Security",
-        "body": "Enterprise-grade encryption and Keycloak authentication protect all personnel data and sensitive reports."
+        "badge": "Annual Plan",
+        "title": "Operational schedule for the current budget year",
+        "summary": "Display the annual inspection plan with clear sequencing of assignments, review windows, reporting deadlines, and quarterly delivery expectations.",
+        "metaLabel": "Current Cycle",
+        "metaValue": "FY Plan",
+        "points": [
+          "Quarter-based inspection targets and assignment coverage",
+          "Expected submission, review, and approval milestones",
+          "Visible follow-up actions for completed and pending activities"
+        ]
       }
     ],
     "statsLabel": "Platform at a glance",
@@ -109,7 +104,33 @@
         "label": "Active Users"
       }
     ],
-    "capLabel": "Platform Capabilities",
+    "capLabel": "Inspection Planning Hub",
+    "planTimelineEyebrow": "Plan Visibility",
+    "planTimelineTitle": "Planning cycle at a glance",
+    "planTimelineBody": "Both strategic and annual plans can be reviewed from a single section so leaders, auditors, and inspection teams quickly understand what is planned, what is active, and what needs follow-up.",
+    "planTimeline": [
+      {
+        "phase": "Priority Setting",
+        "period": "Q1",
+        "body": "Define strategic themes, identify high-risk institutions, and confirm annual inspection targets."
+      },
+      {
+        "phase": "Field Execution",
+        "period": "Q2-Q3",
+        "body": "Run scheduled inspections, monitor assignment progress, and keep evidence and findings linked to plan items."
+      },
+      {
+        "phase": "Review and Closeout",
+        "period": "Q4",
+        "body": "Finalize reports, assess delivery against targets, and carry unresolved follow-up actions into the next cycle."
+      }
+    ],
+    "planVisibilityTags": [
+      "Strategic priorities",
+      "Annual targets",
+      "Quarter milestones",
+      "Inspection follow-up"
+    ],
     "portalTitle": "ARMAS Services",
     "portalOnline": "Online",
     "portalServices": [

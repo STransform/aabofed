@@ -23,6 +23,9 @@ import {
     BadgeCheck,
     Activity,
     BriefcaseBusiness,
+    CalendarRange,
+    ClipboardList,
+    ScanSearch,
 } from "lucide-react";
 import { getMessages, type Lang } from "@/lib/messages";
 import { NoticeFeed } from "@/components/NoticeFeed";
@@ -35,15 +38,6 @@ const LANGS = [
 
 const PUBLIC_STATS_CACHE_KEY = "armas_public_stats_cache";
 const PUBLIC_STATS_CACHE_TTL_MS = 5 * 60 * 1000;
-
-const PILLAR_COLORS = [
-    "bg-emerald-500/12 text-emerald-200 border-emerald-300/20",
-    "bg-amber-400/12 text-amber-100 border-amber-200/20",
-    "bg-sky-400/12 text-sky-100 border-sky-200/20",
-    "bg-white/10 text-white border-white/15",
-    "bg-teal-400/12 text-teal-100 border-teal-200/20",
-    "bg-emerald-300/12 text-emerald-50 border-emerald-100/20",
-];
 
 const VALUE_COLORS = [
     { bg: "bg-white", border: "border-emerald-100", icon: "text-emerald-700", accent: "bg-emerald-600" },
@@ -61,18 +55,8 @@ const platformMetrics = [
 
 const serviceHighlightIcons = [FileSpreadsheet, Activity, BadgeCheck];
 
-const PillarIcon = ({ type }: { type: string }) => {
-    const cls = "h-6 w-6";
-    switch (type) {
-        case "report": return <FileSpreadsheet className={cls} />;
-        case "audit": return <CheckCircle2 className={cls} />;
-        case "docs": return <FolderOpen className={cls} />;
-        case "access": return <Lock className={cls} />;
-        case "analytics": return <BarChart2 className={cls} />;
-        case "security": return <ShieldCheck className={cls} />;
-        default: return <Users className={cls} />;
-    }
-};
+const planCardIcons = [Target, CalendarRange];
+const planFeatureIcons = [ScanSearch, ClipboardList, CheckCircle2];
 
 const ValueIcon = ({ type }: { type: string }) => {
     const cls = "h-6 w-6";
@@ -421,27 +405,125 @@ export default function HomePage() {
                     </div>
                 </section>
 
-                <section className="relative overflow-hidden bg-[linear-gradient(135deg,#042f2e_0%,#0b3b36_35%,#0f766e_100%)] py-20 text-white sm:py-24">
+                <section className="relative overflow-hidden bg-[linear-gradient(135deg,#032a26_0%,#064e3b_42%,#0f766e_100%)] py-20 text-white sm:py-24">
                     <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] [background-size:72px_72px]" />
+                    <div className="absolute -right-10 top-10 h-56 w-56 rounded-full bg-amber-200/10 blur-3xl" />
+                    <div className="absolute left-0 bottom-0 h-64 w-64 rounded-full bg-emerald-200/10 blur-3xl" />
+
                     <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
-                        <div className="mb-12 max-w-3xl">
+                        <div className="mb-12 max-w-4xl">
                             <p className="text-sm font-black uppercase tracking-[0.24em] text-emerald-100/80">{t.capLabel}</p>
                             <h2 className="mt-4 font-display text-4xl font-black tracking-tight sm:text-5xl">{t.trustTitle}</h2>
+                            <p className="mt-5 max-w-3xl text-lg leading-8 text-emerald-50/82">
+                                {t.planShowcaseIntro}
+                            </p>
                         </div>
 
-                        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                            {t.pillars.map((p: any, i: number) => (
-                                <div
-                                    key={i}
-                                    className="rounded-[1.8rem] border border-white/10 bg-white/7 p-8 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:bg-white/10"
-                                >
-                                    <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border ${PILLAR_COLORS[i % PILLAR_COLORS.length]}`}>
-                                        <PillarIcon type={p.icon} />
+                        <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
+                            <div className="grid gap-6">
+                                {t.planCards.map((plan: any, index: number) => {
+                                    const Icon = planCardIcons[index] || ClipboardList;
+                                    return (
+                                        <div
+                                            key={plan.title}
+                                            className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.07))] p-8 shadow-[0_28px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl"
+                                        >
+                                            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                                                <div className="max-w-2xl">
+                                                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/10 px-4 py-2 text-sm font-bold uppercase tracking-[0.18em] text-emerald-50/90">
+                                                        <Icon className="h-4 w-4 text-amber-200" />
+                                                        {plan.badge}
+                                                    </div>
+                                                    <h3 className="font-display text-3xl font-black tracking-tight text-white">
+                                                        {plan.title}
+                                                    </h3>
+                                                    <p className="mt-4 text-lg leading-8 text-emerald-50/82">
+                                                        {plan.summary}
+                                                    </p>
+                                                </div>
+
+                                                <div className="min-w-[170px] rounded-[1.6rem] border border-emerald-200/15 bg-[#f8fafc] p-5 text-[var(--ink-900)] shadow-[0_16px_35px_rgba(15,23,42,0.16)]">
+                                                    <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--brand-700)]">
+                                                        {plan.metaLabel}
+                                                    </p>
+                                                    <p className="mt-3 font-display text-3xl font-black text-[var(--brand-900)]">
+                                                        {plan.metaValue}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-7 grid gap-4 md:grid-cols-3">
+                                                {plan.points.map((point: string, pointIndex: number) => {
+                                                    const FeatureIcon = planFeatureIcons[pointIndex] || CheckCircle2;
+                                                    return (
+                                                        <div
+                                                            key={point}
+                                                            className="rounded-[1.5rem] border border-white/10 bg-black/10 p-5"
+                                                        >
+                                                            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+                                                                <FeatureIcon className="h-5 w-5 text-amber-200" />
+                                                            </div>
+                                                            <p className="text-base font-semibold leading-7 text-emerald-50/90">
+                                                                {point}
+                                                            </p>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(3,7,18,0.22),rgba(15,23,42,0.3))] p-7 shadow-[0_30px_75px_rgba(0,0,0,0.2)] backdrop-blur-xl">
+                                <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
+                                    <div>
+                                        <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-100/75">
+                                            {t.planTimelineEyebrow}
+                                        </p>
+                                        <h3 className="mt-3 font-display text-3xl font-black text-white">
+                                            {t.planTimelineTitle}
+                                        </h3>
                                     </div>
-                                    <h3 className="text-2xl font-bold tracking-tight text-white">{p.title}</h3>
-                                    <p className="mt-4 text-lg leading-8 text-emerald-50/78">{p.body}</p>
+                                    <div className="rounded-2xl bg-amber-300 px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--ink-900)]">
+                                        {t.liveLabel}
+                                    </div>
                                 </div>
-                            ))}
+
+                                <p className="mt-5 text-base leading-7 text-emerald-50/78">
+                                    {t.planTimelineBody}
+                                </p>
+
+                                <div className="mt-8 space-y-4">
+                                    {t.planTimeline.map((item: any) => (
+                                        <div
+                                            key={item.phase}
+                                            className="rounded-[1.4rem] border border-white/10 bg-white/6 p-5"
+                                        >
+                                            <div className="flex items-center justify-between gap-3">
+                                                <h4 className="text-lg font-bold text-white">{item.phase}</h4>
+                                                <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-emerald-50/88">
+                                                    {item.period}
+                                                </span>
+                                            </div>
+                                            <p className="mt-3 text-base leading-7 text-emerald-50/78">
+                                                {item.body}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mt-8 flex flex-wrap gap-3">
+                                    {t.planVisibilityTags.map((tag: string) => (
+                                        <span
+                                            key={tag}
+                                            className="rounded-full border border-emerald-200/20 bg-white/10 px-4 py-2 text-sm font-semibold text-emerald-50/92"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>

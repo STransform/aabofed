@@ -12,6 +12,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 const NOTIFICATIONS_CACHE_KEY = 'armas_notifications_cache';
 const NOTIFICATIONS_CACHE_TTL_MS = 30 * 1000;
 const CURRENT_USER_CACHE_KEY = 'armas_current_user_cache';
+const CURRENT_USER_CACHE_TTL_MS = 5 * 60 * 1000;
 const LANGS = [
     { code: 'en' as Lang, label: 'English', flag: 'EN' },
     { code: 'am' as Lang, label: 'Amharic', flag: 'AM' },
@@ -46,6 +47,23 @@ function readFreshNotificationsCache(): {
             notifications: Array.isArray(cached.notifications) ? cached.notifications : [],
             unreadCount: typeof cached.unreadCount === 'number' ? cached.unreadCount : 0,
         };
+    } catch {
+        return null;
+    }
+}
+
+function readFreshCurrentUserCache(): CurrentUserSummary | null {
+    try {
+        const raw = sessionStorage.getItem(CURRENT_USER_CACHE_KEY);
+        if (!raw) return null;
+
+        const cached = JSON.parse(raw) as {
+            timestamp: number;
+            data: CurrentUserSummary;
+        };
+
+        if ((Date.now() - cached.timestamp) > CURRENT_USER_CACHE_TTL_MS) return null;
+        return cached.data || null;
     } catch {
         return null;
     }
@@ -100,20 +118,17 @@ export function Header() {
     const isManager = userRole === 'MANAGER';
 
     useEffect(() => {
-        try {
-            const raw = sessionStorage.getItem(CURRENT_USER_CACHE_KEY);
-            if (!raw) return;
-            const cached = JSON.parse(raw) as CurrentUserSummary;
-            setCurrentUser(cached);
-        } catch {
-            // Ignore broken cache and fetch fresh user info.
-        }
+        const cached = readFreshCurrentUserCache();
+        if (cached) setCurrentUser(cached);
     }, []);
 
     useEffect(() => {
         let cancelled = false;
 
         const loadCurrentUser = async () => {
+            const cached = readFreshCurrentUserCache();
+            if (cached) return;
+
             try {
                 const res = await axiosInstance.get('/users/me');
                 if (cancelled) return;
@@ -124,7 +139,10 @@ export function Header() {
                 };
                 setCurrentUser(nextUser);
                 try {
-                    sessionStorage.setItem(CURRENT_USER_CACHE_KEY, JSON.stringify(nextUser));
+                    sessionStorage.setItem(CURRENT_USER_CACHE_KEY, JSON.stringify({
+                        timestamp: Date.now(),
+                        data: nextUser,
+                    }));
                 } catch {
                     // Ignore storage failures.
                 }
