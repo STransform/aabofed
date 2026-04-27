@@ -8,18 +8,9 @@ import {
     Building2, Users, FileText, Calculator, Shell, Lock, CheckCircle,
     XOctagon, Clock, Edit3, UploadCloud, DownloadCloud, ClipboardList,
     LayoutDashboard, Filter, ShieldCheck, Briefcase, ChevronRight,
-    UserCog, Languages, Landmark, BadgeCheck
+    UserCog, Languages, BadgeCheck
 } from 'lucide-react';
 import { getMessages, type Lang } from '@/lib/messages';
-
-const roleColors: Record<string, { badge: string; dot: string }> = {
-    ADMIN: { badge: 'bg-sky-100 text-sky-800', dot: 'bg-sky-600' },
-    USER: { badge: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-600' },
-    ARCHIVER: { badge: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
-    SENIOR_AUDITOR: { badge: 'bg-violet-100 text-violet-800', dot: 'bg-violet-600' },
-    APPROVER: { badge: 'bg-rose-100 text-rose-800', dot: 'bg-rose-600' },
-    MANAGER: { badge: 'bg-cyan-100 text-cyan-800', dot: 'bg-cyan-600' },
-};
 
 export function Sidebar() {
     const { userRole } = useAuth();
@@ -108,15 +99,12 @@ export function Sidebar() {
         router.prefetch(href);
     }, [router]);
 
-    const roleInfo = roleColors[userRole || ''] || { badge: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500' };
-    const roleLabel = msgs.roles[userRole as keyof typeof msgs.roles] || userRole || 'Unknown';
-
     const renderSection = (title: string, items: { name: string; href: string; icon: any }[]) => {
         if (items.length === 0) return null;
         return (
             <section className="mb-7">
                 <div className="mb-3 px-4">
-                    <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--ink-400)]">
+                    <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-100/75">
                         {title}
                     </p>
                 </div>
@@ -132,17 +120,17 @@ export function Sidebar() {
                                     onMouseEnter={() => prefetchRoute(item.href)}
                                     onFocus={() => prefetchRoute(item.href)}
                                     className={`group mx-3 flex items-center justify-between rounded-2xl px-4 py-3.5 text-[15px] font-semibold transition-all duration-200 ${active
-                                        ? 'bg-[linear-gradient(135deg,#065f46_0%,#0f766e_100%)] text-white shadow-[0_18px_30px_rgba(6,95,70,0.22)]'
-                                        : 'text-[var(--ink-600)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-900)]'
+                                        ? 'border border-white/80 bg-white text-[var(--brand-800)] shadow-[0_18px_30px_rgba(0,0,0,0.18)]'
+                                        : 'border border-white/10 bg-white/10 text-white hover:border-white/20 hover:bg-white/14 hover:text-white hover:shadow-[0_10px_24px_rgba(0,0,0,0.12)]'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3.5">
-                                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? 'bg-white/10' : 'bg-white shadow-[0_6px_18px_rgba(15,23,42,0.06)]'}`}>
-                                            <Icon className={`h-5 w-5 ${active ? 'text-white' : 'text-[var(--brand-700)] group-hover:text-[var(--brand-800)]'}`} />
+                                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition ${active ? 'bg-emerald-50 ring-1 ring-emerald-100' : 'bg-white/12'}`}>
+                                            <Icon className={`h-5 w-5 ${active ? 'text-[var(--brand-800)]' : 'text-white'}`} />
                                         </div>
                                         <span className="leading-5">{item.name}</span>
                                     </div>
-                                    <ChevronRight className={`h-4 w-4 transition ${active ? 'translate-x-0 text-white/80' : 'text-[var(--ink-300)] group-hover:translate-x-0.5 group-hover:text-[var(--brand-700)]'}`} />
+                                    <ChevronRight className={`h-4 w-4 transition ${active ? 'translate-x-0.5 text-[var(--brand-800)]' : 'text-emerald-100/80 group-hover:translate-x-0.5 group-hover:text-white'}`} />
                                 </Link>
                             </li>
                         );
@@ -153,35 +141,15 @@ export function Sidebar() {
     };
 
     return (
-        <aside data-armas-shell="true" className="flex h-screen w-[320px] flex-col overflow-hidden border-r border-[var(--line-soft)] bg-[linear-gradient(180deg,#f8fffc_0%,#f3faf6_46%,#edf7f1_100%)] shadow-[18px_0_48px_rgba(15,23,42,0.06)]">
-            <div className="border-b border-[var(--line-soft)] px-5 py-5">
+        <aside data-armas-shell="true" className="flex h-screen w-[320px] flex-col overflow-hidden border-r border-emerald-950/20 bg-[linear-gradient(180deg,#064e3b_0%,#065f46_46%,#0f766e_100%)] shadow-[18px_0_48px_rgba(15,23,42,0.18)]">
+            <div className="border-b border-white/10 px-5 py-5">
                 <div className="flex items-center gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#064e3b_0%,#0f766e_100%)] shadow-[0_18px_30px_rgba(6,95,70,0.2)]">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/12 shadow-[0_18px_30px_rgba(6,95,70,0.2)]">
                         <ShieldCheck className="h-7 w-7 text-white" />
                     </div>
                     <div>
-                        <p className="font-display text-2xl font-black tracking-tight text-[var(--ink-900)]">ARMAS</p>
-                        <p className="text-xs font-bold uppercase tracking-[0.28em] text-[var(--ink-500)]">{msgs.logoSub}</p>
-                    </div>
-                </div>
-
-                <div className="mt-5 rounded-3xl border border-[var(--line-soft)] bg-white p-4 shadow-[0_12px_24px_rgba(15,23,42,0.05)]">
-                    <div className="flex items-start justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--ink-400)]">{msgs.institutionLabel}</p>
-                            <p className="mt-2 text-lg font-bold text-[var(--ink-900)]">{msgs.institutionName}</p>
-                            <p className="mt-1 text-sm text-[var(--ink-500)]">{msgs.institutionSub}</p>
-                        </div>
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--surface-2)] text-[var(--brand-800)]">
-                            <Landmark className="h-5 w-5" />
-                        </div>
-                    </div>
-
-                    <div className="mt-4 flex items-center gap-2">
-                        <span className={`h-2.5 w-2.5 rounded-full ${roleInfo.dot}`} />
-                        <span className={`inline-flex rounded-full px-3 py-1.5 text-sm font-bold ${roleInfo.badge}`}>
-                            {roleLabel}
-                        </span>
+                        <p className="font-display text-2xl font-black tracking-tight text-white">ARMAS</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.28em] text-emerald-100/80">{msgs.logoSub}</p>
                     </div>
                 </div>
             </div>
@@ -207,14 +175,14 @@ export function Sidebar() {
                 {advancedFiltersItem.length > 0 && renderSection(s.reporting, advancedFiltersItem)}
             </nav>
 
-            <div className="border-t border-[var(--line-soft)] px-5 py-4">
-                <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_10px_20px_rgba(15,23,42,0.04)]">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--surface-2)] text-[var(--brand-800)]">
+            <div className="border-t border-white/10 px-5 py-4">
+                <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 shadow-[0_10px_20px_rgba(15,23,42,0.08)]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/12 text-white">
                         <BadgeCheck className="h-5 w-5" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-[var(--ink-800)]">{msgs.integrityTitle}</p>
-                        <p className="text-xs text-[var(--ink-500)]">{msgs.footer}</p>
+                        <p className="text-sm font-bold text-white">{msgs.integrityTitle}</p>
+                        <p className="text-xs text-emerald-100/75">{msgs.footer}</p>
                     </div>
                 </div>
             </div>

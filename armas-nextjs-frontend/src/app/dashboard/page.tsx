@@ -20,7 +20,7 @@ import {
 } from 'recharts';
 import { getMessages, type Lang } from '@/lib/messages';
 import { preloadTranslations } from '@/hooks/useTranslation';
-import { Building2, Users, FileText, CalendarRange, TrendingUp, BadgeCheck } from 'lucide-react';
+import { Building2, Users, FileText, CalendarRange } from 'lucide-react';
 
 const EMPTY_GLOBAL_STATS = {
     totalOrganizations: 0,
@@ -31,7 +31,7 @@ const EMPTY_GLOBAL_STATS = {
 const COLORS = ['#0f766e', '#d97706'];
 
 export default function Dashboard() {
-    const { isAuthenticated, userRole } = useAuth();
+    const { isAuthenticated } = useAuth();
 
     const [globalStats, setGlobalStats] = useState(EMPTY_GLOBAL_STATS);
     const [budgetYears, setBudgetYears] = useState<any[]>([]);
@@ -175,53 +175,13 @@ export default function Dashboard() {
                 <Header />
                 <main className="flex-1 overflow-y-auto">
                     <div className="mx-auto max-w-[1440px] px-6 py-8">
-                        <section className="overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#042f2e_0%,#065f46_48%,#0f766e_100%)] px-8 py-8 text-white shadow-[0_28px_80px_rgba(6,95,70,0.24)]">
-                            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-                                <div>
-                                    <p className="text-sm font-black uppercase tracking-[0.24em] text-emerald-100/80">{msgs.dashboard.execOverview}</p>
-                                    <h1 className="mt-4 font-display text-4xl font-black tracking-tight sm:text-5xl">
-                                        {msgs.dashboard.welcome}, {userRole}
-                                    </h1>
-                                    <p className="mt-5 max-w-3xl text-lg leading-8 text-emerald-50/85">
-                                        {msgs.dashboard.heroBody}
-                                    </p>
-                                </div>
-
-                                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                                    <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur-sm">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12">
-                                                <TrendingUp className="h-6 w-6 text-amber-200" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-100/70">{msgs.dashboard.monitoringFocus}</p>
-                                                <p className="text-lg font-bold text-white">{msgs.dashboard.fiscalAnalysis}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur-sm">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12">
-                                                <BadgeCheck className="h-6 w-6 text-emerald-100" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-100/70">{msgs.dashboard.statusLabel}</p>
-                                                <p className="text-lg font-bold text-white">{msgs.dashboard.liveAnalytics}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
                         {error && budgetYears.length === 0 && (
-                            <div className="mt-6 rounded-3xl border border-rose-200 bg-rose-50 px-6 py-5 text-base font-semibold text-rose-700">
+                            <div className="rounded-3xl border border-rose-200 bg-rose-50 px-6 py-5 text-base font-semibold text-rose-700">
                                 {error}
                             </div>
                         )}
 
-                        <section className="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+                        <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
                             <div className="grid gap-6 md:grid-cols-3">
                                 {statCards.map(({ title, value, icon: Icon, tone, surface, text }) => (
                                     <div

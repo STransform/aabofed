@@ -159,9 +159,9 @@ export function NoticeFeed() {
     };
 
     const renderComments = (comments: NoticeComment[], depth = 0) => (
-        <div className={`space-y-3 ${depth > 0 ? 'ml-6 border-l border-slate-200 pl-4' : ''}`}>
+        <div className={`space-y-3 ${depth > 0 ? 'ml-6 border-l border-emerald-100 pl-4' : ''}`}>
             {comments.map(comment => (
-                <div key={comment.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div key={comment.id} className="rounded-[1.4rem] border border-[var(--line-soft)] bg-[var(--surface-1)] p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
                     <div className="flex flex-wrap items-center gap-2 text-sm">
                         <span className="font-semibold text-slate-900">{comment.authorDisplayName || comment.authorUsername}</span>
                         <span className="text-slate-400">@{comment.authorUsername}</span>
@@ -176,7 +176,7 @@ export function NoticeFeed() {
                             className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
                                 comment.currentUserReaction === 'LIKE'
                                     ? 'bg-emerald-100 text-emerald-700'
-                                    : 'bg-white text-slate-600 hover:bg-slate-100'
+                                    : 'bg-white text-slate-600 hover:bg-emerald-50'
                             } disabled:cursor-not-allowed disabled:opacity-60`}
                         >
                             <ThumbsUp className="h-4 w-4" />
@@ -188,7 +188,7 @@ export function NoticeFeed() {
                             className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
                                 comment.currentUserReaction === 'DISLIKE'
                                     ? 'bg-rose-100 text-rose-700'
-                                    : 'bg-white text-slate-600 hover:bg-slate-100'
+                                    : 'bg-white text-slate-600 hover:bg-rose-50'
                             } disabled:cursor-not-allowed disabled:opacity-60`}
                         >
                             <ThumbsDown className="h-4 w-4" />
@@ -197,7 +197,7 @@ export function NoticeFeed() {
                         {isAuthenticated && (
                             <button
                                 onClick={() => setReplyOpen(prev => ({ ...prev, [comment.id]: !prev[comment.id] }))}
-                                className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                                className="inline-flex items-center gap-1 text-sm font-medium text-[var(--brand-700)] hover:text-[var(--brand-800)]"
                             >
                                 <Reply className="h-4 w-4" />
                                 Reply
@@ -210,13 +210,13 @@ export function NoticeFeed() {
                                 value={replyDrafts[comment.id] || ''}
                                 onChange={(e) => setReplyDrafts(prev => ({ ...prev, [comment.id]: e.target.value }))}
                                 rows={3}
-                                className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
+                                className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
                                 placeholder="Write a reply..."
                             />
                             <div className="flex justify-end">
                                 <button
                                     onClick={() => submitReply(comment.id)}
-                                    className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                                    className="rounded-lg bg-[var(--brand-900)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--brand-700)]"
                                 >
                                     Post Reply
                                 </button>
@@ -231,7 +231,7 @@ export function NoticeFeed() {
 
     if (loading) {
         return (
-            <section className="py-16 px-5 sm:px-8 bg-white border-b border-slate-100">
+            <section className="border-b border-[var(--line-soft)] bg-[linear-gradient(180deg,#ffffff_0%,#f7fbf8_100%)] px-5 py-16 sm:px-8">
                 <div className="mx-auto max-w-7xl text-center text-slate-500">Loading notices...</div>
             </section>
         );
@@ -242,15 +242,17 @@ export function NoticeFeed() {
     }
 
     return (
-        <section className="py-20 px-5 sm:px-8 bg-white border-b border-slate-100">
+        <section className="border-b border-[var(--line-soft)] bg-[linear-gradient(180deg,#ffffff_0%,#f7fbf8_100%)] px-5 py-20 sm:px-8">
             <div className="mx-auto max-w-7xl">
-                <div className="mb-10 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#003580] text-white shadow-lg">
+                <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#064e3b_0%,#0f766e_100%)] text-white shadow-lg">
                         <Megaphone className="h-6 w-6" />
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#003580]">Notice Board</p>
-                        <h2 className="text-3xl font-extrabold text-slate-900">Latest Notices</h2>
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--brand-700)]">Notice Board</p>
+                            <h2 className="text-3xl font-extrabold text-slate-900">Latest Notices</h2>
+                        </div>
                     </div>
                 </div>
 
@@ -258,13 +260,13 @@ export function NoticeFeed() {
 
                 <div className="space-y-8">
                     {notices.map(notice => (
-                        <article key={notice.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-sm">
-                            <div className="border-b border-slate-200 bg-white px-6 py-5">
+                        <article key={notice.id} className="overflow-hidden rounded-[2rem] border border-[var(--line-soft)] bg-white shadow-[0_24px_60px_rgba(15,23,42,0.06)]">
+                            <div className="border-b border-[var(--line-soft)] bg-white px-6 py-6">
                                 <div className="flex flex-wrap items-center gap-3">
                                     {notice.categories.map((category) => (
                                         <span
                                             key={`${notice.id}-${category}`}
-                                            className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-indigo-700"
+                                            className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800"
                                         >
                                             {category}
                                         </span>
@@ -286,7 +288,7 @@ export function NoticeFeed() {
                                         className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition ${
                                             notice.currentUserReaction === 'LIKE'
                                                 ? 'bg-emerald-100 text-emerald-700'
-                                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                                : 'bg-slate-100 text-slate-700 hover:bg-emerald-50'
                                         } disabled:cursor-not-allowed disabled:opacity-60`}
                                     >
                                         <ThumbsUp className="h-4 w-4" />
@@ -298,7 +300,7 @@ export function NoticeFeed() {
                                         className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition ${
                                             notice.currentUserReaction === 'DISLIKE'
                                                 ? 'bg-rose-100 text-rose-700'
-                                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                                : 'bg-slate-100 text-slate-700 hover:bg-rose-50'
                                         } disabled:cursor-not-allowed disabled:opacity-60`}
                                     >
                                         <ThumbsDown className="h-4 w-4" />
@@ -308,7 +310,7 @@ export function NoticeFeed() {
                             </div>
 
                             {notice.attachments.length > 0 && (
-                                <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+                                <div className="border-b border-[var(--line-soft)] bg-[var(--surface-1)] px-6 py-4">
                                     <p className="mb-3 text-sm font-semibold text-slate-800">Attachments</p>
                                     <div className="flex flex-wrap gap-3">
                                         {notice.attachments.map(attachment => (
@@ -316,7 +318,7 @@ export function NoticeFeed() {
                                                 key={attachment.id}
                                                 onClick={() => downloadAttachment(attachment)}
                                                 disabled={!isAuthenticated}
-                                                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:border-emerald-300 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                                             >
                                                 <Download className="h-4 w-4" />
                                                 {attachment.fileName}
@@ -329,7 +331,7 @@ export function NoticeFeed() {
                                 </div>
                             )}
 
-                            <div className="px-6 py-5 bg-white">
+                            <div className="bg-white px-6 py-5">
                                 <div className="mb-4 flex items-center gap-2">
                                     <MessageSquare className="h-5 w-5 text-slate-500" />
                                     <h4 className="text-lg font-bold text-slate-900">Discussion</h4>
@@ -341,13 +343,13 @@ export function NoticeFeed() {
                                             value={commentDrafts[notice.id] || ''}
                                             onChange={(e) => setCommentDrafts(prev => ({ ...prev, [notice.id]: e.target.value }))}
                                             rows={3}
-                                            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-indigo-500"
+                                            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-emerald-500"
                                             placeholder="Share your comment on this notice..."
                                         />
                                         <div className="flex justify-end">
                                             <button
                                                 onClick={() => submitComment(notice.id)}
-                                                className="rounded-xl bg-[#003580] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0057c2]"
+                                                className="rounded-xl bg-[var(--brand-900)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-700)]"
                                             >
                                                 Post Comment
                                             </button>
