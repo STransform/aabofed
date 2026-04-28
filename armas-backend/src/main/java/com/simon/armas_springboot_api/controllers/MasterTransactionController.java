@@ -631,7 +631,7 @@ public class MasterTransactionController {
     }
 
     @GetMapping("/organizations-with-reports")
-    @PreAuthorize("hasAnyRole('SENIOR_AUDITOR', 'APPROVER','ADMIN')")
+    @PreAuthorize("hasAnyRole('ARCHIVER', 'SENIOR_AUDITOR', 'APPROVER', 'ADMIN')")
     public ResponseEntity<List<Organization>> getAllOrganizationsWithReports() {
         List<Organization> organizations = masterTransactionService.getAllOrganizationsWithReports();
         return ResponseEntity.ok(organizations);

@@ -57,22 +57,31 @@ export default function AdvancedFiltersPage() {
 
     const fetchBaselineData = async () => {
         setLoading(true);
+        setError(null);
         try {
-            const [docs, years, orgs] = await Promise.all([
+            const [docsResult, yearsResult, orgsResult] = await Promise.allSettled([
                 getDocuments(),
                 getBudgetYears(),
                 axiosInstance.get('/transactions/organizations-with-reports').then(r => r.data)
             ]);
 
-            const docsArr = Array.isArray(docs) ? docs : [];
-            const yearsArr = Array.isArray(years) ? years : [];
+            const docsArr =
+                docsResult.status === 'fulfilled' && Array.isArray(docsResult.value) ? docsResult.value : [];
+            const yearsArr =
+                yearsResult.status === 'fulfilled' && Array.isArray(yearsResult.value) ? yearsResult.value : [];
+            const orgsArr =
+                orgsResult.status === 'fulfilled' && Array.isArray(orgsResult.value) ? orgsResult.value : [];
 
             setDocuments(docsArr);
             setBudgetYears(yearsArr);
-            setOrganizations(Array.isArray(orgs) ? orgs : []);
+            setOrganizations(orgsArr);
 
             if (docsArr.length > 0) setReportype(docsArr[0].reportype || '');
             if (yearsArr.length > 0) setFiscalYear(yearsArr[0].fiscalYear || yearsArr[0].fiscal_year || '');
+
+            if (docsArr.length === 0 || yearsArr.length === 0 || orgsArr.length === 0) {
+                setError('Some filter data could not be loaded completely.');
+            }
         } catch (err: any) {
             setError('Failed to fetch baseline configuration data.');
         } finally {
